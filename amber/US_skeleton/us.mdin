@@ -1,0 +1,27 @@
+protein us
+ &cntrl
+  plumed=1,
+  plumedfile='plumed.dat',
+  imin=0,
+  ntx=1,        ! veloc random
+  irest=0,      ! Restart calculation
+  ntc=2,
+  ntf=2,
+  nstlim=50000000, ! Number of MD steps, this one is 10ns
+  ntt=3,
+  gamma_ln=1.0,
+  ig=-1,
+  tempi=310, ! because need random veloc
+  temp0=310.0,
+  ntpr=1000,
+  ntwr=10000,
+  ntwx=1000,
+  dt=0.002,
+  ntb=2,        ! Constant pressure periodic boundary conditions
+  ntp=1,        ! isotropic pressure coupling
+  taup=1.0,     ! Pressure relaxation time (ps)
+  barostat=2,   ! Monte Carlo barostat
+  cut=8.0,
+  ioutfm=1,
+  ntxo=2,
+ /

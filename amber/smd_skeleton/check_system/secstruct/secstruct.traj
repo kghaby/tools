@@ -1,0 +1,17 @@
+parm ../../../../build/system.parm7
+trajin ../../smd.nc
+secstruct structure :1-266 out dssp.gnu nameh HN
+
+
+go
+
+create avgss.dat structure[avgss]
+create alpha.dat structure[Alpha]
+create none.dat structure[None]
+create extended.dat	structure[Extended]
+create bridge.dat	structure[Bridge]
+create 3-10.dat	structure[3-10]
+create pi.dat structure[Pi]
+create turn.dat structure[Turn]
+create bend.dat structure[Bend]
+create all.dat  structure[Alpha] structure[None] structure[Extended] structure[Bridge] structure[3-10] structure[Pi] structure[Turn] structure[Bend] 
