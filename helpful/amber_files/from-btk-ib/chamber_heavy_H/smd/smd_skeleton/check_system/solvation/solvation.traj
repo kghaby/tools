@@ -1,0 +1,3 @@
+parm ../../../../build/system.parm7
+trajin ../../smd.nc
+watershell :267 out solvation.dat 

@@ -1,0 +1,4 @@
+#!/bin/bash 
+
+awk '{delta=$2; avg+=$2/NR;} END {print "stdev = " sqrt(((delta-avg)^2)/NR);}' alpha.dat > alpha.mon.stdev.dat
+

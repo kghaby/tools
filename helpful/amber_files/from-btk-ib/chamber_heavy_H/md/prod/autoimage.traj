@@ -1,0 +1,4 @@
+parm ~/scratch-midway2/projects/btk+ib/amber/chamber_heavy_H/build/system.parm7
+trajin prod.nc
+autoimage :1-267 
+trajout prod_autoimaged.nc

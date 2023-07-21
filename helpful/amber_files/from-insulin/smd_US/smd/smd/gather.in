@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e 
+
+#this is to gather info from outputs 
+
+#awk '/NSTEP/ { print $3 }; $1=="A" && $2=="V" {exit 0}' smd.out > restraint.dat #nstep
+awk '/RESTRAINT/ { print $9 }; $1=="A" && $2=="V" {exit 0}' smd.out > restraint.dat #restraint 
+awk '/Etot/ {print $3}; ($1=="A" && $2=="V") {exit 0};' smd.out > etot.dat
+

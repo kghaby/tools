@@ -1,0 +1,11 @@
+For pdbs
+	remove hydrogens (reduce -Trim 3aiy.pdb > 3aiy_noh.pdb)  
+	remove phenols 
+	remove conect for phenols
+	change CYS to CYX 
+	put terminal lines in packmol output pdb since packmol fuses chains
+		just search for OXT (term oxygen)
+
+command to do between packmol and tleap
+	pdb4amber -i [packmol output].pdb -o [input for tleap].pdb
+	DONT DO THIS COMMAND ANYMORE

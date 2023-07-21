@@ -1,0 +1,4 @@
+#!/bin/bash 
+
+awk '{ sum += $2; n++ } END { if (n > 0) print sum / n; }' prod.mono.radgyr.conv.out > rog.mono.avg.dat
+awk '{delta=$2; avg+=$2/NR;} END {print "stdev = " sqrt(((delta-avg)^2)/NR);}' prod.mono.radgyr.conv.out > rog.mono.stdev.dat

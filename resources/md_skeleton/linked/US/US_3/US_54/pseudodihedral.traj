@@ -1,0 +1,4 @@
+parm ../../prep/BTK_IB_l_nobadwater.parm7
+trajin US_54.nc
+dihedral :IB@OAC :IB@CAW :IB@NBF :IB@C4 out pseudodihedral.dat
+go

@@ -1,0 +1,124 @@
+#!/bin/bash
+set -e 
+
+#using 1M (high) conc for ILs
+#used 1us for wat and 500ns for IL
+
+
+
+#wat_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/secstruct_1us/all.dat > alpha+310hel_wat253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/secstruct_1us/all.dat > alpha+310hel_wat294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/secstruct_1us/all.dat > alpha+310hel_wat310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/secstruct_1us/all.dat > alpha+310hel_wat350.dat
+
+#CAGE_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/all.dat > alpha+310hel_CAGE253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/all.dat > alpha+310hel_CAGE294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/all.dat > alpha+310hel_CAGE310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/all.dat > alpha+310hel_CAGE350.dat
+
+#AAGE_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/all.dat > alpha+310hel_AAGE253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/all.dat > alpha+310hel_AAGE294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/all.dat > alpha+310hel_AAGE310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/all.dat > alpha+310hel_AAGE350.dat
+
+#EMIM_TFN_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/253K/converged_analysis/all.dat > alpha+310hel_et253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/294K/converged_analysis/all.dat > alpha+310hel_et294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/310K/converged_analysis/all.dat > alpha+310hel_et310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/350K/converged_analysis/all.dat > alpha+310hel_et350.dat
+
+#EMIM_Cl_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/253K/converged_analysis/all.dat > alpha+310hel_ec253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/294K/converged_analysis/all.dat > alpha+310hel_ec294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/310K/converged_analysis/all.dat > alpha+310hel_ec310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/350K/converged_analysis/all.dat > alpha+310hel_ec350.dat
+
+#K_TFN_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/253K/converged_analysis/all.dat > alpha+310hel_kt253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/294K/converged_analysis/all.dat > alpha+310hel_kt294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/310K/converged_analysis/all.dat > alpha+310hel_kt310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/350K/converged_analysis/all.dat > alpha+310hel_kt350.dat
+
+#K_Cl_sum
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/253K/converged_analysis/all.dat > alpha+310hel_kc253.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/294K/converged_analysis/all.dat > alpha+310hel_kc294.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/310K/converged_analysis/all.dat > alpha+310hel_kc310.dat
+awk 'NR>1 {print $2+$6}' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/350K/converged_analysis/all.dat > alpha+310hel_kc350.dat
+
+
+
+
+#wat_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_wat253.dat >> totalhelavg_wat.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_wat294.dat >> totalhelavg_wat.dat 
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_wat310.dat >> totalhelavg_wat.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_wat350.dat >> totalhelavg_wat.dat
+
+#CAGE_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_CAGE253.dat >> totalhelavg_CAGE.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_CAGE294.dat >> totalhelavg_CAGE.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_CAGE310.dat >> totalhelavg_CAGE.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_CAGE350.dat >> totalhelavg_CAGE.dat
+
+#mCAGE_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_AAGE253.dat >> totalhelavg_AAGE.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_AAGE294.dat >> totalhelavg_AAGE.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_AAGE310.dat >> totalhelavg_AAGE.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_AAGE350.dat >> totalhelavg_AAGE.dat
+
+#EMIM_TFN_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_et253.dat >> totalhelavg_et.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_et294.dat >> totalhelavg_et.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_et310.dat >> totalhelavg_et.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_et350.dat >> totalhelavg_et.dat
+
+#EMIM_Cl_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_ec253.dat >> totalhelavg_ec.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_ec294.dat >> totalhelavg_ec.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_ec310.dat >> totalhelavg_ec.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_ec350.dat >> totalhelavg_ec.dat
+
+#K_TFN_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kt253.dat >> totalhelavg_kt.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kt294.dat >> totalhelavg_kt.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kt310.dat >> totalhelavg_kt.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kt350.dat >> totalhelavg_kt.dat
+
+#K_Cl_totalhel
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kc253.dat >> totalhelavg_kc.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kc294.dat >> totalhelavg_kc.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kc310.dat >> totalhelavg_kc.dat
+./../../../analysis_scripts/avg_sterror 1 alpha+310hel_kc350.dat >> totalhelavg_kc.dat
+
+
+
+gnuplot -persist << EOF
+	
+#total
+	set term x11 0	
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Total-Helicity'  
+	set key b l
+        #set yrange [0:1]
+        set title 'Total Helicity of Monomer Over Temperatures' 
+	set xrange [252:351]
+	temperature = "253 294 310 350"
+	set bars 4
+plot "totalhelavg_wat.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "Water" linestyle 1, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 1 notitle,\
+"totalhelavg_CAGE.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 2 notitle,\
+"totalhelavg_AAGE.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "mCAGE" linestyle 3, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 3 notitle,\
+"totalhelavg_et.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_TFN" linestyle 4, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 4 notitle,\
+"totalhelavg_ec.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_Cl" linestyle 5, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 5 notitle,\
+"totalhelavg_kt.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_TFN" linestyle 6, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 6 notitle,\
+"totalhelavg_kc.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints  title "K_Cl" linestyle 7, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 7 notitle 
+
+	pause -1
+
+EOF
+
+rm totalhelavg_*.dat
+rm alpha+310hel_*.dat

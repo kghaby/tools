@@ -1,0 +1,159 @@
+#!/bin/bash
+set -e 
+
+#/scratch/ksg225/projects/insulin/insAB/monomer_*/*M/simulation/4-prod/*K/converged_analysis/sre_analysis/rdf/rdf_ions_SRE*
+#/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA
+
+
+#CAGEA
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_CAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_CAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_CAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_CAGE_A
+
+#AAGE-A ie mCAGE-A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+
+#etA
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_et_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_et_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_et_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_et_A
+
+#ecA
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_ec_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_ec_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_ec_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_ec_A
+
+#ktA
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kt_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kt_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kt_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kt_A
+
+#kcA
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kc_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kc_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kc_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_kc_A
+
+
+
+#CAGEB
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_CAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_CAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_CAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_CAGE_B
+
+#AAGE-B ie mCAGE-B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+
+#etB
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_et_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_et_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_et_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_et_B
+
+#ecB
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_ec_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_ec_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_ec_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_ec_B
+
+#ktB
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kt_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kt_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kt_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kt_B
+
+#kcB
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kc_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kc_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kc_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_kc_B
+
+#AAGEA diff temps
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA > srerdfmaxdist_sremax_AAGE_A_253K
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA > srerdfmaxdist_sremax_AAGE_A_294K
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA > srerdfmaxdist_sremax_AAGE_A_310K
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA > srerdfmaxdist_sremax_AAGE_A_350K
+
+#AAGEB diff temps
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB > srerdfmaxdist_sremax_AAGE_B_253K
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB > srerdfmaxdist_sremax_AAGE_B_294K
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB > srerdfmaxdist_sremax_AAGE_B_310K
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB > srerdfmaxdist_sremax_AAGE_B_350K
+
+
+gnuplot -persist << EOF
+
+#getting rid of first buggy window
+	set term x11 1
+	temperature = "253 294 310 350"
+	plot\
+"srerdfmaxdist_sremax_CAGE_A"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2
+
+
+#B
+        set term x11 2
+        set title 'Likely Distance of Ionic Liquids from SRE-A vs Relative Binding Energy'   
+        set xlabel 'Likely Distance of Ionic Liquids from SRE-A (A)'
+        set ylabel 'dG/RT (A.U.)'  
+        set key t r
+	set xrange [253:350]
+        plot\
+"srerdfmaxdist_sremax_CAGE_B"  using 1:(-log(column(2))) with linespoints title "CAGE" linestyle 1,\
+"srerdfmaxdist_sremax_AAGE_B"  using 1:(-log(column(2))) with linespoints title "mCAGE" linestyle 3,\
+"srerdfmaxdist_sremax_et_B"   using  1:(-log(column(2))) with linespoints title "[EMIM][TFN]" linestyle 4,\
+"srerdfmaxdist_sremax_ec_B"   using 1:(-log(column(2))) with linespoints title "[EMIM][Cl]" linestyle 5,\
+"srerdfmaxdist_sremax_kt_B"   using 1:(-log(column(2))) with linespoints title "[K][TFN]" linestyle 6,\
+"srerdfmaxdist_sremax_kc_B"   using 1:(-log(column(2))) with linespoints  title "[K][Cl]" linestyle 7
+
+#A
+        set term x11 3
+        set title 'Likely Distance of Ionic Liquids from SRE-A vs Relative Binding Energy'   
+        set xlabel 'Likely Distance of Ionic Liquids from SRE-A (A)'
+        set ylabel 'dG/RT (A.U.)'  
+	set key t r
+        plot\
+"srerdfmaxdist_sremax_CAGE_A"  using 1:(-log(column(2))) with linespoints title "CAGE" linestyle 1,\
+"srerdfmaxdist_sremax_AAGE_A"  using 1:(-log(column(2))) with linespoints title "mCAGE" linestyle 3,\
+"srerdfmaxdist_sremax_et_A"   using  1:(-log(column(2))) with linespoints title "[EMIM][TFN]" linestyle 4,\
+"srerdfmaxdist_sremax_ec_A"   using 1:(-log(column(2))) with linespoints title "[EMIM][Cl]" linestyle 5,\
+"srerdfmaxdist_sremax_kt_A"   using 1:(-log(column(2))) with linespoints title "[K][TFN]" linestyle 6,\
+"srerdfmaxdist_sremax_kc_A"   using 1:(-log(column(2))) with linespoints  title "[K][Cl]" linestyle 7
+
+#AAGE A
+        set term x11 4
+        set title 'Likely Distance of mCAGE from SRE-A vs Relative Binding Energy'   
+        set xlabel 'Likely Distance of mCAGE from SRE-A (A)'
+        set ylabel 'dG/RT (A.U.)'  
+        set key t r
+	set key off
+        plot\
+"srerdfmaxdist_sremax_AAGE_A"  using 1:(-log(column(2))) with linespoints title "" linestyle 1
+
+#AAGE B
+        set term x11 4
+        set title 'Likely Distance of mCAGE from SRE-B vs Relative Binding Energy'   
+        set xlabel 'Likely Distance of mCAGE from SRE-B (A)'
+        set ylabel 'dG/RT (A.U.)'  
+        set key t r
+        plot\
+"srerdfmaxdist_sremax_AAGE_B"  using 1:(-log(column(2))) with linespoints title "" linestyle 1
+
+	pause -1
+
+EOF
+
+rm srerdfmaxdist_sremax_*
+                               
+
+

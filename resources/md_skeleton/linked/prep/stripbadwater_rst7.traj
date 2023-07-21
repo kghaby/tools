@@ -1,0 +1,8 @@
+parm ../../../build/BTK_IB_l.parm7
+trajin ../../../build/BTK_IB_l.rst7
+reference ../../../build/BTK_IB_l.rst7 1
+
+strip (:IB<:5)&:WAT&!(:268-442)
+
+trajout BTK_IB_l_nobadwater.rst7
+go

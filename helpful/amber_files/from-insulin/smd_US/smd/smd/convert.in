@@ -1,0 +1,5 @@
+parm ../../../../../tleap/sys.parm7
+trajin smd.nc
+trajout smd.crd
+
+#cpptraj -p ../../../../../tleap/sys.parm7 -y smd.rst7 -x readable_smd.rst7

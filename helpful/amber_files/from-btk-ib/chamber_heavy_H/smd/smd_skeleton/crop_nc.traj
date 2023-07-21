@@ -1,0 +1,5 @@
+parm ../../build/system.parm7
+trajin smd.nc
+trajout smd_100ns.nc onlyframes 1-5000
+go 
+

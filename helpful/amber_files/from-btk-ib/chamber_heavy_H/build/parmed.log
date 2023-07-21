@@ -1,0 +1,19 @@
+# Log started on 01/07/2021 [mm/dd/yyyy] at 17:34:52
+q
+quit
+# Log started on 01/07/2021 [mm/dd/yyyy] at 17:36:54
+chamber -param par_all36m_prot.prm -param toppar_water_ions.prm -str ib.str -psf system.psf -crd lastframeMD2.pdb -box 83.947,83.947,83.947
+chamber -param par_all36m_prot.prm -param toppar_water_ions.prm -str ib.str -psf system.psf -crd lastframeMD2.pdb -box 83.947,83.947,83.947
+quit
+# Log started on 01/07/2021 [mm/dd/yyyy] at 17:40:39
+chamber -param par_all36m_prot.prm -param toppar_water_ions.prm -str ib.str -psf system.psf -crd lastframeMD2.pdb -box 83.947,83.947,83.947
+HMassRepartition
+outparm system.parm7 system.rst7
+outparm system.parm7 system.rst7
+quit
+# Log started on 01/07/2021 [mm/dd/yyyy] at 18:33:59
+parm system_lightH.parm7
+loadRestrt system_lightH.rst7
+HMassRepartition
+outparm system.parm7 system.rst7
+quit

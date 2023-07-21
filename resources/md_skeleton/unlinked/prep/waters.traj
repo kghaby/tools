@@ -1,0 +1,6 @@
+parm /beagle3/roux/kyleghaby/kininhibs/main/BTK1_IB/md_1/linked/prep/BTK_IB_l_nobadwater.parm7
+trajin BTK_IB_l_nobadwater.rst7
+reference /beagle3/roux/kyleghaby/kininhibs/main/BTK1_IB/md_1/linked/prep/BTK_IB_l_nobadwater.rst7  1
+
+watershell :IB@OAC out waters.dat !(:268-442)&(:WAT) 
+go

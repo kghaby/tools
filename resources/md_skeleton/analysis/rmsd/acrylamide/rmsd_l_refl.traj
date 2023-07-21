@@ -1,0 +1,30 @@
+parm ../../../linked/amber/step3_charmm2amber_hmr.parm7 [linked]
+parm ../../xtal/5P9J_reres_noaltloc.pdb [xtal]
+trajin ../../../linked/amber/step5_1_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_2_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_3_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_4_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_5_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_6_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_7_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_8_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_9_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_10_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_11_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_12_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_13_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_14_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_15_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_16_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_17_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_18_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_19_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_20_hmr.nc parm [linked]
+trajin ../../../linked/amber/step5_21_hmr.nc parm [linked]
+autoimage
+reference ../../xtal/5P9J_reres_noaltloc.pdb parm [xtal] [xtalcoords]
+reference ../../../linked/amber/step5_1_hmr.nc 1 parm [linked] [linkedcoords]
+crdaction [linkedcoords] rmsd l_xtal_align (:2-87,89-159,163-265)&(@CA,C,O,N) (:2-87,89-262)&(@CA,C,O,N) ref [xtalcoords] mass
+rmsd rmsd_l_refl_prot (:2-87,89-159,163-265)&(@CA,C,O,N) (:2-87,89-262)&(@CA,C,O,N) out rmsd_l_refl_prot.dat ref [xtalcoords] mass
+rmsd rmsd_l_refl_lig :IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE :IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE nofit out rmsd_l_refl_lig.dat ref [linkedcoords] mass
+go

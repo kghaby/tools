@@ -1,0 +1,15 @@
+Minimization
+ &cntrl
+  imin=1,       ! Minimize the initial structure
+  maxcyc=10000, ! Maximum number of cycles for minimization
+  ncyc=2500,
+  ntb=1,        ! Constant volume
+  ntwx=100,     ! write coordinates after this many steps
+  ntp=0,        ! No pressure scaling
+  ntf=2,        ! Complete force evaluation
+  ntc=2,        ! SHAKE
+  ntpr=50,      ! Print to mdout every ntpr steps
+  ntwr=100,    ! Write a restart file every ntwr steps
+  cut=8.0,     ! Nonbonded cutoff in Angstroms
+ &end  ! signify that theres no more variables to set 
+/

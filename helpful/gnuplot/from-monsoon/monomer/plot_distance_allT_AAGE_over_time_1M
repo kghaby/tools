@@ -1,0 +1,65 @@
+#!/bin/bash
+set -e 
+#/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/*K/converged_analysis
+
+gnuplot -persist << EOF
+
+#B26(Ca)-B12(Ca)
+        set term x11 1  
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (ns)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+        set key b r
+        #set yrange [0:35]
+        set title 'B26(Ca)-B12(Ca) in 1 M mCAGE' 
+	plot "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca" using (0.002 * column(1)):2 every 1000 w l title "253 K" linecolor rgb "cyan",\
+	"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca" using (0.002 * column(1)):2 every 1000 w l title "294 K" linecolor rgb "orange",\
+	"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca" using (0.002 * column(1)):2 every 1000 w l title "310 K" linecolor rgb "red",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca" using (0.002 * column(1)):2 every 1000 w l title "350 K" linecolor rgb "black"
+
+#B28(Ca)-B8(Ca)
+        set term x11 2  
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (ns)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+        set key b r
+        #set yrange [0:25]
+        set title 'B28(Ca)-B8(Ca) in 1 M mCAGE' 
+        plot "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca" using (0.002 * column(1)):2 every 1000 w l title "253 K" linecolor rgb "cyan",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca" using (0.002 * column(1)):2 every 1000 w l title "294 K" linecolor rgb "orange",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca" using (0.002 * column(1)):2 every 1000 w l title "310 K" linecolor rgb "red",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca" using (0.002 * column(1)):2 every 1000 w l title "350 K" linecolor rgb "black"
+
+
+#A19(carbonyl oxygen)-B25(alpha nitrogen hydrogen)
+        set term x11 3  
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (ns)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+        set key b r
+        #set yrange [0:25]
+        set title 'A19(O)-B25(H) in 1 M mCAGE' 
+        plot "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H" using (0.002 * column(1)):2 every 1000 w l title "253 K" linecolor rgb "cyan",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H" using (0.002 * column(1)):2 every 1000 w l title "294 K" linecolor rgb "orange",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H" using (0.002 * column(1)):2 every 1000 w l title "310 K" linecolor rgb "red",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H" using (0.002 * column(1)):2 every 1000 w l title "350 K" linecolor rgb "black"
+
+
+#A21(terminal carbox neg charge)-B22(arginine side chain pos charge)
+        set term x11 4  
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (ns)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+        set key b r
+        #set yrange [0:25]
+        set title 'A21(-)-B22(+) in 1 M mCAGE' 
+        plot "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos" using (0.002 * column(1)):2 every 1000 w l title "253 K" linecolor rgb "cyan",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos" using (0.002 * column(1)):2 every 1000 w l title "294 K" linecolor rgb "orange",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos" using (0.002 * column(1)):2 every 1000 w l title "310 K" linecolor rgb "red",\
+        "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos" using (0.002 * column(1)):2 every 1000 w l title "350 K" linecolor rgb "black"
+	
+
+	pause -1
+
+EOF
+

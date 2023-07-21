@@ -1,0 +1,4 @@
+parm ../../build/system.parm7 
+trajin equil.nc
+
+distance :1-266 :267  out dist_prot_ib   #cysteines

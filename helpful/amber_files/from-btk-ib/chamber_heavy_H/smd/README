@@ -1,0 +1,40 @@
+#!/bin/bash
+smd_skeleton
+	contains files to start a new smd
+
+smd_1
+	colvar: COM_DISTANCE
+		harmonic restraint: 5 kcal/molA^2 - chosen arbitrarily 
+		groups: ib; prot -
+		path: 10.7-20.7
+	notes: 
+		didnt bother running
+		kept for convenience in case I needed lines for copy paste or something	
+
+smd_2
+        colvar: COM_DISTANCE
+                harmonic restraint: 5 - chosen arbitrarily
+                groups: ib; 79ca,144ca
+		path: 25 ang + min distance from 20 ns production   
+        notes:
+		speed: 0.0625 ang/ns
+		didnt finish cause ran in one job
+smd_3
+        notes:
+                split up into 8 jobs
+		like smd_2
+
+smd_4
+        notes:
+		harmonic restraint: 500 - chosen arbitrarily
+smd_5
+        notes:
+		harmonic restraint: 50 - chosen arbitrarily
+
+smd_6
+	notes:
+                harmonic restraint: 0.5 - chosen arbitrarily
+
+smd_7
+	notes:
+		information in smd_7/README

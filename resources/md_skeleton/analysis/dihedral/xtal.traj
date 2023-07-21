@@ -1,0 +1,4 @@
+parm ../../linked/prep/EGFR_IB_l.parm7
+trajin ../../linked/prep/EGFR_IB_l.pdb
+autoimage
+dihedral :IB@CAP :IB@CBE :IB@NBF :IB@NAU out dihedral.dat 

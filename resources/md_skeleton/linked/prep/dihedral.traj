@@ -1,0 +1,5 @@
+parm /beagle3/roux/kyleghaby/kininhibs/main/BTK1_IB/md_1/linked/prep/BTK_IB_l_nobadwater.parm7
+trajin BTK_IB_l_nobadwater.rst7 
+reference /beagle3/roux/kyleghaby/kininhibs/main/BTK1_IB/md_1/linked/prep/BTK_IB_l_nobadwater.rst7  1 
+dihedral :IB@OAC :IB@CAW :IB@NBF :IB@C4 out pseudodihedral.dat
+go

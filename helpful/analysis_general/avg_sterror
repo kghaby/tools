@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+#gerrick lindberg - may 16 2019
+#this script calc's the ave of a column specified on the command line in a file also specified on the command line
+#use as ./script column file.
+#output will be Avg +/- stdev or stderror
+die "expecting input in form:\n./exe [column to analyze] [file to read from]" unless (@ARGV==2);
+$col=shift @ARGV;$col--;
+$val=0;$ave=0;$ave2=0;
+while (<>){
+        @foo=split;
+        push @val,@foo[$col];
+        $c++;
+        $ave+=@foo[$col];
+        $ave2+=@foo[$col]*@foo[$col];
+};
+$ave=$ave/$c; $std=0;
+$ave2=$ave2/$c-$ave*$ave;
+$ave2=sqrt $ave2;
+$ave2=$ave2/sqrt($c);
+foreach(@val){
+        $std+=($_-$ave)**2;
+};
+$std=sqrt($std/($c-1));
+print sprintf("%4.3f",$ave)," +/- ",sprintf("%4.3f",$std)," or ",sprintf("%4.3f",$ave2),"\n";

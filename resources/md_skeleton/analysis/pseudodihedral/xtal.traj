@@ -1,0 +1,4 @@
+parm ../../linked/prep/EGFR_IB_l.parm7
+trajin ../../linked/prep/EGFR_IB_l.pdb
+autoimage
+dihedral :IB@OAC :IB@CAW :IB@NBF :IB@C4 out pseudodihedral.dat 
