@@ -1,5 +1,0 @@
-#!/bin/bash
-python3 << EOF 
-for x in range(1, 4388):
-    print(x, end=",") 
-EOF
