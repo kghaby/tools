@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in {1..8}; do
+
+awk '/RESTRAINT/ { print $9 }; $1=="A" && $2=="V" {exit 0}' ../../smd.$i.mdout >> restraint.dat
+
+done

@@ -1,0 +1,58 @@
+Prod for US_106
+ &cntrl
+    imin=0,        ! No minimization
+    irest=0,       ! This is not a restart of an old MD simulation
+    ntx=1,         ! So our inpcrd file has no velocities
+
+    ! Temperature control
+    ntt=3,         ! Langevin dynamics
+    gamma_ln=1.0,  ! Friction coefficient (ps^-1)
+    temp0=310,   ! Target temperature
+
+    ! Potential energy control
+    cut=12.0,      ! nonbonded cutoff, in Angstroms
+    fswitch=10.0,  ! Force-based switching
+
+    ! MD settings
+    nstlim=5000000, ! _ steps, 10 ns total
+    dt=0.002,      ! time step (ps)
+
+    ! SHAKE
+    ntc=2,         ! Constrain bonds containing hydrogen
+    ntf=2,         ! Do not calculate forces of bonds containing hydrogen
+
+    ! Control how often information is printed
+    ntpr=20000,     ! Print energies every _ steps
+    ntwx=20000,    ! Print coordinates every _ steps to the trajectory
+    ntwr=200000,    ! Print a restart file every _ steps (can be less frequent)
+!   ntwv=-1,       ! Uncomment to also print velocities to trajectory
+!   ntwf=-1,       ! Uncomment to also print forces to trajectory
+    ntxo=2,        ! Write NetCDF format
+    ioutfm=1,      ! Write NetCDF format (always do this!)
+
+    ! Wrap coordinates when printing them to the same unit cell
+    iwrap=0,
+
+    ! Constant pressure control.
+    barostat=2,    ! MC barostat... change to 1 for Berendsen
+    ntp=1,         ! 1=isotropic, 2=anisotropic, 3=semi-isotropic w/ surften
+    pres0=1.0,     ! Target external pressure, in bar
+
+    ! Set water atom/residue names for SETTLE recognition
+    watnam='WAT',  ! Water residues are named WAT
+    owtnm='O',    ! Water oxygens are named O
+	
+	nmropt = 1, ! look for nmr rst
+/
+ &ewald
+    vdwmeth = 0,
+ &end
+ &wt
+  type='DUMPFREQ', istep1=50,
+ &end
+ &wt 
+  type='END',
+ &end
+DISANG=rst.106
+DUMPAVE=dihed_106.dat
+

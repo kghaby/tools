@@ -1,0 +1,5 @@
+parm sys.parm7
+trajin traj.nc
+
+#B26(Ca)-B12(Ca) example
+distance (:47)&(@CA) (:33)&(@CA) out dist_B26Ca-B12Ca

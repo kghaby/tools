@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e 
+#/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/*K/converged_analysis
+#size 10,7
+gnuplot -persist << EOF 
+
+        set terminal postscript eps enhanced color font "/usr/share/fonts/gnu-free/FreeSans.ttf, 28" solid size 10,7 linewidth 3 
+        set output 'alpha_allT_in_wat.CAGE.AAGE_over_time_1M.eps'
+        set multiplot layout 3,1 rows
+        set tmargin 0.5
+        set bmargin 3
+        set lmargin 8
+        set rmargin 2   
+	set key off
+	
+#wat
+        unset xlabel 
+        set ylabel '{/Symbol a}-Helicity in Water' 
+        set yrange [0:.7]
+	plot \
+"/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "black" title "350 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "red" title "310 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "orange" title "294 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "cyan" title "253 K" 
+
+#CAGE
+        unset xlabel 
+        set ylabel '{/Symbol a}-Helicity in CAGE'  
+        set yrange [0:.7]
+        plot \
+"/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "black" title "350 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "red" title "310 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "orange" title "294 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "cyan" title "253 K" 
+
+#mCAGE
+        set xlabel 'Time (ns)'
+        set ylabel '{/Symbol a}-Helicity in mCAGE'  
+        set yrange [0:0.7]
+        plot \
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "black" title "350 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "red" title "310 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "orange" title "294 K",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/analysis_1us/all.dat" using (0.002 * column(1)):2 every 1500 w lines lw 2 linecolor rgb "cyan" title "253 K" 
+
+	pause -1
+
+EOF
+#gv alpha_allT_in_wat.CAGE.AAGE_over_time_1M.eps
+epstopdf alpha_allT_in_wat.CAGE.AAGE_over_time_1M.eps
+
+

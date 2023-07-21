@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+awk 'NR==1;NR>1{for (i=1;i<=NF;i++){a[i]+=$i}}END{ for (i=1;i<=NF;i++){printf a[i]/(NR-1)"\t"};printf "\n"}' all.dat > avg_all.dat

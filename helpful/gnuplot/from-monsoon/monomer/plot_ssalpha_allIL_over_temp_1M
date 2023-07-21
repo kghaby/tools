@@ -1,0 +1,77 @@
+#!/bin/bash
+set -e 
+
+#using 1M (high) conc for ILs
+#used 1us for wat and 500ns for IL
+
+#wat_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/secstruct_1us/all.dat >> alphaavg_wat.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/secstruct_1us/all.dat >> alphaavg_wat.dat 
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/secstruct_1us/all.dat >> alphaavg_wat.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/secstruct_1us/all.dat >> alphaavg_wat.dat
+
+#CAGE_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/all.dat >> alphaavg_CAGE.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/all.dat >> alphaavg_CAGE.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/all.dat >> alphaavg_CAGE.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/all.dat >> alphaavg_CAGE.dat
+
+#mCAGE_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/all.dat >> alphaavg_AAGE.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/all.dat >> alphaavg_AAGE.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/all.dat >> alphaavg_AAGE.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/all.dat >> alphaavg_AAGE.dat
+
+#EMIM_TFN_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/253K/converged_analysis/all.dat >> alphaavg_et.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/294K/converged_analysis/all.dat >> alphaavg_et.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/310K/converged_analysis/all.dat >> alphaavg_et.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/350K/converged_analysis/all.dat >> alphaavg_et.dat
+
+#EMIM_Cl_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/253K/converged_analysis/all.dat >> alphaavg_ec.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/294K/converged_analysis/all.dat >> alphaavg_ec.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/310K/converged_analysis/all.dat >> alphaavg_ec.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/350K/converged_analysis/all.dat >> alphaavg_ec.dat
+
+#K_TFN_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/253K/converged_analysis/all.dat >> alphaavg_kt.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/294K/converged_analysis/all.dat >> alphaavg_kt.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/310K/converged_analysis/all.dat >> alphaavg_kt.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/350K/converged_analysis/all.dat >> alphaavg_kt.dat
+
+#K_Cl_alpha
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/253K/converged_analysis/all.dat >> alphaavg_kc.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/294K/converged_analysis/all.dat >> alphaavg_kc.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/310K/converged_analysis/all.dat >> alphaavg_kc.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/350K/converged_analysis/all.dat >> alphaavg_kc.dat
+
+
+
+gnuplot -persist << EOF
+	
+#alpha
+	set term x11 0	
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+	set key b l
+        #set yrange [0:1]
+        set title 'Alpha Helicity of Monomer Over Temperatures' 
+	set xrange [252:351]
+	temperature = "253 294 310 350"
+	set bars 4
+plot "alphaavg_wat.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "Water" linestyle 1, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 1 notitle,\
+"alphaavg_CAGE.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 2 notitle,\
+"alphaavg_AAGE.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "mCAGE" linestyle 3, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 3 notitle,\
+"alphaavg_et.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_TFN" linestyle 4, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 4 notitle,\
+"alphaavg_ec.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_Cl" linestyle 5, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 5 notitle,\
+"alphaavg_kt.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_TFN" linestyle 6, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 6 notitle,\
+"alphaavg_kc.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints  title "K_Cl" linestyle 7, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 7 notitle 
+
+	pause -1
+
+EOF
+
+rm alphaavg_*.dat
+

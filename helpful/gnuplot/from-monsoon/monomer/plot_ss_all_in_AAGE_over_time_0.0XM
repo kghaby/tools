@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e 
+#/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/*K/converged_analysis
+
+gnuplot -persist << EOF
+	
+#Alpha
+	set term x11 1	
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (ns)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+	set key b r
+        set yrange [0:1]
+        set title 'Alpha Helicity of Monomer in 0.085 M mCAGE' 
+plot "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/secstruct_1us/all.dat" using (0.002 * $1):2 every 1000 w l title "253 K" linecolor rgb "cyan",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/secstruct_1us/all.dat" using (0.002 * $1):2 every 1000 w l title "294 K" linecolor rgb "orange"
+
+
+
+#Total Helicity
+        set term x11 2  
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (ns)'
+        set ylabel 'Fraction of Total-Helicity'  
+        set key b r
+        set yrange [0:1]
+	set title 'Total Helicity of Monomer in 0.085 M mCAGE' 
+plot "/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/secstruct_1us/all.dat" using (0.002 * $1):($2+$6) every 1000 w l title "253 K" linecolor rgb "cyan" ,\
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/secstruct_1us/all.dat" using (0.002 * $1):($2+$6) every 1000 w l title "294 K" linecolor rgb "orange"
+
+
+	pause -1
+
+EOF
+

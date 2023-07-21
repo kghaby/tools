@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e 
+#/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/*K/converged_analysis
+
+gnuplot -persist << EOF
+	
+#Alpha
+	set term x11 1	
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Time (Frames)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+	set key b r
+        #set yrange [0:0.9]
+        set title 'Alpha Helicity of B1-8 in Monomer Over Time at 294K' 
+plot "/scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "Water",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "CAGE",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "mCAGE",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/0.0XM/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "EMIM/TFN",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/0.0XM/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "EMIM/Cl",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/0.0XM/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "K/TFN",\
+"/scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/0.0XM/simulation/4-prod/294K/converged_analysis/all.dat" using 1:2 every 10000 w l title "K/Cl"
+
+
+
+
+	pause -1
+
+EOF
+

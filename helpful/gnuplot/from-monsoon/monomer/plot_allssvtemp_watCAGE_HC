@@ -1,0 +1,141 @@
+#!/bin/bash
+set -e 
+
+#6th column is 3-10
+
+cat /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/*K/converged_analysis/analysis_1us/avg_all.dat >> watss_alltemps.dat
+
+cat /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/*K/converged_analysis/analysis_1us/avg_all.dat >> cagess_alltemps.dat
+
+
+
+
+gnuplot -persist << EOF
+	
+	set term x11 0
+	set multiplot layout 3,3 rows
+	set tmargin 4
+        set bmargin 4
+        set lmargin 8
+        set rmargin 4 
+
+#alpha	
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Alpha-Helicity'  
+	set key b r
+        #set yrange [0:0.9]
+        set title 'Alpha Helicity of Monomer (HC)' 
+	set xrange [252:351]
+	temperature = "253 294 310 350"	
+plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):2 with linespoints ps 2 title "Water",\
+"cagess_alltemps.dat"  using (word(temperature,int(column(0))+1)+0.0):2 with linespoints ps 2 title "CAGE"
+
+#3-10
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of 3-10 Helicity'  
+        set key b r
+        #set yrange [0:0.9]
+        set title '3-10 Helicity of Monomer (HC)'
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350" 
+        plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):6 with linespoints ps 2  title "Water",\
+        "cagess_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):6 with linespoints ps 2   title "CAGE"
+
+#Total helicity
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Total Helicity'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Total Helicity of Monomer (HC)' 
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350" 
+plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):(column(2)+column(6)) with linespoints ps 2 title "Water",\
+"cagess_alltemps.dat"  using (word(temperature,int(column(0))+1)+0.0):(column(2)+column(6)) with linespoints ps 2 title "CAGE"
+
+#None
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of No Secondary Structure'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Fraction of No Secondary Structure of Monomer (HC)' 
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350" 
+        
+	plot "watss_alltemps.dat" using (word(temperature,int(column(0))+1)+0.0):3 with linespoints ps 2 title "Water",\
+	"cagess_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):3 with linespoints ps 2 title "CAGE"
+
+#Para
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Parallel Beta Sheets'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Fraction of Parallel Beta Sheets of Monomer (HC)' 
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350" 
+        plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):4 with linespoints ps 2 title "Water",\
+"cagess_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):4 with linespoints ps 2 title "CAGE"
+
+#Anti
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Anti-Parallel Beta Sheets'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Fraction of Anti-Parallel Beta Sheets of Monomer (HC)' 
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350" 
+	plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):5 with linespoints ps 2 title "Water",\
+	"cagess_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):5 with linespoints ps 2 title "CAGE"
+
+
+
+#Pi
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Pi Helicity'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Pi Helicity of Monomer (HC)' 
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350"         
+	plot "watss_alltemps.dat"  using (word(temperature,int(column(0))+1)+0.0):7 with linespoints ps 2  title "Water",\
+        "cagess_alltemps.dat"  using (word(temperature,int(column(0))+1)+0.0):7 with linespoints ps 2  title "CAGE"
+
+#Turn
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Turns Helicity'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Turns of Monomer (HC)'
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350" 
+plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):8 with linespoints ps 2  title "Water",\
+        "cagess_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):8 with linespoints ps 2 title "CAGE"
+
+#Bend
+        set xlabel 'Temperature (K)'
+        set ylabel 'Fraction of Bends'  
+        set key b r
+        #set yrange [0:0.9]
+        set title 'Bends of Monomer (HC)' 
+        set xrange [252:351]
+        #set xtics ("253" 0, "294" 1, "310" 2, "350" 3)
+        temperature = "253 294 310 350"         
+	plot "watss_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):9 with linespoints ps 2  title "Water",\
+        "cagess_alltemps.dat"   using (word(temperature,int(column(0))+1)+0.0):9 with linespoints ps 2 title "CAGE"
+
+
+
+	pause -1
+
+EOF
+
+rm *ss_alltemps.dat
+
+#alpha_hex_all_253.dat  alpha_hex_B1-19_253.dat
+

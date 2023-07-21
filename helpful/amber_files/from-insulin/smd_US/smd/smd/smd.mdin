@@ -1,0 +1,29 @@
+ Input file for SMD
+&cntrl
+  imin = 0, irest = 0, ig = -1,
+  ntx  = 1, ntb  = 1, ntt = 3, ntp = 0,
+  temp0 = 253.0, tautp = 2.0,
+  tol = 0.00001, ntc = 2, ntf = 2, iwrap = 0,
+  cut = 9.0, ibelly = 0, dt = 0.002, gamma_ln=1.0
+  ntpr = 5000,
+  ntwr = 5000,
+  ntwx = 5000,
+  nstlim = 50000000,
+  nscm = 100, infe = 1, ntwprt = 0,
+  ntr = 0, ipol = 0, jar = 1,
+  restraint_wt=50.0,
+  restraintmask=":*",
+/
+&wt type='DUMPFREQ', istep1=1, /
+&wt type='END', /
+
+&smd
+output_file = 'smd.txt'
+output_freq = 50
+cv_file = 'cv.dist.in'
+
+&end
+
+
+
+

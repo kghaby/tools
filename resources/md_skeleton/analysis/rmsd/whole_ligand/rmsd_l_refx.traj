@@ -1,0 +1,17 @@
+parm ../../../linked/prep/EGFR_IB_l.parm7 [linked]
+parm ../../../linked/prep/EGFR_IB_l.parm7 [xtal]
+trajin ../../../linked/prod/prod.1.nc parm [linked]
+trajin ../../../linked/prod/prod.2.nc parm [linked]
+trajin ../../../linked/prod/prod.3.nc parm [linked]
+trajin ../../../linked/prod/prod.4.nc parm [linked]
+trajin ../../../linked/prod/prod.5.nc parm [linked]
+trajin ../../../linked/prod/prod.6.nc parm [linked]
+trajin ../../../linked/prod/prod.7.nc parm [linked]
+trajin ../../../linked/prod/prod.8.nc parm [linked]
+trajin ../../../linked/prod/prod.9.nc parm [linked]
+trajin ../../../linked/prod/prod.10.nc parm [linked]
+autoimage
+reference ../../../linked/prep/EGFR_IB_l.pdb parm [xtal] [xtalcoords]
+rmsd rmsd_l_refx_prot (@CA,C,O,N) (@CA,C,O,N) out rmsd_l_refx_prot.dat ref [xtalcoords] mass 
+rmsd rms_l_refx_lig :IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE,NBF,NAU,CBB,N1,C2,N3,C4,C5,C6,NAB,CBA,CAK,CAL,CAM,CAN,CAZ,OAV,CAY,CAE,CAF,CAG,CAI,CAJ :IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE,NBF,NAU,CBB,N1,C2,N3,C4,C5,C6,NAB,CBA,CAK,CAL,CAM,CAN,CAZ,OAV,CAY,CAE,CAF,CAG,CAI,CAJ nofit out rmsd_l_refx_lig.dat ref [xtalcoords] mass
+go

@@ -1,0 +1,266 @@
+#!/bin/bash
+set -e 
+
+#using 1M (high) conc for ILs
+#used 1us for wat and 500ns for IL
+
+#wat_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_wat_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_wat_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_wat_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_wat_B26Ca-B12Ca.dat
+
+#CAGE_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_CAGE_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_CAGE_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_CAGE_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_CAGE_B26Ca-B12Ca.dat
+
+#mCAGE_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_AAGE_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_AAGE_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_AAGE_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_AAGE_B26Ca-B12Ca.dat
+
+#EMIM_TFN_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_et_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_et_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_et_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_et_B26Ca-B12Ca.dat
+
+#EMIM_Cl_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_ec_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_ec_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_ec_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_ec_B26Ca-B12Ca.dat
+
+#K_TFN_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kt_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kt_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kt_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kt_B26Ca-B12Ca.dat
+
+#K_Cl_B26Ca-B12Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kc_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kc_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kc_B26Ca-B12Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B26Ca-B12Ca >> distavg_kc_B26Ca-B12Ca.dat
+
+
+#wat_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_wat_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_wat_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_wat_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_wat_B28Ca-B8Ca.dat
+
+#CAGE_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_CAGE_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_CAGE_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_CAGE_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_CAGE_B28Ca-B8Ca.dat
+
+#mCAGE_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_AAGE_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_AAGE_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_AAGE_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_AAGE_B28Ca-B8Ca.dat
+
+#EMIM_TFN_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_et_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_et_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_et_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_et_B28Ca-B8Ca.dat
+
+#EMIM_Cl_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_ec_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_ec_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_ec_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_ec_B28Ca-B8Ca.dat
+
+#K_TFN_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kt_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kt_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kt_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kt_B28Ca-B8Ca.dat
+
+#K_Cl_B28Ca-B8Ca
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kc_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kc_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kc_B28Ca-B8Ca.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_B28Ca-B8Ca >> distavg_kc_B28Ca-B8Ca.dat
+
+
+#wat_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_wat_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_wat_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_wat_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_wat_A19O-B25H.dat
+
+#CAGE_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_CAGE_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_CAGE_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_CAGE_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_CAGE_A19O-B25H.dat
+
+#mCAGE_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_AAGE_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_AAGE_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_AAGE_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_AAGE_A19O-B25H.dat
+
+#EMIM_TFN_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_et_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_et_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_et_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_et_A19O-B25H.dat
+
+#EMIM_Cl_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_ec_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_ec_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_ec_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_ec_A19O-B25H.dat
+
+#K_TFN_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kt_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kt_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kt_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kt_A19O-B25H.dat
+
+#K_Cl_A19O-B25H
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kc_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kc_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kc_A19O-B25H.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A19O-B25H >> distavg_kc_A19O-B25H.dat
+
+
+#wat_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_wat_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_wat_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_wat_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_wat_A21neg-B22pos.dat
+
+#CAGE_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_CAGE_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_CAGE_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_CAGE_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_CAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_CAGE_A21neg-B22pos.dat
+
+#mCAGE_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_AAGE_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_AAGE_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_AAGE_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_AAGE_A21neg-B22pos.dat
+
+#EMIM_TFN_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_et_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_et_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_et_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_et_A21neg-B22pos.dat
+
+#EMIM_Cl_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_ec_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_ec_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_ec_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_EMIM_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_ec_A21neg-B22pos.dat
+
+#K_TFN_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kt_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kt_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kt_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_TFN/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kt_A21neg-B22pos.dat
+
+#K_Cl_A21neg-B22pos
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/253K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kc_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/294K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kc_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/310K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kc_A21neg-B22pos.dat
+./../../../analysis_scripts/avg_sterror 2 /scratch/ksg225/projects/insulin/insAB/monomer_K_Cl/1M/simulation/4-prod/350K/converged_analysis/distance_between_residues/dist_A21neg-B22pos >> distavg_kc_A21neg-B22pos.dat
+
+
+
+gnuplot -persist << EOF
+	
+#B26Ca-B12Ca
+	set term x11 0	
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Temperature (K)'
+        set ylabel 'Distance (A)'  
+	set key t l
+        #set yrange [0:0.9]
+        set title 'B26(Ca)-B12(Ca)' 
+	set xrange [252:351]
+	temperature = "253 294 310 350"
+	set bars 4
+plot "distavg_wat_B26Ca-B12Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "Water" linestyle 1, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 1 notitle,\
+"distavg_CAGE_B26Ca-B12Ca.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 2 notitle,\
+"distavg_AAGE_B26Ca-B12Ca.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "mCAGE" linestyle 3, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 3 notitle,\
+"distavg_et_B26Ca-B12Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_TFN" linestyle 4, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 4 notitle,\
+"distavg_ec_B26Ca-B12Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_Cl" linestyle 5, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 5 notitle,\
+"distavg_kt_B26Ca-B12Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_TFN" linestyle 6, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 6 notitle,\
+"distavg_kc_B26Ca-B12Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints  title "K_Cl" linestyle 7, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 7 notitle 
+
+#B28Ca-B8Ca
+        set term x11 1
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Temperature (K)'
+        set ylabel 'Distance (A)'  
+        set key t l
+        #set yrange [0:0.9]
+        set title 'B28(Ca)-B8(Ca)' 
+        set xrange [252:351]
+        temperature = "253 294 310 350"
+	set bars 4
+plot "distavg_wat_B28Ca-B8Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1  with linespoints title "Water" linestyle 1, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 1 notitle,\
+"distavg_CAGE_B28Ca-B8Ca.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 2 notitle,\
+"distavg_AAGE_B28Ca-B8Ca.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "mCAGE" linestyle 3, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 3 notitle,\
+"distavg_et_B28Ca-B8Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_TFN" linestyle 4, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 4 notitle,\
+"distavg_ec_B28Ca-B8Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_Cl" linestyle 5, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 5 notitle,\
+"distavg_kt_B28Ca-B8Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_TFN" linestyle 6, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 6 notitle,\
+"distavg_kc_B28Ca-B8Ca.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_Cl" linestyle 7, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 7 notitle 
+
+#A19O-B25H
+        set term x11 2
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Temperature (K)'
+        set ylabel 'Distance (A)'  
+        set key t l
+        #set yrange [0:0.9]
+        set title 'A19(O)-B25(H)' 
+        set xrange [252:351]
+        temperature = "253 294 310 350"
+	set bars 4
+plot "distavg_wat_A19O-B25H.dat"   using (word(temperature,int(column(0))+1)+0.0):1  with linespoints title "Water" linestyle 1, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 1 notitle,\
+"distavg_CAGE_A19O-B25H.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 2 notitle,\
+"distavg_AAGE_A19O-B25H.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "mCAGE" linestyle 3, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 3 notitle,\
+"distavg_et_A19O-B25H.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_TFN" linestyle 4, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 4 notitle,\
+"distavg_ec_A19O-B25H.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_Cl" linestyle 5, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 5 notitle,\
+"distavg_kt_A19O-B25H.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_TFN" linestyle 6, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 6 notitle,\
+"distavg_kc_A19O-B25H.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_Cl" linestyle 7, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 7 notitle 
+
+#A21neg-B22pos
+        set term x11 3
+        set font '{/Times-New-Roman=18 a}' 
+        set xlabel 'Temperature (K)'
+        set ylabel 'Distance (A)'  
+        set key t l
+        #set yrange [0:0.9]
+        set title 'A21(negative terminal Os)-B22(postive side chain Ns)' 
+        set xrange [252:351]
+        temperature = "253 294 310 350"
+	set bars 4
+plot "distavg_wat_A21neg-B22pos.dat"   using (word(temperature,int(column(0))+1)+0.0):1  with linespoints title "Water" linestyle 1, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 1 notitle,\
+"distavg_CAGE_A21neg-B22pos.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "CAGE" linestyle 2, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 2 notitle,\
+"distavg_AAGE_A21neg-B22pos.dat"  using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "mCAGE" linestyle 3, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 3 notitle,\
+"distavg_et_A21neg-B22pos.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_TFN" linestyle 4, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 4 notitle,\
+"distavg_ec_A21neg-B22pos.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "EMIM_Cl" linestyle 5, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 5 notitle,\
+"distavg_kt_A21neg-B22pos.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_TFN" linestyle 6, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 6 notitle,\
+"distavg_kc_A21neg-B22pos.dat"   using (word(temperature,int(column(0))+1)+0.0):1 with linespoints title "K_Cl" linestyle 7, "" using (word(temperature,int(column(0))+1)+0.0):1:3 with yerrorbars linetype 7 notitle 
+
+	pause -1
+
+EOF
+
+rm distavg_*_B26Ca-B12Ca.dat
+rm distavg_*_B28Ca-B8Ca.dat
+rm distavg_*_A19O-B25H.dat
+rm distavg_*_A21neg-B22pos.dat
+

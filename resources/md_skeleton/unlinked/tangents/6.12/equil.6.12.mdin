@@ -1,0 +1,49 @@
+Equil
+  &cntrl
+    imin=0,
+    irest=1,       ! This is a restart of an old MD simulation
+    ntx=5,         ! So our inpcrd file has velocities
+    
+    !SHAKE
+    ntc=2,
+    ntf=2,
+
+    ! Temperature control
+    ntt=3,         ! Langevin dynamics
+    gamma_ln=1.0,  ! Friction coefficient (ps^-1)
+    temp0=310,   ! Target temperature
+
+  ! Potential energy control
+    cut=12.0,       ! nonbonded cutoff, in Angstroms
+    fswitch=10.0,   ! Force-based switching      
+
+
+    ntc=2, 
+    ntf=2,
+    ig=-1,
+    ntpr=20000,     ! Print energies every 10000 steps
+    ntwx=20000,     ! Print coordinates every 10000 steps to the trajectory
+    ntwr=200000,    ! Print a restart file every 100K steps    
+    nstlim=100000000, ! Number of MD steps (200 ns)
+    ioutfm=1,  ! netcdf format  
+    dt=0.002,
+    iwrap = 0, !  
+
+    ntb=2,        ! Constant pressure periodic boundary conditions
+    ntp=1,        ! isotropic pressure coupling
+    taup=1.0,     ! Pressure relaxation time (ps)
+    barostat=2,   ! Monte Carlo barostat
+    ntxo=2,
+ !   ntr=1,
+	nmropt=1,
+!    restraint_wt=0.5, !units: kcal/mol/Ang^2
+!    restraintmask='(:88)&(@CA,C,O,N,SG)|(:IB&!@H=)|((:IB<:10)&(:268-442&!@H=))', !mask
+    ! Set water atom/residue names for SETTLE recognition
+    watnam='WAT',  ! Water residues names. Usually WAT or TIP3
+    owtnm='O',     ! Water oxygens names. Usually O or OH2
+ /
+  &ewald
+    vdwmeth = 0,
+  &wt type='END' /
+DISANG=rst.6.12.xtal
+/

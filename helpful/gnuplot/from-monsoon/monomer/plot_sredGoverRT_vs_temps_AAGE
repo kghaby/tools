@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e 
+
+#/scratch/ksg225/projects/insulin/insAB/monomer_*/*M/simulation/4-prod/*K/converged_analysis/sre_analysis/rdf/rdf_ions_SRE*
+#/scratch/ksg225/projects/insulin/insAB/monomer_CAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA
+
+
+
+#AAGE-A ie mCAGE-A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREA >> srerdfmaxdist_sremax_AAGE_A
+
+
+#AAGE-B ie mCAGE-B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/253K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/294K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/310K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+awk -v max=0 'NR > 1 {if($2>max){first=$1; second=$2; max=$2}}END{print first, second} ' /scratch/ksg225/projects/insulin/insAB/monomer_AAGE/0.0XM/simulation/4-prod/350K/converged_analysis/sre_analysis/rdf/rdf_ions_SREB >> srerdfmaxdist_sremax_AAGE_B
+
+
+gnuplot -persist << 'EOF'
+
+#AAGE A
+        set term x11 1
+        set title 'Temperature vs Relative Binding Energy'   
+        set xlabel 'Temperature (K)'
+        set ylabel 'dG/R (A.U.)'  
+	set key t r 
+        plot\
+"AAGE_srebindingenergies_A"  using 1:2 with linespoints title "SRE A",\
+"AAGE_srebindingenergies_B"  using 1:2 with linespoints title "SRE B" linecolor rgb "blue"
+
+
+	pause -1
+
+EOF
+
+#rm srerdfmaxdist_sremax_*
+                               
+
+

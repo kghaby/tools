@@ -1,0 +1,29 @@
+source leaprc.gaff
+source leaprc.protein.ff14SB
+source leaprc.water.tip3p
+
+loadAmberParams frcmod.ionsjc_tip3p
+loadamberparams <1>.frcmod
+loadamberparams <2>.frcmod
+loadamberparams <3>.frcmod
+loadoff <1>.lib
+loadoff <2>.lib
+loadoff <3>.lib
+
+#Load the PDBs
+prot = loadpdb packmol_out.pdb
+
+#make bridges
+bond
+
+#solvate system
+solvateoct prot TIP3PBOX 12 
+
+#Adding Ions
+addIonsRand prot Na+ 0 
+
+#save files
+saveAmberParm prot sys.parm7 sys.rst7
+
+# Quit
+quit

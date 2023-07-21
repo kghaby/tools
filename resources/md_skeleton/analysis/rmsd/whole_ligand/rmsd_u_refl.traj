@@ -1,0 +1,20 @@
+parm ../../../unlinked/prep/EGFR_IB_u.parm7 [unlinked]
+parm ../../../linked/prep/EGFR_IB_l.parm7 [linked]
+parm ../../../linked/prep/EGFR_IB_l.pdb [xtal]
+trajin ../../../unlinked/prod/prod.1.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.2.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.3.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.4.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.5.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.6.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.7.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.8.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.9.nc parm [unlinked]
+trajin ../../../unlinked/prod/prod.10.nc parm [unlinked]
+autoimage
+reference ../../../linked/prep/EGFR_IB_l.pdb parm [xtal] [xtalcoords]
+reference ../../../linked/prod/prod.1.nc 1 parm [linked] [linkedcoords]
+crdaction [linkedcoords] rmsd l_xtal_align (@CA,C,O,N) (@CA,C,O,N) ref [xtalcoords] mass
+rmsd rmsd_u_refl_prot (@CA,C,O,N) (@CA,C,O,N) out rmsd_u_refl_prot.dat ref [xtalcoords] mass
+rmsd rmsd_u_refl_lig :IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE,NBF,NAU,CBB,N1,C2,N3,C4,C5,C6,NAB,CBA,CAK,CAL,CAM,CAN,CAZ,OAV,CAY,CAE,CAF,CAG,CAI,CAJ :IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE,NBF,NAU,CBB,N1,C2,N3,C4,C5,C6,NAB,CBA,CAK,CAL,CAM,CAN,CAZ,OAV,CAY,CAE,CAF,CAG,CAI,CAJ nofit out rmsd_u_refl_lig.dat ref [linkedcoords] mass
+go
