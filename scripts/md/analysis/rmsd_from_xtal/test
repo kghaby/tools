@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+whitelist=("test") 
+system="test"
+if (("${#whitelist[@]}" > 0)); then
+echo "white list is not empty"
+if [[ ! " ${whitelist[*]} " =~ " ${system} " ]]; then
+echo "
+
+$system IS NOT IN WHITELIST...............SKIPPING
+
+"
+fi
+fi
+#declare -A ar=( [key1]=val1 [key2]=val2 ); echo "szar: ${#ar[@]}"
