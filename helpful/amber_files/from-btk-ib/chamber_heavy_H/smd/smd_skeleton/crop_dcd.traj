@@ -1,6 +1,0 @@
-parm smd_viewing.pdb
-trajin smd_viewing.dcd
-trajout smd_viewing_200ns.dcd onlyframes 1-10000
-go 
-trajout smd_viewing_100ns.dcd onlyframes 1-5000
-

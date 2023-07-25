@@ -1,6 +1,0 @@
-parm ../../../../build/system.parm7
-trajin ../../smd.nc
-reference ../../../../md/prod/prod.rst7
-activeref 0
-rmsd rmsd_check_site (:267<@10)&(@CA) out rmsd_check_site.dat mass #10 ang away from IB 
-rmsd rmsd_check_prot (:1-266)&(@CA) out rmsd_check_prot.dat

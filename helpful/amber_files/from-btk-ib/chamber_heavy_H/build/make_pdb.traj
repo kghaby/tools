@@ -1,4 +1,0 @@
-parm system.parm7
-trajin system.rst7
-trajout system.pdb
-go

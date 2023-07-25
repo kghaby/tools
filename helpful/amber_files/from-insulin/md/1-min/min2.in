@@ -1,8 +1,0 @@
-Minimization  ! the type of simulation
- &cntrl  ! name block to set the variables under
-  imin=1,  ! tell sander/pmemd to run a minimization
-  ntpr=100,  ! save the restart file every 100 steps
-  maxcyc=10000,  ! run the simulation for 10,000 steps
-  ntb=1,  ! specifies periodic boundary conditions
- &end  ! signify that theres no more variables to set
-
