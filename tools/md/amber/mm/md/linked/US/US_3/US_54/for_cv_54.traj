@@ -1,3 +1,0 @@
-parm ../../prep/BTK_IB_l_nobadwater.parm7
-trajin ../../US_1/US_50/US_50.nc   1
-trajout for_cv_54.rst7 restart

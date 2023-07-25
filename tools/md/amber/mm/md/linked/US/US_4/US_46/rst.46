@@ -1,7 +1,0 @@
-Harmonic restraints for 46 deg
- &rst
-  iat=4351,4346,4357,4365
-  r1=-134, r2=28, r3=88, r4=226,
-  rk2=100, rk3=100,
- &end
-

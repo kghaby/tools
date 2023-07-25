@@ -1,5 +1,0 @@
-parm ../prep/BTK_IB_u_nobadwater.parm7
-trajin prod.1.nc 195 195
-autoimage 
-trajout US_input.rst7
-

@@ -1,68 +1,169 @@
 #!/bin/bash
 #need to tailor atom groups and i seq for system of interest
 
-#cd ../smd
-#./getrestarts.exe #get restarts from smd sim
-#cd ../US
+#paths are from perspective of one deeper from US dir (ie add "../" to path from US dir)
+parm="../"
+k=200
 
-for i in `seq 1.65 .1 3.65`;do
+
+#make directories and mdin files
+for i in `seq -10 4 150`;do
 mkdir -p US_$i
 cd US_$i
-echo "#!/bin/bash
-#SBATCH --mail-user=kyleghaby@uchicago.edu # Who to send emails to 
-#SBATCH --mail-type=ALL # Send emails on start, end and failure 
-#SBATCH --job-name=us_$i # Name to show in the job queue 
-#SBATCH --mem=60000M
-#SBATCH --exclude=cn[1],cn[6]
-#SBATCH --ntasks=60 # Total number of mpi tasks requested
-#SBATCH --nodes=3
-#SBATCH --time=090:00:00
-##SBATCH --gres=gpu:1                     # Include GPU generic resource
-##SBATCH --partition=gpu
-##SBATCH --qos=debug
-set -e 
+echo "Prod for US_$i
+ &cntrl
+    imin=0,        ! No minimization
+    irest=0,       ! This is not a restart of an old MD simulation
+    ntx=1,         ! So our inpcrd file has no velocities
 
-module purge
-module load amber/18-gcc-6.2.0-410.79
-module load plumed/2.6.0-gcc-6.2.0-openmpi-3.1.3 
+    ! Temperature control
+    ntt=3,         ! Langevin dynamics
+    gamma_ln=1.0,  ! Friction coefficient (ps^-1)
+    temp0=310,   ! Target temperature
+
+    ! Potential energy control
+    cut=12.0,      ! nonbonded cutoff, in Angstroms
+    fswitch=10.0,  ! Force-based switching
+
+    ! MD settings
+    nstlim=5000000, ! _ steps, 10 ns total
+    dt=0.002,      ! time step (ps)
+
+    ! SHAKE
+    ntc=2,         ! Constrain bonds containing hydrogen
+    ntf=2,         ! Do not calculate forces of bonds containing hydrogen
+
+    ! Control how often information is printed
+    ntpr=20000,     ! Print energies every _ steps
+    ntwx=20000,    ! Print coordinates every _ steps to the trajectory
+    ntwr=200000,    ! Print a restart file every _ steps (can be less frequent)
+!   ntwv=-1,       ! Uncomment to also print velocities to trajectory
+!   ntwf=-1,       ! Uncomment to also print forces to trajectory
+    ntxo=2,        ! Write NetCDF format
+    ioutfm=1,      ! Write NetCDF format (always do this!)
+
+    ! Wrap coordinates when printing them to the same unit cell
+    iwrap=0,
+
+    ! Constant pressure control.
+    barostat=2,    ! MC barostat... change to 1 for Berendsen
+    ntp=1,         ! 1=isotropic, 2=anisotropic, 3=semi-isotropic w/ surften
+    pres0=1.0,     ! Target external pressure, in bar
+
+    ! Set water atom/residue names for SETTLE recognition
+    watnam='WAT',  ! Water residues are named WAT
+    owtnm='O',    ! Water oxygens are named O
+	
+	nmropt = 1, ! look for nmr rst
+/
+ &ewald
+    vdwmeth = 0,
+ &end
+ &wt
+  type='DUMPFREQ', istep1=50,
+ &end
+ &wt 
+  type='END',
+ &end
+DISANG=rst.$i
+DUMPAVE=dihed_${i}.dat
+" > US_$i.mdin
+
+left=$(echo "$i-180" | bc)
+right=$(echo "$i+180" | bc)
+
+echo "Harmonic restraints for $i deg
+ &rst
+  iat=4351,4346,4357,4365
+  r1=$left, r2=$i, r3=$i, r4=$right,
+  rk2=${k}, rk3=${k},
+ &end
+" > rst.$i
+cd ..
+done
 
 
-cp ../us.mdin .
-cp ../../../../../../tleap/sys.parm7 .
-cp ../../smd/restarts/$i.rst7 .
-cat >plumed.dat <<EOF
-#set up two variables
-#GROUP ATOMS=1-762 LABEL=g1
-#GROUP ATOMS=763-1524 LABEL=g2
-COM ATOMS=1-762 LABEL=com1
-COM ATOMS=763-1524 LABEL=com2
-dist: DISTANCE ATOMS=com1,com2 NOPBC 
-restraint-dist: RESTRAINT ARG=dist KAPPA=500 AT=$i
+##########
+#make slurm files and get frames from prev windows
+##########
 
-PRINT STRIDE=10 ARG=dist.*,restraint-dist.bias FILE=COLVAR
+#do first one
+i="-10"
+cd US_$i
 
+cat >pseudodihedral.traj <<EOF
+parm ../../prep/BTK_IB_l_nobadwater.parm7 
+trajin US_$i.nc
+dihedral :IB@OAC :IB@CAW :IB@NBF :IB@C4 out pseudodihedral.dat
+go
 EOF
 
-mpirun -n 60 pmemd.MPI -O -i us.mdin -o us.1.out -p sys.parm7 -c $i.rst7 -r us.1.rst7 -x us.1.nc
-for a in {2..10}
-	do
-		b=\$((a-1))
-		mpirun -n 60 pmemd.MPI -O -i us.mdin -o us.\$a.out -p sys.parm7 -c us.\$b.rst7 -r us.\$a.rst7 -x us.\$a.nc
-	done
+echo "#!/bin/bash
+#SBATCH --mail-user=kyleghaby@uchicago.edu # Who to send emails to
+##SBATCH --mail-type=ALL # Send emails on start, end and failure
+#SBATCH --job-name=US_$i # Name to show in the job queue
+#SBATCH --ntasks=1 # Total number of mpi tasks requested
+#SBATCH --nodes=1
+#SBATCH --time=2:00:00
+#SBATCH --gres=gpu:1                     # Include GPU generic resource
+#SBATCH --account=pi-roux
+#SBATCH --partition=beagle3
 
-/scratch/ksg225/analysis_scripts/histogram -i bck.0.COLVAR -col 2  -o COLVAR.1.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.1.COLVAR -col 2  -o COLVAR.2.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.2.COLVAR -col 2  -o COLVAR.3.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.3.COLVAR -col 2  -o COLVAR.4.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.4.COLVAR -col 2  -o COLVAR.5.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.5.COLVAR -col 2  -o COLVAR.6.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.6.COLVAR -col 2  -o COLVAR.7.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.7.COLVAR -col 2  -o COLVAR.8.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i bck.8.COLVAR -col 2  -o COLVAR.9.histo -int .01
-/scratch/ksg225/analysis_scripts/histogram -i COLVAR -col 2  -o COLVAR.10.histo -int .01
+module load amber
+
+pmemd.cuda -O -i US_$i.mdin -o US_$i.mdout -p ../../prep/BTK_IB_l_nobadwater.parm7 -c ../../prod/US_input.rst7 -r US_$i.rst7 -x US_$i.nc -inf US_$i.mdinfo
+
+cpptraj -i pseudodihedral.traj
+
+./../histogram -i dihed_$i.dat -col 2  -o dihed_$i.histo -int .01
+
+" > US_$i.slurm
+
+RES=$(sbatch US_$i.slurm)
+echo "Submitted US_$i.slurm, and the id is: ${RES##* }"
+cd ..
+
+
+#do the rest
+for i in `seq -6 4 150`;do
+cd US_$i
+j=$(echo "$i-4" | bc)
+
+cat >pseudodihedral.traj <<EOF
+parm ../../prep/BTK_IB_l_nobadwater.parm7
+trajin US_$i.nc
+dihedral :IB@OAC :IB@CAW :IB@NBF :IB@C4 out pseudodihedral.dat
+go
+EOF
+
+
+
+echo "#!/bin/bash
+#SBATCH --dependency=afterok:${RES##* }
+#SBATCH --mail-user=kyleghaby@uchicago.edu # Who to send emails to 
+##SBATCH --mail-type=ALL # Send emails on start, end and failure 
+#SBATCH --job-name=US_$i # Name to show in the job queue 
+#SBATCH --ntasks=1 # Total number of mpi tasks requested
+#SBATCH --nodes=1
+#SBATCH --time=2:00:00
+#SBATCH --gres=gpu:1                     # Include GPU generic resource
+#SBATCH --account=pi-roux
+#SBATCH --partition=beagle3
+
+module load amber
+
+./../get_frame.sh $j $i
+
+pmemd.cuda -O -i US_$i.mdin -o US_$i.mdout -p ../../prep/BTK_IB_l_nobadwater.parm7 -c for_cv_$i.rst7 -r US_$i.rst7 -x US_$i.nc -inf US_$i.mdinfo
+
+cpptraj -i pseudodihedral.traj
+
+./../histogram -i dihed_$i.dat -col 2  -o dihed_$i.histo -int .01
  
-" > us_$i.sh
-sbatch us_$i.sh
-echo "us_$i.sh submitted"
+" > US_$i.slurm
+
+RES=$(sbatch US_$i.slurm)
+echo "Submitted US_$i.slurm, and the id is: ${RES##* }"
+
 cd ..
 done
