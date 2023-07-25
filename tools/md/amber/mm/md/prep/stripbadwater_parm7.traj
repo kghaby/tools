@@ -1,7 +1,0 @@
-parm ../../../build/BTK_IB_l.parm7
-reference ../../../build/BTK_IB_l.rst7 1
-
-parmstrip (:IB<:5)&:WAT&!(:268-442)
-
-parmwrite out BTK_IB_l_nobadwater.parm7
-go
