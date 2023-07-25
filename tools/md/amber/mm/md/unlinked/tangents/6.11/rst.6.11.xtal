@@ -1,7 +1,0 @@
-Harmonic restraints 
- &rst
-  iat=4352,1411
-  r1=1.4, r2=1.9, r3=1.9, r4=2.4,
-  rk2=0, rk3=6.5,
- &end
-

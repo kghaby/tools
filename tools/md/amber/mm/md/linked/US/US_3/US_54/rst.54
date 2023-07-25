@@ -1,7 +1,0 @@
-Harmonic restraints for 54 deg
- &rst
-  iat=4351,4346,4357,4365
-  r1=-134, r2=54, r3=54, r4=234,
-  rk2=6.5, rk3=6.5,
- &end
-
