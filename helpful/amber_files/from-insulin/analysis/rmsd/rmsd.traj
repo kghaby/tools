@@ -1,8 +1,0 @@
-parm sys.parm
-trajin traj.nc
-
-#51 res c.o.m. example
-rmsd rmsd_1-51 :1-51 out rmsd_1-51 mass
-
-go
-

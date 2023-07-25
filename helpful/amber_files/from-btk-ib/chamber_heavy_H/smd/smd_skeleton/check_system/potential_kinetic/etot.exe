@@ -1,9 +1,0 @@
-#!/bin/bash
-
-for i in {1..8}; do
-
-awk '/Etot/ {print $3}; ($1=="A" && $2=="V") {exit 0};' ../../smd.$i.mdout >> etot.dat
-awk '/EKtot/ {print $6}; ($1=="A" && $2=="V") {exit 0};' ../../smd.$i.mdout >> ektot.dat
-awk '/EPtot/ {print $9}; ($1=="A" && $2=="V") {exit 0};' ../../smd.$i.mdout >> eptot.dat
-
-done

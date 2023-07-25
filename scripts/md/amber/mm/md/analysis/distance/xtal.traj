@@ -1,4 +1,0 @@
-parm ../../linked/prep/EGFR_IB_l.parm7
-trajin ../../linked/prep/EGFR_IB_l.pdb
-autoimage
-distance :IB@OAC :98@HN out distance.dat noimage

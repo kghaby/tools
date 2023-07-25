@@ -1,6 +1,0 @@
-parm sys.parm7
-trajin traj.nc
-
-#backbonetoelse example
-radial rdf_backbonetoelse .1 20.0 :1-51@CA,C,N,O,H (:1-51)&(!@CA,C,N,O,H) volume 
-go

@@ -1,4 +1,0 @@
-parm ../../../../../tleap/sys.parm7 
-trajin smd.nc
-
-distance :47 :97  out dist_47_97   #cysteines
