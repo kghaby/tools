@@ -1,5 +1,11 @@
 #random functions that are useful in scripts
 
+linker () {
+    mkdir .lsp_symlink
+    cd .lsp_symlink
+    ln -s $1 $2
+}
+
 testfile () {
     echo "#!/bin/bash" > $1
     echo "set -e" >> $1
@@ -11,8 +17,8 @@ testfile () {
 jllocal() {
   rport=27648
   lport=27648
-  remote_username=kyleghaby
-  remote_hostname=beagle3.rcc.uchicago.edu
+  remote_username=$1 #eg kyleghaby
+  remote_hostname=$2 #eg beagle3.rcc.uchicago.edu
   url="http://localhost:$lport"
   echo "URL: $url"
   #open "$url"
