@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+source utils/scripts/general/functions.sh
 
 # A template master script for performing a set of commands on a bunch of targets (files/dirs).
 # This is intended to be copied into a working dir and edited directly. 
@@ -30,13 +31,10 @@ commands() {
     popd
 }
 
-# Source utility functions
-source utils/scripts/general/functions.sh
-
 # Start of the script
 for target in $targets; do
     echo "Starting $target"
-    if verify_target $target $whitelist $blacklist; then
+    if verify_target $target whitelist blacklist; then
         label=$(label_target $target $targets)
         commands $target $label
     else
