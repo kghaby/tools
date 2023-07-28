@@ -40,28 +40,33 @@ addignore() {
 
 verify_target() {
     local target=$1
-    local whitelist=$2
-    local blacklist=$3
 
-    #check whitelist
-    if (( "${#whitelist[@]}" > 0 )); then
+    # check whitelist
+    if (( ${#whitelist[@]} > 0 )); then
+        local found=0
         for item in "${whitelist[@]}"; do
-            if [[ "$target" != *"$item"* ]]; then
-                return 1
+            if [[ "$target" == *"$item"* ]]; then
+                found=1
+                break
             fi
         done
+        if (( found == 0 )); then
+            return 1
+        fi
     fi
 
-    #check blacklist
-    if (( "${#blacklist[@]}" > 0 )); then
+    # check blacklist
+    if (( ${#blacklist[@]} > 0 )); then
         for item in "${blacklist[@]}"; do
             if [[ "$target" == *"$item"* ]]; then
                 return 1
             fi
         done
     fi
+
     return 0
 }
+
 
 # Function to create a label from a directory path
 label_target() {
