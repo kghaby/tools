@@ -34,7 +34,7 @@ commands() {
 # Start of the script
 for target in $targets; do
     echo "Starting $target"
-    if verify_target $target whitelist blacklist; then
+    if verify_target $target; then
         label=$(label_target $target $targets)
         commands $target $label
     else
