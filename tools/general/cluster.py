@@ -6,7 +6,7 @@ import os
 
 # Help Section (CLI Guidance)
 def print_help():
-    print("Usage: python script.py [data_file] [n_clusters] [tolerance]")
+    print("Usage: cluster.py [data_file] [n_clusters] [tolerance]")
     print("  data_file:  File containing frame and data. Default is 'forcluster.dat'.")
     print("  n_clusters: Number of clusters. Default determined by Elbow Method.")
     print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
