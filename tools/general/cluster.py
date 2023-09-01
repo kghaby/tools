@@ -48,10 +48,12 @@ def incremental_std(cluster_data):
     n = len(cluster_data)
     squared_diff_sum = 0
     
-    for point in cluster_data:
-        squared_diff_sum += np.sum((point - cluster_data) ** 2)
+    for i, point in enumerate(cluster_data):
+        diff = point - np.delete(cluster_data, i)  # Remove the point itself from the array
+        squared_diff_sum += np.sum(diff ** 2)
         
-    return np.sqrt(squared_diff_sum / (n * (n - 1)))  # n * (n - 1) because of pairwise comparisons
+    variance = squared_diff_sum / (n * (n - 1))
+    return np.sqrt(variance)  # sqrt of variance is std deviation
 
 
 def cluster_summary(data, labels, centroids):
