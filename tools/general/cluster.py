@@ -87,7 +87,7 @@ tol = float(sys.argv[3]) if len(sys.argv) > 3 else None
 
 data = np.loadtxt(data_file)
 frames = data[:, 0]
-values = data[:, 1]
+values = data[:, 1:].reshape(-1, 1)
 
 if n_clusters is None:
     print("Determining optimal clusters via Elbow Method...")
