@@ -36,6 +36,15 @@ def elbow_method(data, k_range):
     rate_change = np.diff(np.diff(inertia))
     return np.argmax(rate_change) + k_range[0] + 1
 
+# Identify centroid frames
+def find_centroid_frames(data, centroids, labels):
+    centroid_frames = []
+    for i, centroid in enumerate(centroids):
+        cluster_data = data[labels == i]
+        closest_frame = np.argmin(np.abs(cluster_data - centroid))
+        centroid_frames.append(frames[labels == i][closest_frame])
+    return centroid_frames
+
 
 # Generate gnuplot script
 def create_gnuplot_script(labels,output_dir):
@@ -90,7 +99,7 @@ if tol is None:
     print(f"Initial tolerance set to {tol}")
 
 centroids, labels = kmeans(values, n_clusters, tol)
-  
+centroid_frames = find_centroid_frames(values, centroids, labels)
 
 # Output to directory
 with open(f"{output_dir}/cluster.all.dat", 'w') as f:
@@ -106,7 +115,11 @@ for unique_label in np.unique(labels):
             if label == unique_label:
                 f.write(f"{int(frame)} {value:.6f} {label}\n")
 
-np.savetxt(f"{output_dir}/cluster.centroids", centroids, header="Cluster Centroids")
+# Output centroid frames, values, and cluster index
+with open(f"{output_dir}/cluster.centroids", 'w') as f:
+    f.write("#Frame Value Centroid_Cluster\n")
+    for i, (centroid, frame) in enumerate(zip(centroids, centroid_frames)):
+        f.write(f"{int(frame)} {centroid[0]:.6f} {i}\n")
 
 # Generate Gnuplot script
 create_gnuplot_script(labels,output_dir)
