@@ -48,7 +48,7 @@ def find_centroid_frames(data, centroids, labels):
 
 # Generate gnuplot script
 def create_gnuplot_script(labels,output_dir):
-    dir_gnu = os.getcwd().replace('_', '\\_')
+    dir_gnu = os.getcwd().replace('_', '\\\_')
     with open(f"{output_dir}/plot_cluster.gnu", "w") as f:
         f.write(f'set xlabel "Time (frames)"\n')
         f.write('set ylabel ""\n')
