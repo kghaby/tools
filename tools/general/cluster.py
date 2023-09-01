@@ -46,10 +46,16 @@ def cluster_summary(data, labels, centroids):
         cluster_data = data[labels == label]
         n_cluster_frames = len(cluster_data)
         fraction = n_cluster_frames / n_frames
-        avg_dist = np.mean(np.abs(cluster_data - centroids[label]))
-        stdev = np.std(np.abs(cluster_data - centroids[label]))
-        centroid_frame = frames[labels == label][np.argmin(np.abs(cluster_data - centroids[label]))]
-        avg_cdist = np.mean(np.abs(cluster_data - centroids[label]))
+        avg_dist = np.mean([np.linalg.norm(point - cluster_data) for point in cluster_data])
+        stdev = np.std([np.linalg.norm(point - cluster_data) for point in cluster_data])
+        
+        # Centroid calculation
+        cumulative_dists = [np.sum(np.abs(point - cluster_data)) for point in cluster_data]
+        centroid_frame = frames[labels == label][np.argmin(cumulative_dists)]
+        
+        # AvgCDist: Average distance to other clusters
+        other_clusters = np.concatenate([data[labels == other_label] for other_label in unique_labels if other_label != label])
+        avg_cdist = np.mean([np.linalg.norm(point - other_clusters) for point in cluster_data])
         
         summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), avg_cdist])
         
