@@ -48,7 +48,7 @@ def create_gnuplot_script(labels,output_dir):
         f.write('plot\\\n')
         
         for label in np.unique(labels):
-            f.write(f'"cluster.c{label}.dat" u 1:2 every 10 title "{label}",\\\n')
+            f.write(f'"cluster.c{label}.dat" u 1:2 every 10 title "{label}",\\\n\n')
 
         f.write('pause -1\n')
 
@@ -113,4 +113,4 @@ create_gnuplot_script(labels,output_dir)
 print("Generated Gnuplot script.")
 
 # Run Gnuplot
-os.system(f"gnuplot {output_dir}/plot_cluster.gnu")
+os.system(f"cd {output_dir}; gnuplot {output_dir}/plot_cluster.gnu; cd -")
