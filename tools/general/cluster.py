@@ -166,8 +166,9 @@ for unique_label in np.unique(labels):
 # Output cluster summary
 with open(f"{output_dir}/cluster.sum", 'w') as f:
     f.write("#Cluster   Frames     Frac  AvgDist    Stdev Centroid AvgCDist  CValue \n")
-    for row in summary_data:
-        f.write(f"{row[0]:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
+    for new_label, (old_label, *rest) in enumerate(summary_data):
+        f.write(f"{new_label:7d} {' '.join(map(str, [x if isinstance(x, int) else f'{x:.3f}' for x in rest]))}\n")
+
 
 
 
