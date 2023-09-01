@@ -15,8 +15,7 @@ def print_help():
 # K-means algorithm
 def kmeans(data, centroids, tol=1e-4, max_iter=100):
     for i in range(max_iter):
-        # Expand dimensions to allow broadcasting
-        distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
+        distances = np.linalg.norm(data[:, np.newaxis] - centroids, axis=2)
         labels = np.argmin(distances, axis=0)
         new_centroids = np.array([data[labels == k].mean(axis=0) for k in range(centroids.shape[0])])
 
@@ -27,16 +26,14 @@ def kmeans(data, centroids, tol=1e-4, max_iter=100):
 
     return centroids, labels
 
-
 # Elbow Method
 def elbow_method(data, k_range):
     inertia = []
     for k in k_range:
-        initial_centroids = np.random.choice(data.flatten(), size=k)[:, np.newaxis]
+        initial_centroids = np.random.choice(data.flatten(), size=k).reshape(-1, 1)  # Reshape to 2D
         centroids, _ = kmeans(data, initial_centroids)
         inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
-    return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1
-# Double differentiation to find elbow ie num_clusters
+    return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1  # Double differentiation to find elbow ie num_clusters
 
 
 # Davies–Bouldin index (Heuristic Evaluation)
