@@ -15,9 +15,10 @@ def print_help():
 # K-means algorithm
 def kmeans(data, centroids, tol=1e-4, max_iter=100):
     for i in range(max_iter):
-        distances = np.linalg.norm(data - centroids[:, np.newaxis, :], axis=2)
+        # Expand dimensions to allow broadcasting
+        distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
         labels = np.argmin(distances, axis=0)
-        new_centroids = np.array([data[labels == k].mean(axis=0) for k in range(centroids.shape[0])]).reshape(-1, 1, 1)
+        new_centroids = np.array([data[labels == k].mean(axis=0) for k in range(centroids.shape[0])])
 
         if np.all(np.abs(new_centroids - centroids) < tol):
             break
@@ -26,14 +27,16 @@ def kmeans(data, centroids, tol=1e-4, max_iter=100):
 
     return centroids, labels
 
+
 # Elbow Method
 def elbow_method(data, k_range):
     inertia = []
     for k in k_range:
-        initial_centroids = np.random.choice(data.flatten(), size=k).reshape(-1, 1)  # Reshape to 2D
+        initial_centroids = np.random.choice(data.flatten(), size=k)[:, np.newaxis]
         centroids, _ = kmeans(data, initial_centroids)
         inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
-    return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1  # Double differentiation to find elbow ie num_clusters
+    return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1
+# Double differentiation to find elbow ie num_clusters
 
 
 # Davies–Bouldin index (Heuristic Evaluation)
@@ -93,7 +96,7 @@ if n_clusters is None:
 
 print(f"Using {n_clusters} clusters.")
 
-initial_centroids = np.random.choice(values.flatten(), size=n_clusters).reshape(-1, 1, 1)  # Reshaped to (n_clusters, 1, 1)
+initial_centroids = np.random.choice(values.flatten(), size=n_clusters)
 centroids, labels = kmeans(values, initial_centroids, tol)
 
 if tol is None:
