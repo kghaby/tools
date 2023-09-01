@@ -12,42 +12,44 @@ def print_help():
     print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
     sys.exit(0)
 
-# K-means algorithm
-def kmeans(data, centroids, tol=1e-4, max_iter=100):
-    for i in range(max_iter):
+# K-means algorithm (Lloyd's Algorithm)
+def kmeans(data, k, tol=1e-4, max_iter=100):
+    centroids = data[np.random.choice(data.shape[0], size=k, replace=False)]
+    for _ in range(max_iter):
         distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
         labels = np.argmin(distances, axis=0)
-        new_centroids = np.array([data[labels == k].mean(axis=0) for k in range(centroids.shape[0])])
-
+        new_centroids = np.array([data[labels == i].mean(axis=0) for i in range(k)])
+        
         if np.all(np.abs(new_centroids - centroids) < tol):
             break
-
         centroids = new_centroids
-
+    
     return centroids, labels
 
-# Elbow Method
+# Elbow Method (Scree Plot)
 def elbow_method(data, k_range):
     inertia = []
     for k in k_range:
-        initial_centroids = np.random.choice(data.flatten(), size=k).reshape(-1, 1)
-        centroids, _ = kmeans(data, initial_centroids)
+        centroids, _ = kmeans(data, k)
         inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
-    return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1  # Double differentiation to find elbow ie num_clusters
+    
+    rate_change = np.diff(np.diff(inertia))
+    return np.argmax(rate_change) + k_range[0] + 1
 
 
-# Davies–Bouldin index (Heuristic Evaluation)
+# Davies–Bouldin Index (Internal Validation)
 def davies_bouldin(data, labels, centroids):
-    n_cluster = centroids.shape[0]
-    s_values = np.array([np.sqrt(np.sum(np.linalg.norm(data[labels == k] - centroids[k], axis=1)**2) / np.sum(labels == k)) for k in range(n_cluster)])
+    n_cluster = len(centroids)
+    s_values = [np.linalg.norm(data[labels == i] - centroids[i]).mean() for i in range(n_cluster)]
     r_values = np.zeros((n_cluster, n_cluster))
     
     for i in range(n_cluster):
         for j in range(i+1, n_cluster):
-            r_values[i, j] = r_values[j, i] = (s_values[i] + s_values[j]) / np.linalg.norm(centroids[i] - centroids[j])
+            r_ij = (s_values[i] + s_values[j]) / np.linalg.norm(centroids[i] - centroids[j])
+            r_values[i, j] = r_values[j, i] = r_ij
     
     d_values = np.max(r_values, axis=1)
-    return np.sum(d_values) / n_cluster
+    return np.mean(d_values)
 
 # Generate gnuplot script
 def create_gnuplot_script(labels):
@@ -85,7 +87,7 @@ tol = float(sys.argv[3]) if len(sys.argv) > 3 else None
 
 data = np.loadtxt(data_file)
 frames = data[:, 0]
-values = data[:, 1].reshape(-1, 1)
+values = data[:, 1]
 
 if n_clusters is None:
     print("Determining optimal clusters via Elbow Method...")
@@ -93,8 +95,7 @@ if n_clusters is None:
 
 print(f"Using {n_clusters} clusters.")
 
-initial_centroids = np.random.choice(values.flatten(), size=n_clusters)
-centroids, labels = kmeans(values, initial_centroids, tol)
+centroids, labels = kmeans(values, n_clusters, tol)
 
 if tol is None:
     print("Calculating optimal tolerance...")
