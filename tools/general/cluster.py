@@ -55,9 +55,11 @@ def cluster_summary(data, labels, centroids):
         fraction = n_cluster_frames / n_frames
         avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
 
-        # Stdev calculation
-        stdevs = [np.std(np.abs(point - cluster_data)) for point in cluster_data]
-        stdev = np.mean(stdevs)
+        # Revised Stdev calculation
+        distances = [np.abs(point - cluster_data) for point in cluster_data]
+        flattened_distances = np.concatenate(distances)
+        stdev = np.std(flattened_distances, ddof=1)  # ddof=1 for unbiased estimator
+
         
         # Centroid calculation
         cumulative_dists = [np.sum(np.abs(point - cluster_data)) for point in cluster_data]
