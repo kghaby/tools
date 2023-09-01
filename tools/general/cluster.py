@@ -32,7 +32,7 @@ def elbow_method(data, k_range):
     for k in k_range:
         initial_centroids = np.random.choice(data.flatten(), size=k).reshape(-1, 1)
         centroids, _ = kmeans(data, initial_centroids)
-        inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
+        inertia.append(np.sum(np.min(np.linalg.norm(data[:, :, np.newaxis] - centroids.T[np.newaxis, :, :], axis=1), axis=0)))
     return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1  # Double differentiation to find elbow ie num_clusters
 
 
