@@ -137,6 +137,18 @@ if tol is None:
 centroids, labels = kmeans(values, n_clusters, tol)
 summary_data = cluster_summary(values, labels, centroids)
 
+# Sort summary data by number of frames (Descending)
+summary_data.sort(key=lambda x: x[1], reverse=True)
+
+# Relabel clusters based on sorted summary
+new_labels = {}
+for new_label, (old_label, *_rest) in enumerate(summary_data):
+    new_labels[old_label] = new_label
+
+# Update the labels array
+for i, label in enumerate(labels):
+    labels[i] = new_labels[label]
+
 # Output to directory
 with open(f"{output_dir}/cluster.all.dat", 'w') as f:
     f.write("#Frame Data Cluster\n")
