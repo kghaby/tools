@@ -3,6 +3,7 @@
 import numpy as np
 import sys
 import os 
+from datetime import datetime
 
 # Help Section (CLI Guidance)
 def print_help():
@@ -11,6 +12,13 @@ def print_help():
     print("  n_clusters: Number of clusters. Default determined by Elbow Method.")
     print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
     sys.exit(0)
+
+# Function to log information to a file
+def log_to_file(message, log_file,printmsg=True):
+    if printmsg:
+        print(message)
+    with open(log_file, 'a') as f:
+        f.write(f"{message}\n")
 
 # K-means algorithm (Lloyd's Algorithm)
 def kmeans(data, k, tol=1e-4, max_iter=100):
@@ -91,7 +99,9 @@ if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help', 'help'):
     print_help()
 
 output_dir = create_output_dir()
-print(f"Output directory: {output_dir}")
+log_file = f"{output_dir}/cluster.log"
+log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
+log_to_file(f"Output directory: {output_dir}", log_file)
 
 data_file = sys.argv[1] if len(sys.argv) > 1 else 'forcluster.dat'
 n_clusters = int(sys.argv[2]) if len(sys.argv) > 2 else None
@@ -102,18 +112,18 @@ frames = data[:, 0]
 values = data[:, 1:].reshape(-1, 1)
 
 if n_clusters is None:
-    print("Determining optimal clusters via Elbow Method...")
+    log_to_file("Determining optimal clusters via Elbow Method...",log_file)
     n_clusters = elbow_method(values, range(1, 11))
 
-print(f"Using {n_clusters} clusters.")
+log_to_file(f"Using {n_clusters} clusters.", log_file)
 
 # Main
 # ... (other parts remain the same)
 
 if tol is None:
-    print("Calculating initial tolerance...")
+    log_to_file("Calculating initial tolerance...",log_file)
     tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
-    print(f"Initial tolerance set to {tol}")
+    log_to_file(f"Initial tolerance set to {tol}",log_file)
 
 centroids, labels = kmeans(values, n_clusters, tol)
 summary_data = cluster_summary(values, labels, centroids)
@@ -142,7 +152,7 @@ with open(f"{output_dir}/cluster.sum", 'w') as f:
 
 # Generate Gnuplot script
 create_gnuplot_script(labels,output_dir)
-print("Generated Gnuplot script.")
-
+log_to_file("Generated Gnuplot script.", log_file)
+log_to_file(f"Run ended at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
 # Run Gnuplot
 os.system(f"cd {output_dir}; gnuplot plot_cluster.gnu; cd -")
