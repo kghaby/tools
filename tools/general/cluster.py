@@ -113,4 +113,4 @@ create_gnuplot_script(labels,output_dir)
 print("Generated Gnuplot script.")
 
 # Run Gnuplot
-os.system(f"cd {output_dir}; gnuplot {output_dir}/plot_cluster.gnu; cd -")
+os.system(f"cd {output_dir}; gnuplot plot_cluster.gnu; cd -")
