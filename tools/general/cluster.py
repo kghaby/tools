@@ -15,10 +15,9 @@ def print_help():
 # K-means algorithm
 def kmeans(data, centroids, tol=1e-4, max_iter=100):
     for i in range(max_iter):
-        distances = np.linalg.norm(data[:, np.newaxis] - centroids, axis=2)
+        distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
         labels = np.argmin(distances, axis=0)
-        new_centroids = np.array([data[labels.flatten() == k].mean(axis=0) for k in range(centroids.shape[0])])
-
+        new_centroids = np.array([data[labels == k].mean(axis=0) for k in range(centroids.shape[0])])
 
         if np.all(np.abs(new_centroids - centroids) < tol):
             break
