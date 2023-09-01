@@ -36,7 +36,6 @@ def elbow_method(data, k_range):
     rate_change = np.diff(np.diff(inertia))
     return np.argmax(rate_change) + k_range[0] + 1
 
-# Generate cluster summary
 def cluster_summary(data, labels, centroids):
     unique_labels = np.unique(labels)
     n_frames = len(data)
@@ -46,18 +45,19 @@ def cluster_summary(data, labels, centroids):
         cluster_data = data[labels == label]
         n_cluster_frames = len(cluster_data)
         fraction = n_cluster_frames / n_frames
-        avg_dist = np.mean([np.linalg.norm(point - cluster_data) for point in cluster_data])
-        stdev = np.std([np.linalg.norm(point - cluster_data) for point in cluster_data])
+        avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
+        stdev = np.std([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
         
         # Centroid calculation
         cumulative_dists = [np.sum(np.abs(point - cluster_data)) for point in cluster_data]
         centroid_frame = frames[labels == label][np.argmin(cumulative_dists)]
+        centroid_value = centroids[label][0]
         
         # AvgCDist: Average distance to other clusters
         other_clusters = np.concatenate([data[labels == other_label] for other_label in unique_labels if other_label != label])
-        avg_cdist = np.mean([np.linalg.norm(point - other_clusters) for point in cluster_data])
+        avg_cdist = np.mean(np.abs(cluster_data.mean() - other_clusters))
         
-        summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), avg_cdist])
+        summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), centroid_value, avg_cdist])
         
     return summary
 
@@ -134,9 +134,10 @@ for unique_label in np.unique(labels):
 
 # Output cluster summary
 with open(f"{output_dir}/cluster.sum", 'w') as f:
-    f.write("#Cluster   Frames     Frac  AvgDist    Stdev Centroid AvgCDist\n")
+    f.write("#Cluster   Frames     Frac  AvgDist    Stdev Centroid  CValue AvgCDist\n")
     for row in summary_data:
-        f.write(f"{row[0]:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f}\n")
+        f.write(f"{row[0]:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
+
 
 
 # Generate Gnuplot script
