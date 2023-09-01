@@ -44,18 +44,6 @@ def elbow_method(data, k_range):
     rate_change = np.diff(np.diff(inertia))
     return np.argmax(rate_change) + k_range[0] + 1
 
-def incremental_std(cluster_data):
-    n = len(cluster_data)
-    squared_diff_sum = 0
-    
-    for i, point in enumerate(cluster_data):
-        diff = point - np.delete(cluster_data, i)  # Remove the point itself from the array
-        squared_diff_sum += np.sum(diff ** 2)
-        
-    variance = squared_diff_sum / (n * (n - 1))
-    return np.sqrt(variance)  # sqrt of variance is std deviation
-
-
 def cluster_summary(data, labels, centroids):
     unique_labels = np.unique(labels)
     n_frames = len(data)
@@ -67,7 +55,8 @@ def cluster_summary(data, labels, centroids):
         fraction = n_cluster_frames / n_frames
         avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
 
-        stdev = incremental_std(cluster_data)
+        all_dists = [np.abs(point - cluster_data) for point in cluster_data]
+        stdev = np.std(all_dists)
 
         
         # Centroid calculation
