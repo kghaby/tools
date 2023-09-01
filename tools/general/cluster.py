@@ -37,20 +37,6 @@ def elbow_method(data, k_range):
     return np.argmax(rate_change) + k_range[0] + 1
 
 
-# Davies–Bouldin Index (Internal Validation)
-def davies_bouldin(data, labels, centroids):
-    n_cluster = len(centroids)
-    s_values = [np.linalg.norm(data[labels == i] - centroids[i]).mean() for i in range(n_cluster)]
-    r_values = np.zeros((n_cluster, n_cluster))
-    
-    for i in range(n_cluster):
-        for j in range(i+1, n_cluster):
-            r_ij = (s_values[i] + s_values[j]) / np.linalg.norm(centroids[i] - centroids[j])
-            r_values[i, j] = r_values[j, i] = r_ij
-    
-    d_values = np.max(r_values, axis=1)
-    return np.mean(d_values)
-
 # Generate gnuplot script
 def create_gnuplot_script(labels):
     dir_gnu = os.getcwd().replace('_', '\\_')
@@ -95,11 +81,16 @@ if n_clusters is None:
 
 print(f"Using {n_clusters} clusters.")
 
-centroids, labels = kmeans(values, n_clusters, tol)
+# Main
+# ... (other parts remain the same)
 
 if tol is None:
-    print("Calculating optimal tolerance...")
-    tol = 0.1 * davies_bouldin(values, labels, centroids)  # Scale factor adjustable
+    print("Calculating initial tolerance...")
+    tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
+    print(f"Initial tolerance set to {tol}")
+
+centroids, labels = kmeans(values, n_clusters, tol)
+  
 
 # Output to directory
 with open(f"{output_dir}/cluster.all.dat", 'w') as f:
