@@ -98,6 +98,14 @@ with open(f"{output_dir}/cluster.all.dat", 'w') as f:
     for frame, value, label in zip(frames, values.flatten(), labels):
         f.write(f"{int(frame)} {value:.6f} {label}\n")
 
+# Output individual cluster files
+for unique_label in np.unique(labels):
+    with open(f"{output_dir}/cluster.c{unique_label}.dat", 'w') as f:
+        f.write("#Frame Data Cluster\n")
+        for frame, value, label in zip(frames, values.flatten(), labels):
+            if label == unique_label:
+                f.write(f"{int(frame)} {value:.6f} {label}\n")
+
 np.savetxt(f"{output_dir}/cluster.centroids", centroids, header="Cluster Centroids")
 
 # Generate Gnuplot script
