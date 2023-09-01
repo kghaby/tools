@@ -13,12 +13,6 @@ def print_help():
     print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
     sys.exit(0)
 
-def batch_std(arr, batch_size=1000):
-    n = len(arr)
-    batches = [arr[i:i + batch_size] for i in range(0, n, batch_size)]
-    squared_diff_sum = np.sum([np.sum((batch - np.mean(batch))**2) for batch in batches])
-    return np.sqrt(squared_diff_sum / (n - 1))
-
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
     if printmsg:
@@ -49,6 +43,12 @@ def elbow_method(data, k_range):
     
     rate_change = np.diff(np.diff(inertia))
     return np.argmax(rate_change) + k_range[0] + 1
+
+def batch_std(arr, batch_size=1000):
+    n = len(arr)
+    batches = [arr[i:i + batch_size] for i in range(0, n, batch_size)]
+    squared_diff_sum = np.sum([np.sum((batch - np.mean(batch))**2) for batch in batches])
+    return np.sqrt(squared_diff_sum / (n - 1))
 
 def cluster_summary(data, labels, centroids):
     unique_labels = np.unique(labels)
