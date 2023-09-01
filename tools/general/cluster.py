@@ -13,6 +13,12 @@ def print_help():
     print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
     sys.exit(0)
 
+def batch_std(arr, batch_size=1000):
+    n = len(arr)
+    batches = [arr[i:i + batch_size] for i in range(0, n, batch_size)]
+    squared_diff_sum = np.sum([np.sum((batch - np.mean(batch))**2) for batch in batches])
+    return np.sqrt(squared_diff_sum / (n - 1))
+
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
     if printmsg:
@@ -55,10 +61,10 @@ def cluster_summary(data, labels, centroids):
         fraction = n_cluster_frames / n_frames
         avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
 
-        # Revised Stdev calculation
+        # Revised Stdev calculation with batching
         distances = [np.abs(point - cluster_data) for point in cluster_data]
         flattened_distances = np.concatenate(distances)
-        stdev = np.std(flattened_distances, ddof=1)  # ddof=1 for unbiased estimator
+        stdev = batch_std(flattened_distances)
 
         
         # Centroid calculation
