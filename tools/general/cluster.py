@@ -38,9 +38,9 @@ def elbow_method(data, k_range):
 
 
 # Generate gnuplot script
-def create_gnuplot_script(labels):
+def create_gnuplot_script(labels,output_dir):
     dir_gnu = os.getcwd().replace('_', '\\_')
-    with open("plot_cluster.gnu", "w") as f:
+    with open(f"{output_dir}/plot_cluster.gnu", "w") as f:
         f.write(f'set xlabel "Time (frames)"\n')
         f.write('set ylabel ""\n')
         f.write(f'set title "{dir_gnu}"\n')
@@ -101,8 +101,8 @@ with open(f"{output_dir}/cluster.all.dat", 'w') as f:
 np.savetxt(f"{output_dir}/cluster.centroids", centroids, header="Cluster Centroids")
 
 # Generate Gnuplot script
-create_gnuplot_script(labels)
+create_gnuplot_script(labels,output_dir)
 print("Generated Gnuplot script.")
 
 # Run Gnuplot
-os.system("gnuplot plot_cluster.gnu")
+os.system(f"gnuplot {output_dir}/plot_cluster.gnu")
