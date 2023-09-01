@@ -30,7 +30,7 @@ def kmeans(data, centroids, tol=1e-4, max_iter=100):
 def elbow_method(data, k_range):
     inertia = []
     for k in k_range:
-        initial_centroids = np.random.choice(data.flatten(), size=k)
+        initial_centroids = np.random.choice(data.flatten(), size=k).reshape(-1, 1)  # Reshape to 2D
         centroids, _ = kmeans(data, initial_centroids)
         inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
     return np.argmin(np.diff(np.diff(inertia))) + k_range[0] + 1  # Double differentiation to find elbow ie num_clusters
@@ -102,8 +102,9 @@ if tol is None:
 
 # Output to directory
 with open(f"{output_dir}/cluster.all.dat", 'w') as f:
-    for frame, value, label in zip(frames, values, labels):
-        f.write(f"{int(frame)} {value[0]} {label}\n")
+    f.write("#Frame Data Cluster\n")
+    for frame, value, label in zip(frames, values.flatten(), labels):
+        f.write(f"{int(frame)} {value:.6f} {label}\n")
 
 np.savetxt(f"{output_dir}/cluster.centroids", centroids, header="Cluster Centroids")
 
