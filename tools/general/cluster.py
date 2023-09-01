@@ -54,9 +54,17 @@ def cluster_summary(data, labels, centroids):
         n_cluster_frames = len(cluster_data)
         fraction = n_cluster_frames / n_frames
         avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
-
-        all_dists = [np.abs(point - cluster_data) for point in cluster_data]
-        stdev = np.std(all_dists)
+        
+        # Welford's algorithm for standard deviation
+        mean, m2, n = 0.0, 0.0, 0
+        for point in cluster_data:
+            n += 1
+            delta = np.abs(point - cluster_data) - mean
+            mean += delta / n
+            delta2 = np.abs(point - cluster_data) - mean
+            m2 += delta * delta2
+        variance_n = m2 / n
+        stdev = np.sqrt(variance_n)
 
         
         # Centroid calculation
