@@ -36,14 +36,25 @@ def elbow_method(data, k_range):
     rate_change = np.diff(np.diff(inertia))
     return np.argmax(rate_change) + k_range[0] + 1
 
-# Identify centroid frames
-def find_centroid_frames(data, centroids, labels):
-    centroid_frames = []
-    for i, centroid in enumerate(centroids):
-        cluster_data = data[labels == i]
-        closest_frame = np.argmin(np.abs(cluster_data - centroid))
-        centroid_frames.append(frames[labels == i][closest_frame])
-    return centroid_frames
+# Generate cluster summary
+def cluster_summary(data, labels, centroids):
+    unique_labels = np.unique(labels)
+    n_frames = len(data)
+    summary = []
+    
+    for label in unique_labels:
+        cluster_data = data[labels == label]
+        n_cluster_frames = len(cluster_data)
+        fraction = n_cluster_frames / n_frames
+        avg_dist = np.mean(np.abs(cluster_data - centroids[label]))
+        stdev = np.std(np.abs(cluster_data - centroids[label]))
+        centroid_frame = frames[labels == label][np.argmin(np.abs(cluster_data - centroids[label]))]
+        avg_cdist = np.mean(np.abs(cluster_data - centroids[label]))
+        
+        summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), avg_cdist])
+        
+    return summary
+
 
 
 # Generate gnuplot script
@@ -99,7 +110,7 @@ if tol is None:
     print(f"Initial tolerance set to {tol}")
 
 centroids, labels = kmeans(values, n_clusters, tol)
-centroid_frames = find_centroid_frames(values, centroids, labels)
+summary_data = cluster_summary(values, labels, centroids)
 
 # Output to directory
 with open(f"{output_dir}/cluster.all.dat", 'w') as f:
@@ -115,11 +126,12 @@ for unique_label in np.unique(labels):
             if label == unique_label:
                 f.write(f"{int(frame)} {value:.6f} {label}\n")
 
-# Output centroid frames, values, and cluster index
-with open(f"{output_dir}/cluster.centroids", 'w') as f:
-    f.write("#Frame Value Centroid_Cluster\n")
-    for i, (centroid, frame) in enumerate(zip(centroids, centroid_frames)):
-        f.write(f"{int(frame)} {centroid[0]:.6f} {i}\n")
+# Output cluster summary
+with open(f"{output_dir}/cluster.sum", 'w') as f:
+    f.write("#Cluster   Frames     Frac  AvgDist    Stdev Centroid AvgCDist\n")
+    for row in summary_data:
+        f.write(f"{row[0]:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f}\n")
+
 
 # Generate Gnuplot script
 create_gnuplot_script(labels,output_dir)
