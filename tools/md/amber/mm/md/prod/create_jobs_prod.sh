@@ -4,9 +4,9 @@ set -e
 #paths are from perspective of prod dir 
 jobname_base="test"
 parm="../prep/BTK1_IB_l.parm7"
-prev_slurmID="1" #equil if new prod
+prev_slurmID="1" #dependency ID
 prev_rst="../equil/equil.5.rst7" #equil if new prod
-prod_range=(1 10) #2 object array. first and last. each prod is 20 ns 
+prod_range=(1 100) #2 object array. first and last. each prod is 20 ns 
 time_var="48:00:00"
 
 
@@ -43,6 +43,7 @@ echo "#!/bin/bash
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
+##SBATCH --exclude=beagle3-0008,beagle3-0017 
 set -e 
 module unload amber
 module load amber
