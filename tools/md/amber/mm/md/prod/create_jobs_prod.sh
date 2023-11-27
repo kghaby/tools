@@ -43,7 +43,7 @@ echo "#!/bin/bash
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-##SBATCH --exclude=beagle3-0008,beagle3-0017,beagle-0028,beagle-0029
+##SBATCH --exclude=beagle3-0008,beagle3-0017,beagle3--0027,beagle3-0028,beagle3-0029,beagle3--0030
 set -e 
 module unload amber
 module load amber
