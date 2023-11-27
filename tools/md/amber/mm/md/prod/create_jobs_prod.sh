@@ -6,7 +6,7 @@ jobname_base="test"
 parm="../prep/BTK1_IB_l.parm7"
 prev_slurmID="1" #dependency ID
 prev_rst="../equil/equil.5.rst7" #equil if new prod
-prod_range=(1 100) #2 object array. first and last. each prod is 20 ns 
+prod_range=(1 200) #2 object array. first and last. each prod is 20 ns 
 time_var="48:00:00"
 
 
