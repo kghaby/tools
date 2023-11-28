@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 
-#pathstest are from perspective of prod dir 
+#paths are from perspective of prod dir 
 jobname_base="test"
 parm="../prep/BTK1_IB_l.parm7"
 prev_slurmID="1" #dependency ID
