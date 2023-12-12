@@ -4,15 +4,9 @@ import numpy as np
 import sys
 import os 
 from datetime import datetime
+import argparse
 
-# Help Section
-def print_help():
-    print("Usage: cluster.py [data_file] [n_clusters] [tolerance]")
-    print("  data_file:  File containing data to be clustered. Default is 'forcluster.dat'.")
-    print("  col: Column of data to cluster. Indexing starts at 0. Default is 1 (second col).")
-    print("  n_clusters: Number of clusters. Default determined by Elbow Method.")
-    print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
-    sys.exit(0)
+
 
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
@@ -22,18 +16,25 @@ def log_to_file(message, log_file,printmsg=True):
         f.write(f"{message}\n")
 
 # K-means algorithm (Lloyd's Algorithm)
-def kmeans(data, k, tol=1e-4, max_iter=100):
-    centroids = data[np.random.choice(data.shape[0], size=k, replace=False)]
+def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
+    if initial_centroids is None:
+        centroids = data[np.random.choice(data.shape[0], size=k, replace=False)]
+    else:
+        if len(initial_centroids) != k:
+            raise ValueError("Number of initial centroids must match k")
+        centroids = np.array(initial_centroids)
+
     for _ in range(max_iter):
         distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
         labels = np.argmin(distances, axis=0)
         new_centroids = np.array([data[labels == i].mean(axis=0) for i in range(k)])
-        
+
         if np.all(np.abs(new_centroids - centroids) < tol):
             break
         centroids = new_centroids
-    
+
     return centroids, labels
+
 
 # Elbow Method (Scree Plot)
 def elbow_method(data, k_range):
@@ -104,7 +105,24 @@ def create_output_dir(base="clusters"):
     os.makedirs(f"{base}_{counter}")
     return f"{base}_{counter}"
 
-# Main
+
+# Argument Parsing
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Cluster data using K-means algorithm.')
+    parser.add_argument('--data_file', default='forcluster.dat', help='File containing data to be clustered.')
+    parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
+    parser.add_argument('--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
+    parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.')
+    parser.add_argument('--approx_centroids', type=list, default=None, help='List of initial centroid guesses.')
+    return parser.parse_args()
+args = parse_arguments()
+
+data_file = args.data_file
+col = args.col
+n_clusters = args.n_clusters
+tol = args.tol
+approx_centroids = args.approx_centroids
+
 if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help', 'help'):
     print_help()
 
@@ -112,11 +130,6 @@ output_dir = create_output_dir()
 log_file = f"{output_dir}/cluster.log"
 log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
 log_to_file(f"Output directory: {output_dir}", log_file)
-
-data_file = sys.argv[1] if len(sys.argv) > 1 else 'forcluster.dat'
-col = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-n_clusters = int(sys.argv[3]) if len(sys.argv) > 3 else None
-tol = float(sys.argv[4]) if len(sys.argv) > 4 else None
 
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
 values = values.reshape(-1,1)
