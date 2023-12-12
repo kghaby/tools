@@ -131,6 +131,9 @@ log_file = f"{output_dir}/cluster.log"
 log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
 log_to_file(f"Output directory: {output_dir}", log_file)
 
+if approx_centroids:
+    log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
+
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
 values = values.reshape(-1,1)
 frames = np.arange(1,len(values)+1)
