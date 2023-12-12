@@ -105,8 +105,8 @@ def create_gnuplot_script(labels, output_dir):
         f.write('set style data histogram\n')
         f.write('set style fill solid 1.0\n')
         f.write('plot\\\n')
-        f.write(f'"cluster.all.dat" u 3:xtic(1) every 10 title "",\\\n')
-
+        for label in np.unique(labels):
+            f.write(f'"cluster.c{label}.dat" u 3:xtic(1) every 1 title "{label}",\\\n')
         f.write('\nunset multiplot\n')
         f.write('\npause -1\n')
 
