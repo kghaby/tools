@@ -22,7 +22,7 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
     else:
         if len(initial_centroids) != k:
             raise ValueError("Number of initial centroids must match k")
-        centroids = np.array(initial_centroids)
+        centroids = initial_centroids
 
     for _ in range(max_iter):
         distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
@@ -133,6 +133,7 @@ log_to_file(f"Output directory: {output_dir}", log_file)
 
 if approx_centroids:
     log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
+approx_centroids=np.array(approx_centroids).reshape(-1, 1)
 
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
 values = values.reshape(-1,1)
