@@ -37,10 +37,10 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
 
 
 # Elbow Method (Scree Plot)
-def elbow_method(data, k_range):
+def elbow_method(data, k_range, initial_centroids=approx_centroids):
     inertia = []
     for k in k_range:
-        centroids, _ = kmeans(data, k)
+        centroids, _ = kmeans(data, k, initial_centroids=approx_centroids)
         inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
     
     rate_change = np.diff(np.diff(inertia))
@@ -137,7 +137,7 @@ frames = np.arange(1,len(values)+1)
 
 if n_clusters is None:
     log_to_file("Determining optimal clusters via Elbow Method...",log_file)
-    n_clusters = elbow_method(values, range(1, 11))
+    n_clusters = elbow_method(values, range(1, 11),initial_centroids=approx_centroids)
 
 log_to_file(f"Using {n_clusters} clusters.", log_file)
 
@@ -149,7 +149,7 @@ if tol is None:
     tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
     log_to_file(f"Initial tolerance set to {tol}",log_file)
 
-centroids, labels = kmeans(values, n_clusters, tol)
+centroids, labels = kmeans(values, n_clusters, initial_centroids=approx_centroids, tol=tol)
 summary_data = cluster_summary(values, labels, centroids)
 
 # Sort summary data by number of frames (Descending)
