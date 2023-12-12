@@ -9,7 +9,7 @@ def compute_histogram(data, bins, density=False, cumulative=False):
         hist = np.cumsum(hist)
         if density:
             hist /= hist[-1]
-    return bin_edges[:-1], hist
+    return bin_edges, hist
 
 def main():
     parser = argparse.ArgumentParser(description='Prepare data for histogram.')
