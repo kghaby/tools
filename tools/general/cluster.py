@@ -37,10 +37,10 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
 
 
 # Elbow Method (Scree Plot)
-def elbow_method(data, k_range, initial_centroids=approx_centroids):
+def elbow_method(data, k_range, initial_centroids=None):
     inertia = []
     for k in k_range:
-        centroids, _ = kmeans(data, k, initial_centroids=approx_centroids)
+        centroids, _ = kmeans(data, k, initial_centroids=initial_centroids)
         inertia.append(np.sum(np.min(np.linalg.norm(data - centroids[:, np.newaxis], axis=2), axis=0)))
     
     rate_change = np.diff(np.diff(inertia))
