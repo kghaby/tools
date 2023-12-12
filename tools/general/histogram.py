@@ -15,7 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description='Prepare data for histogram.')
     parser.add_argument('-i', required=True, help='Input file containing the data')
     parser.add_argument('-o', default='', help='Output file')
-    parser.add_argument('-col', type=int, default=1, help='Column containing the data')
+    parser.add_argument('-col', type=int, default=0, help='Column containing the data. Indexing starts at 0.')
     parser.add_argument('-min', type=float, help='Min for the histogram')
     parser.add_argument('-max', type=float, help='Max for the histogram')
     parser.add_argument('-bins', type=int, default=100, help='Number of bins for the histogram')
@@ -25,7 +25,7 @@ def main():
     args = parser.parse_args()
 
     # Load data from the file
-    data = np.loadtxt(args.i, usecols=(args.col - 1))
+    data = np.loadtxt(args.i, usecols=(args.col))
 
     # If min or max not specified, use min/max from data
     min_val = np.min(data) if args.min is None else args.min
@@ -34,11 +34,15 @@ def main():
     # Compute histogram
     bin_edges, hist = compute_histogram(data, bins=args.bins, density=args.freq, cumulative=args.cumul)
 
+    # Calculate bin centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
     # Prepare output filename
     output_file = args.o if args.o else Path(args.i).with_suffix('.histo')
 
     # Save histogram to file
-    np.savetxt(output_file, np.column_stack([bin_edges[:-1], hist]), fmt='%.4f')
+    np.savetxt(output_file, np.column_stack([bin_centers, hist]), fmt='%.4f')
+
 
     if args.v:
         print(f"Total number of data = {len(data)}")
