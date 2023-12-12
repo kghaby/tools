@@ -5,10 +5,11 @@ import sys
 import os 
 from datetime import datetime
 
-# Help Section (CLI Guidance)
+# Help Section
 def print_help():
     print("Usage: cluster.py [data_file] [n_clusters] [tolerance]")
-    print("  data_file:  File containing frame and data. Default is 'forcluster.dat'.")
+    print("  data_file:  File containing data to be clustered. Default is 'forcluster.dat'.")
+    print("  col: Column of data to cluster. Indexing starts at 0. Default is 1 (second col).")
     print("  n_clusters: Number of clusters. Default determined by Elbow Method.")
     print("  tolerance:  Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.")
     sys.exit(0)
@@ -113,12 +114,13 @@ log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", lo
 log_to_file(f"Output directory: {output_dir}", log_file)
 
 data_file = sys.argv[1] if len(sys.argv) > 1 else 'forcluster.dat'
-n_clusters = int(sys.argv[2]) if len(sys.argv) > 2 else None
-tol = float(sys.argv[3]) if len(sys.argv) > 3 else None
+col = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+n_clusters = int(sys.argv[3]) if len(sys.argv) > 3 else None
+tol = float(sys.argv[4]) if len(sys.argv) > 4 else None
 
-data = np.loadtxt(data_file)
-frames = data[:, 0]
-values = data[:, 1:].reshape(-1, 1)
+values = np.loadtxt(data_file,usecols=(col,),unpack=True)
+values = values.reshape(-1,1)
+frames = np.arange(1,len(values)+1)
 
 if n_clusters is None:
     log_to_file("Determining optimal clusters via Elbow Method...",log_file)
