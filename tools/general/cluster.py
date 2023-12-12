@@ -203,7 +203,7 @@ with open(f"{output_dir}/cluster.sum", 'w') as f:
 
 # Use histogram script
 for label in np.unique(labels):
-    os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{histo}.dat' -col 2")
+    os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{label}.histo' -col 2")
 
 
 # Generate Gnuplot script
