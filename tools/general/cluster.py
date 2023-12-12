@@ -83,19 +83,33 @@ def cluster_summary(data, labels, centroids):
 
 
 # Generate gnuplot script
-def create_gnuplot_script(labels,output_dir):
-    dir_gnu = os.getcwd().replace('_', '\\\_')
+def create_gnuplot_script(labels, output_dir):
+    dir_gnu = f"{os.getcwd()}/{output_dir}".replace('_', '\\\_')
     with open(f"{output_dir}/plot_cluster.gnu", "w") as f:
+        # Set up the multiplot layout
+        f.write('set multiplot layout 2, 1\n')
+
+        # First plot (main plot)
         f.write(f'set xlabel "Time (frames)"\n')
         f.write('set ylabel ""\n')
         f.write(f'set title "{dir_gnu}"\n')
         f.write('set key outside\n')
         f.write('plot\\\n')
-        
         for label in np.unique(labels):
             f.write(f'"cluster.c{label}.dat" u 1:2 every 10 title "{label}",\\\n')
+        f.write('\n')
 
+        # Second plot (histogram)
+        f.write('set xlabel "Cluster"\n')
+        f.write('set ylabel "Frequency"\n')
+        f.write('set style data histogram\n')
+        f.write('set style fill solid 1.0\n')
+        f.write('plot\\\n')
+        f.write(f'"cluster.all.dat" u 3:xtic(1) every 10 title "",\\\n')
+
+        f.write('\nunset multiplot\n')
         f.write('\npause -1\n')
+
 
 # Create output directory
 def create_output_dir(base="clusters"):
