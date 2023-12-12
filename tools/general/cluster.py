@@ -90,23 +90,21 @@ def create_gnuplot_script(labels, output_dir):
         f.write('set multiplot layout 2, 1\n')
 
         # First plot (main plot)
-        f.write(f'set xlabel "Time (frames)"\n')
-        f.write('set ylabel ""\n')
+        f.write(f'set xlabel "Frames"\n')
+        f.write('set ylabel "Data"\n')
         f.write(f'set title "{dir_gnu}"\n')
         f.write('set key outside\n')
         f.write('plot\\\n')
         for label in np.unique(labels):
-            f.write(f'"cluster.c{label}.dat" u 1:2 every 10 title "{label}",\\\n')
+            f.write(f'"cluster.c{label}.dat" u 1:2 every 10 title "C{label}",\\\n')
         f.write('\n')
 
         # Second plot (histogram)
-        f.write('set xlabel "Cluster"\n')
-        f.write('set ylabel "Frequency"\n')
-        f.write('set style data histogram\n')
-        f.write('set style fill solid 1.0\n')
+        f.write('set xlabel "Data"\n')
+        f.write('set ylabel "Count"\n')
         f.write('plot\\\n')
         for label in np.unique(labels):
-            f.write(f'"cluster.c{label}.dat" u 3:xtic(1) every 1 title "{label}",\\\n')
+            f.write(f'"cluster.c{label}.histo" u 1:2 every 1 title "C{label}",\\\n')
         f.write('\nunset multiplot\n')
         f.write('\npause -1\n')
 
@@ -202,6 +200,10 @@ with open(f"{output_dir}/cluster.sum", 'w') as f:
     for new_label, row in enumerate(summary_data):
         f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
 
+
+# Use histogram script
+for label in np.unique(labels):
+    os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{histo}.dat' -col 2")
 
 
 # Generate Gnuplot script
