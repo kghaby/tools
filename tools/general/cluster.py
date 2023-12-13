@@ -6,8 +6,6 @@ import os
 from datetime import datetime
 import argparse
 from sklearn.cluster import AgglomerativeClustering
-from joblib import Memory
-import shutil
 
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
@@ -16,19 +14,12 @@ def log_to_file(message, log_file,printmsg=True):
     with open(log_file, 'a') as f:
         f.write(f"{message}\n")
 
-def clear_joblib_cache(memory):
-    """
-    Clears the cache directory used by joblib.Memory
-    :param memory: joblib.Memory object
-    """
-    try:
-        # Clear the cache
-        memory.clear(warn=False)
-        # Remove the cache directory entirely
-        shutil.rmtree(memory.location)
-        #print("Cache cleared successfully.")
-    except Exception as e:
-        print(f"Error clearing cache: {e}")
+# Function to apply learned centroids to the full dataset
+def assign_clusters_to_data(data, centroids):
+    distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
+    labels = np.argmin(distances, axis=0)
+    combined_data = np.hstack((data, labels.reshape(-1, 1)))  # Add labels as a new column to the data
+    return combined_data
 
 # K-means algorithm (Lloyd's Algorithm)
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
@@ -52,12 +43,12 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
 
 # Agglomerative Clustering Function
 def agglomerative_clustering(data, n_clusters, linkage,output_dir):
-    memory = Memory(f"{output_dir}/tmpjoblibcache")
-    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage,memory=memory)
+
+    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
     model.fit(data)
     labels = model.labels_
     centroids = np.array([data[labels == i].mean(axis=0) for i in range(n_clusters)])
-    clear_joblib_cache(memory)
+
     return centroids, labels
 
 # Elbow Method (Scree Plot)
@@ -147,6 +138,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
     parser.add_argument('--data_file', default='forcluster.dat', help='File containing data to be clustered.')
     parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
+    parser.add_argument('--every', type=int, default=1, help='Select every nth data point for initial clustering')
     parser.add_argument('--method', default='kmeans', choices=['kmeans', 'agglomerative'], help='Clustering method to use: kmeans or agglomerative')
     parser.add_argument('--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
     parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
@@ -172,8 +164,9 @@ log_to_file(f"Output directory: {output_dir}", log_file)
 
 
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
-values = values[::1].reshape(-1,1)
-frames = np.arange(1,len(values)+1)
+values = values.reshape(-1,1)
+frames = np.arange(1, len(values)+1, args.every)
+values_subset = values[subset_indices]
 
 if n_clusters is None:
     log_to_file("Determining optimal clusters via Elbow Method...",log_file)
@@ -194,11 +187,17 @@ if args.method == 'kmeans':
         tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
         log_to_file(f"Initial tolerance set to {tol}",log_file)
 
-    centroids, labels = kmeans(values, n_clusters, initial_centroids=approx_centroids, tol=tol)
+    centroids, labels = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
 
 elif args.method == 'agglomerative':
     # Agglomerative clustering
-    centroids, labels = agglomerative_clustering(values, n_clusters, args.linkage,output_dir)
+    centroids, labels = agglomerative_clustering(values_subset, n_clusters, args.linkage,output_dir)
+
+if args.every > 1:
+    # Apply clustering to full dataset
+    values = assign_clusters_to_data(values, centroids)
+else:
+    values = values_subset
 
 summary_data = cluster_summary(values, labels, centroids)
 
