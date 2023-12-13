@@ -19,6 +19,7 @@ def main():
     parser.add_argument('-min', type=float, help='Min for the histogram')
     parser.add_argument('-max', type=float, help='Max for the histogram')
     parser.add_argument('-bins', type=int, default=100, help='Number of bins for the histogram')
+    parser.add_argument('-binsize', type=float, default=None, help='Bin size for the histogram. Will override -bins!')
     parser.add_argument('-freq', action='store_true', help='Output frequency instead of occurrence')
     parser.add_argument('-cumul', action='store_true', help='Output cumulative distribution')
     parser.add_argument('-v', action='store_true', help='Print detailed information during the process')
@@ -31,8 +32,15 @@ def main():
     min_val = np.min(data) if args.min is None else args.min
     max_val = np.max(data) if args.max is None else args.max
 
+    # Handle bins and binsize
+    if args.binsize is not None:
+        bin_range = max_val - min_val
+        bins = int(np.ceil(bin_range / args.binsize))
+    else:
+        bins = args.bins
+
     # Compute histogram
-    bin_edges, hist = compute_histogram(data, bins=args.bins, density=args.freq, cumulative=args.cumul)
+    bin_edges, hist = compute_histogram(data, bins=bins, density=args.freq, cumulative=args.cumul)
 
     # Calculate bin centers
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
