@@ -172,7 +172,7 @@ if tol is None:
     tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
     log_to_file(f"Initial tolerance set to {tol}",log_file)
 
-
+log_to_file(f"Using {args.method} clustering method...",log_file)
 if args.method == 'kmeans':
     # K-means clustering
     centroids, labels = kmeans(values, n_clusters, initial_centroids=approx_centroids, tol=tol)
