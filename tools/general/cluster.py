@@ -57,7 +57,7 @@ def agglomerative_clustering(data, n_clusters, linkage,output_dir):
     model.fit(data)
     labels = model.labels_
     centroids = np.array([data[labels == i].mean(axis=0) for i in range(n_clusters)])
-    clear_joblib_cache(memory)
+    #clear_joblib_cache(memory)
     return centroids, labels
 
 # Elbow Method (Scree Plot)
