@@ -36,7 +36,7 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
 
 # Agglomerative Clustering Function
 def agglomerative_clustering(data, n_clusters, linkage):
-    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
+    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage,memory=".")
     model.fit(data)
     labels = model.labels_
     centroids = np.array([data[labels == i].mean(axis=0) for i in range(n_clusters)])
