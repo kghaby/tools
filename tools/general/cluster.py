@@ -6,6 +6,8 @@ import os
 from datetime import datetime
 import argparse
 from sklearn.cluster import AgglomerativeClustering
+from joblib import Memory
+import shutil
 
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
@@ -13,6 +15,20 @@ def log_to_file(message, log_file,printmsg=True):
         print(message)
     with open(log_file, 'a') as f:
         f.write(f"{message}\n")
+
+def clear_joblib_cache(memory):
+    """
+    Clears the cache directory used by joblib.Memory
+    :param memory: joblib.Memory object
+    """
+    try:
+        # Clear the cache
+        memory.clear(warn=False)
+        # Remove the cache directory entirely
+        shutil.rmtree(memory.location)
+        #print("Cache cleared successfully.")
+    except Exception as e:
+        print(f"Error clearing cache: {e}")
 
 # K-means algorithm (Lloyd's Algorithm)
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
@@ -35,11 +51,13 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
     return centroids, labels
 
 # Agglomerative Clustering Function
-def agglomerative_clustering(data, n_clusters, linkage):
-    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage,memory=".")
+def agglomerative_clustering(data, n_clusters, linkage,output_dir):
+    memory = Memory(f"{output_dir}/tmpjoblibcache")
+    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage,memory=memory)
     model.fit(data)
     labels = model.labels_
     centroids = np.array([data[labels == i].mean(axis=0) for i in range(n_clusters)])
+    #clear_joblib_cache(memory)
     return centroids, labels
 
 # Elbow Method (Scree Plot)
@@ -180,7 +198,7 @@ if args.method == 'kmeans':
 
 elif args.method == 'agglomerative':
     # Agglomerative clustering
-    centroids, labels = agglomerative_clustering(values, n_clusters, args.linkage)
+    centroids, labels = agglomerative_clustering(values, n_clusters, args.linkage,output_dir)
 
 summary_data = cluster_summary(values, labels, centroids)
 
