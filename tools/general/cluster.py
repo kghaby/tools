@@ -166,7 +166,7 @@ log_to_file(f"Output directory: {output_dir}", log_file)
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
 values = values.reshape(-1,1)
 frames = np.arange(1, len(values)+1, args.every)
-values_subset = values[subset_indices]
+values_subset = values[frames]
 
 if n_clusters is None:
     log_to_file("Determining optimal clusters via Elbow Method...",log_file)
