@@ -131,7 +131,7 @@ def parse_arguments():
     parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
     parser.add_argument('--method', default='kmeans', choices=['kmeans', 'agglomerative'], help='Clustering method to use: kmeans or agglomerative')
     parser.add_argument('--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
-    parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.')
+    parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
     parser.add_argument('--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
     parser.add_argument('--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
     return parser.parse_args()
