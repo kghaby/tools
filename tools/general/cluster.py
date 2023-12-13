@@ -8,6 +8,8 @@ import argparse
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import NearestCentroid
 
+#TODO: Expand it to use arbitrary amount of columns ie dimensions
+
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
     if printmsg:

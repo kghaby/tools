@@ -38,7 +38,6 @@ def main():
         bins = int(np.ceil(bin_range / args.binsize))+1
     else:
         bins = args.bins
-    print(bins)
     # Compute histogram
     bin_edges, hist = compute_histogram(data, bins=bins, density=args.freq, cumulative=args.cumul)
 
