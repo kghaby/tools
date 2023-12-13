@@ -34,11 +34,11 @@ def main():
 
     # Handle bins and binsize
     if args.binsize is not None:
-        bin_range = max_val - min_val
+        bin_range = np.abs(max_val - min_val)
         bins = int(np.ceil(bin_range / args.binsize))
     else:
         bins = args.bins
-
+    print(bins)
     # Compute histogram
     bin_edges, hist = compute_histogram(data, bins=bins, density=args.freq, cumulative=args.cumul)
 
