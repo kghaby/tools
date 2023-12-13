@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 import argparse
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.neighbors import NearestCentroid
 
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
@@ -14,12 +15,27 @@ def log_to_file(message, log_file,printmsg=True):
     with open(log_file, 'a') as f:
         f.write(f"{message}\n")
 
-# Function to apply learned centroids to the full dataset
-def assign_clusters_to_data(data, centroids):
-    distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
-    labels = np.argmin(distances, axis=0)
-    combined_data = np.hstack((data, labels.reshape(-1, 1)))  # Add labels as a new column to the data
-    return combined_data
+def fit_remaining_data(method, subset_data, full_data, n_clusters, linkage=None):
+    if method == 'kmeans':
+        model = KMeans(n_clusters=n_clusters)
+        model.fit(subset_data)
+        labels = model.predict(full_data)
+        centroids = model.cluster_centers_
+
+    elif method == 'agglomerative':
+        model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
+        model.fit(subset_data)
+        subset_labels = model.labels_
+
+        # Train a Nearest Centroid Classifier on the subset
+        clf = NearestCentroid()
+        clf.fit(subset_data, subset_labels)
+
+        # Predict clusters for the full dataset
+        labels = clf.predict(full_data)
+        centroids = clf.centroids_
+
+    return centroids, labels
 
 # K-means algorithm (Lloyd's Algorithm)
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
@@ -195,7 +211,7 @@ elif args.method == 'agglomerative':
 
 if args.every > 1:
     # Apply clustering to full dataset
-    values = assign_clusters_to_data(values, centroids)
+    centroids, labels = fit_remaining_data(args.method, values_subset, values, n_clusters, args.linkage)
 else:
     values = values_subset
 
