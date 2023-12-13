@@ -5,8 +5,7 @@ import sys
 import os 
 from datetime import datetime
 import argparse
-
-
+from sklearn.cluster import AgglomerativeClustering
 
 # Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
@@ -35,6 +34,13 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
 
     return centroids, labels
 
+# Agglomerative Clustering Function
+def agglomerative_clustering(data, n_clusters, linkage):
+    model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
+    model.fit(data)
+    labels = model.labels_
+    centroids = np.array([data[labels == i].mean(axis=0) for i in range(n_clusters)])
+    return centroids, labels
 
 # Elbow Method (Scree Plot)
 def elbow_method(data, k_range, initial_centroids=None):
@@ -120,12 +126,14 @@ def create_output_dir(base="clusters"):
 
 # Argument Parsing
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Cluster data using K-means algorithm.')
+    parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
     parser.add_argument('--data_file', default='forcluster.dat', help='File containing data to be clustered.')
     parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
+    parser.add_argument('--method', default='kmeans', choices=['kmeans', 'agglomerative'], help='Clustering method to use: kmeans or agglomerative')
     parser.add_argument('--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
     parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence. Default determined by Davies-Bouldin Index.')
-    parser.add_argument('--approx_centroids', nargs='+', type=float, default=None, help='List of initial centroid guesses. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
+    parser.add_argument('--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
+    parser.add_argument('--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
     return parser.parse_args()
 args = parse_arguments()
 
@@ -158,14 +166,20 @@ if n_clusters is None:
 log_to_file(f"Using {n_clusters} clusters.", log_file)
 
 # Main
-# ... (other parts remain the same)
 
 if tol is None:
     log_to_file("Calculating initial tolerance...",log_file)
     tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
     log_to_file(f"Initial tolerance set to {tol}",log_file)
 
-centroids, labels = kmeans(values, n_clusters, initial_centroids=approx_centroids, tol=tol)
+
+if args.method == 'kmeans':
+    # K-means clustering
+    centroids, labels = kmeans(values, n_clusters, initial_centroids=approx_centroids, tol=tol)
+elif args.method == 'agglomerative':
+    # Agglomerative clustering
+    centroids, labels = agglomerative_clustering(values, n_clusters, args.linkage)
+
 summary_data = cluster_summary(values, labels, centroids)
 
 # Sort summary data by number of frames (Descending)
