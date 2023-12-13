@@ -181,8 +181,9 @@ log_to_file(f"Output directory: {output_dir}", log_file)
 
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
 values = values.reshape(-1,1)
-frames = np.arange(1, len(values)+1, args.every)
-values_subset = values[frames]
+frames = np.arange(1, len(values)+1)
+frames_subset = np.arange(1, len(values)+1, args.every)
+values_subset = values[frames_subset]
 
 if n_clusters is None:
     log_to_file("Determining optimal clusters via Elbow Method...",log_file)
@@ -207,7 +208,7 @@ if args.method == 'kmeans':
 
 elif args.method == 'agglomerative':
     # Agglomerative clustering
-    centroids, labels = agglomerative_clustering(values_subset, n_clusters, args.linkage,output_dir)
+    centroids, labels = agglomerative_clustering(values_subset, n_clusters, args.linkage, output_dir)
 
 if args.every > 1:
     # Apply clustering to full dataset
