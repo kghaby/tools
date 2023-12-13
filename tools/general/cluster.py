@@ -133,6 +133,7 @@ def create_gnuplot_script(labels, output_dir):
         f.write('\n')
 
         # Second plot (histogram)
+        f.write(f'set notitle \n')
         f.write('set xlabel "Data"\n')
         f.write('set ylabel "Count"\n')
         f.write('plot\\\n')
@@ -194,7 +195,7 @@ if n_clusters is None:
 log_to_file(f"Using {n_clusters} clusters.", log_file)
 
 
-log_to_file(f"Using {args.method} clustering method...",log_file)
+log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...",log_file)
 if args.method == 'kmeans':
     # K-means clustering
     if approx_centroids:
@@ -210,6 +211,7 @@ if args.method == 'kmeans':
 
 elif args.method == 'agglomerative':
     # Agglomerative clustering
+    log_to_file(f"Using {args.linkage} linkage method", log_file)
     centroids, labels = agglomerative_clustering(values_subset, n_clusters, args.linkage, output_dir)
 
 if args.every > 1:
