@@ -251,8 +251,11 @@ with open(f"{output_dir}/cluster.sum", 'w') as f:
         f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
 
 # Use histogram script
+bin_range = np.max(values) - np.min(values)
+num_bins = 100
+binsize = bin_range / num_bins
 for label in np.unique(labels):
-    os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{label}.histo' -col 1")
+    os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{label}.histo' -col 1 -binsize {binsize}")
 
 # Generate Gnuplot script
 create_gnuplot_script(labels,output_dir)
