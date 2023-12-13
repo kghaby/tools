@@ -154,7 +154,7 @@ log_to_file(f"Output directory: {output_dir}", log_file)
 
 
 values = np.loadtxt(data_file,usecols=(col,),unpack=True)
-values = values[::100].reshape(-1,1)
+values = values[::1].reshape(-1,1)
 frames = np.arange(1,len(values)+1)
 
 if n_clusters is None:
