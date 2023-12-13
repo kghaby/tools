@@ -35,7 +35,7 @@ def main():
     # Handle bins and binsize
     if args.binsize is not None:
         bin_range = np.abs(max_val - min_val)
-        bins = int(np.ceil(bin_range / args.binsize))
+        bins = int(np.ceil(bin_range / args.binsize))+1
     else:
         bins = args.bins
     print(bins)
