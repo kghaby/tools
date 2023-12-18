@@ -21,7 +21,7 @@ for a in {1..10}; do
     b=$b+1
 done
 
-protmask='(@CA,C,O,N)'
+protmask='(@CA)' #,C,O,N)'
 xtalprotmask=$protmask
 ligmask=':IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE,NBF,NAU,CBB,N1,C2,N3,C4,C5,C6,NAB,CBA,CAK,CAL,CAM,CAN,CAZ,OAV,CAY,CAE,CAF,CAG,CAI,CAJ'
 xtalligmask=$ligmask
