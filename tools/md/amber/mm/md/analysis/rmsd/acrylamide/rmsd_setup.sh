@@ -22,7 +22,7 @@ for a in {4..21}; do
 done
 
 #masks
-protmask='(:2-87,89-159,163-265)&(@CA,C,O,N)'
+protmask='(:2-87,89-159,163-265)&(@CA)' #,C,O,N)'
 xtalprotmask='(:2-87,89-262)&(@CA,C,O,N)'
 ligmask=':IB@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE'
 xtalligmask=':8E8@CAA,CAD,CAW,OAC,NBG,CAO,CAP,CAQ,CAR,CBE'
