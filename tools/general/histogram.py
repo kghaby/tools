@@ -25,31 +25,23 @@ def main():
     parser.add_argument('-v', action='store_true', help='Print detailed information during the process')
     args = parser.parse_args()
 
-    # Load data from the file
     data = np.loadtxt(args.i, usecols=(args.col))
 
-    # If min or max not specified, use min/max from data
     min_val = np.min(data) if args.min is None else args.min
     max_val = np.max(data) if args.max is None else args.max
 
-    # Handle bins and binsize
     if args.binsize is not None:
         bin_range = np.abs(max_val - min_val)
         bins = int(np.ceil(bin_range / args.binsize))+1
     else:
         bins = args.bins
-    # Compute histogram
+    
     bin_edges, hist = compute_histogram(data, bins=bins, density=args.freq, cumulative=args.cumul)
 
-    # Calculate bin centers
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-    # Prepare output filename
     output_file = args.o if args.o else Path(args.i).with_suffix('.histo')
-
-    # Save histogram to file
     np.savetxt(output_file, np.column_stack([bin_centers, hist]), fmt='%.4f')
-
 
     if args.v:
         print(f"Total number of data = {len(data)}")
