@@ -6,7 +6,7 @@ jobname_base="minim"
 parm="../prep/EGFR_AB_l.parm7"
 prev_rst="../prep/EGFR_AB_l.rst7" #xtal rst if new system
 time_var="00:30:00"
-restraint_mask='(:1-321)&(@CA,C,O,N)|(:AB&!@H=)|((:AB<:10)&(:323-348&!@H=))'
+restraint_mask='(:1-321&!@H=)|(:AB&!@H=)|((:AB<:10)&(:323-348&!@H=))' # include protein side chains in minim
 xtalref="$prev_rst"
 
 
