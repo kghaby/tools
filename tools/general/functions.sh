@@ -85,3 +85,30 @@ label_target() {
     local label=$(IFS=_; echo "${label_parts[*]}")
     echo "$label"
 }
+
+extract_mic_track() {
+    # Usage:
+    # extract_mic_track "Desktop 2024.09.01 - 18.05.00.17.DVR.mp4"
+    if [ $# -eq 0 ]; then
+        echo "No filename provided."
+        return 1
+    fi
+
+    local input_file="$1"
+    local output_file="${input_file%.*}_mic.aac"
+
+    if ! [ -f "$input_file" ]; then
+        echo "File does not exist: $input_file"
+        return 1
+    fi
+
+    ffmpeg -i "$input_file" -map 0:a:1 -c:a copy "$output_file" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo "Extracted mic track successfully: $output_file"
+    else
+        echo "Failed to extract mic track."
+        return 1
+    fi
+}
+
+
