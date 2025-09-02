@@ -10,7 +10,6 @@ from sklearn.neighbors import NearestCentroid
 
 #TODO: Expand it to use arbitrary amount of columns ie dimensions
 
-# Function to log information to a file
 def log_to_file(message, log_file,printmsg=True):
     if printmsg:
         print(message)
@@ -86,9 +85,6 @@ def cluster_summary(data, labels, centroids, frames):
         
     return summary
 
-
-
-# Generate gnuplot script
 def create_gnuplot_script(labels, output_dir):
     dir_gnu = f"{os.getcwd()}/{output_dir}".replace('_', '\\\\_')
     with open(f"{output_dir}/plot_cluster.gnu", "w") as f:
@@ -115,8 +111,6 @@ def create_gnuplot_script(labels, output_dir):
         f.write('\nunset multiplot\n')
         f.write('\npause -1\n')
 
-
-# Create output directory
 def create_output_dir(base="clusters"):
     counter = 1
     while os.path.exists(f"{base}_{counter}"):
@@ -124,8 +118,6 @@ def create_output_dir(base="clusters"):
     os.makedirs(f"{base}_{counter}")
     return f"{base}_{counter}"
 
-
-# Argument Parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
     parser.add_argument('-i','--input_file', default='forcluster.dat', help='File containing data to be clustered.')
@@ -164,6 +156,7 @@ def main():
     frames_subset = np.arange(1, len(values)+1, args.every)
     values_subset = values[frames_subset-1]
 
+    # Get clusters
     if n_clusters is None:
         log_to_file("Determining optimal clusters via Elbow Method...", log_file)
         n_clusters = elbow_method(values_subset, range(1, 11), initial_centroids=approx_centroids)
@@ -171,6 +164,7 @@ def main():
     log_to_file(f"Using {n_clusters} clusters.", log_file)
     log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
+    # Fit data 
     if args.method == 'kmeans':
         if approx_centroids is not None:
             log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
@@ -187,7 +181,7 @@ def main():
         log_to_file(f"Using {args.linkage} linkage method", log_file)
         model, centroids, labels_subset = agglomerative_clustering(values_subset, n_clusters, args.linkage)
 
-    # Label full dataset directly
+    # Fit labels to full dataset
     if args.every > 1:
         labels = label_full_data(model, args.method, values, values_subset, labels_subset)
     else:
