@@ -12,7 +12,7 @@ import argparse
 
 #TODO: Expand it to use arbitrary amount of columns ie dimensions
 
-def log_to_file(message, log_file,printmsg=True):
+def log_to_file(message, log_file, printmsg=True):
     if printmsg:
         print(message)
     with open(log_file, 'a') as f:
@@ -26,7 +26,7 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
         init = np.array(initial_centroids)
         n_init = 1
     else:
-        init = 'k-means++'
+        init = "k-means++"
         n_init = 10
     model = KMeans(n_clusters=k, init=init, n_init=n_init, tol=tol, max_iter=max_iter)
     model.fit(data)
