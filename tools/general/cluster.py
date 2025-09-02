@@ -5,8 +5,10 @@ import sys
 import os 
 from datetime import datetime
 import argparse
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.neighbors import NearestCentroid
+
+# Heavy imports moved to after arg parser
+# from sklearn.cluster import AgglomerativeClustering, KMeans
+# from sklearn.neighbors import NearestCentroid
 
 #TODO: Expand it to use arbitrary amount of columns ie dimensions
 
@@ -39,27 +41,18 @@ def fit_remaining_data(method, subset_data, full_data, n_clusters, linkage=None)
 
     return centroids, labels
 
-# K-means algorithm (Lloyd's Algorithm)
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
-    if initial_centroids is None:
-        centroids = data[np.random.choice(data.shape[0], size=k, replace=False)]
-    else:
+    if initial_centroids is not None:
         if len(initial_centroids) != k:
             raise ValueError("Number of initial centroids must match k")
-        centroids = initial_centroids
+        init = np.array(initial_centroids)
+    else:
+        init = 'k-means++'
+    model = KMeans(n_clusters=k, init=init, n_init=1 if initial_centroids is not None else 10,
+                   tol=tol, max_iter=max_iter)
+    model.fit(data)
+    return model.cluster_centers_, model.labels_
 
-    for _ in range(max_iter):
-        distances = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
-        labels = np.argmin(distances, axis=0)
-        new_centroids = np.array([data[labels == i].mean(axis=0) for i in range(k)])
-
-        if np.all(np.abs(new_centroids - centroids) < tol):
-            break
-        centroids = new_centroids
-
-    return centroids, labels
-
-# Agglomerative Clustering Function
 def agglomerative_clustering(data, n_clusters, linkage,output_dir):
 
     model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
@@ -69,7 +62,6 @@ def agglomerative_clustering(data, n_clusters, linkage,output_dir):
 
     return centroids, labels
 
-# Elbow Method (Scree Plot)
 def elbow_method(data, k_range, initial_centroids=None):
     inertia = []
     for k in k_range:
@@ -155,7 +147,6 @@ def create_output_dir(base="clusters"):
 # Argument Parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
-    #parser.add_argument('-h', '--help', action='help', help='Show this help message and exit')
     parser.add_argument('--data_file', default='forcluster.dat', help='File containing data to be clustered.')
     parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
     parser.add_argument('--every', type=int, default=1, help='Select every nth data point for initial clustering')
@@ -164,116 +155,126 @@ def parse_arguments():
     parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
     parser.add_argument('--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
     parser.add_argument('--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
+    
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)    
+    if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help', 'help', 'h'):
+        print_help()
+        
     return parser.parse_args()
-args = parse_arguments()
+        
+def main():
+    args = parse_arguments()
+    
+    data_file = args.data_file
+    col = args.col
+    n_clusters = args.n_clusters
+    tol = args.tol
+    approx_centroids = args.approx_centroids
+    
+    # Heavy imports
+    from sklearn.cluster import AgglomerativeClustering, KMeans
+    from sklearn.neighbors import NearestCentroid
 
-data_file = args.data_file
-col = args.col
-n_clusters = args.n_clusters
-tol = args.tol
-approx_centroids = args.approx_centroids
-
-if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help', 'help'):
-    print_help()
-
-output_dir = create_output_dir()
-log_file = f"{output_dir}/cluster.log"
-log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
-log_to_file(f"Output directory: {output_dir}", log_file)
-
-
-
-values = np.loadtxt(data_file,usecols=(col,),unpack=True)
-values = values.reshape(-1,1)
-frames = np.arange(1, len(values)+1)
-frames_subset = np.arange(1, len(values)+1, args.every)
-values_subset = values[frames_subset-1]
-
-if n_clusters is None:
-    log_to_file("Determining optimal clusters via Elbow Method...",log_file)
-    n_clusters = elbow_method(values, range(1, 11),initial_centroids=approx_centroids)
-
-log_to_file(f"Using {n_clusters} clusters.", log_file)
-
-
-log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...",log_file)
-if args.method == 'kmeans':
-    # K-means
-    if approx_centroids is not None:
-        log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
-        approx_centroids = np.array(approx_centroids, dtype=float).reshape(-1, 1)
-        if n_clusters is None:
-            n_clusters = approx_centroids.shape[0]
-            log_to_file(f"No k provided; setting n_clusters={n_clusters} from initial guesses", log_file)
-        elif n_clusters != approx_centroids.shape[0]:
-            log_to_file(f"n_clusters ({n_clusters}) != #initial centroids ({approx_centroids.shape[0]}). Overriding k to {approx_centroids.shape[0]}.", log_file)
-            n_clusters = approx_centroids.shape[0]
-    else:
-        approx_centroids = None
-
-    if tol is None:
-        log_to_file("Calculating initial tolerance...", log_file)
-        tol = 0.1 * np.std(values)
-        log_to_file(f"Initial tolerance set to {tol}", log_file)
-
-    centroids, labels = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
-
-elif args.method == 'agglomerative':
-    # Agglomerative clustering
-    log_to_file(f"Using {args.linkage} linkage method", log_file)
-    centroids, labels = agglomerative_clustering(values_subset, n_clusters, args.linkage, output_dir)
-
-if args.every > 1:
-    # Apply clustering to full dataset
-    centroids, labels = fit_remaining_data(args.method, values_subset, values, n_clusters, args.linkage)
-
-summary_data = cluster_summary(values, labels, centroids)
-
-# Sort summary data by number of frames (Descending)
-summary_data.sort(key=lambda x: x[1], reverse=True)
-
-# Relabel clusters based on sorted summary
-new_labels = {}
-for new_label, (old_label, *_rest) in enumerate(summary_data):
-    new_labels[old_label] = new_label
-
-# Update the labels array
-for i, label in enumerate(labels):
-    labels[i] = new_labels[label]
-
-# Output to directory
-with open(f"{output_dir}/cluster.all.dat", 'w') as f:
-    f.write("#Frame Data Cluster\n")
-    for frame, value, label in zip(frames, values.flatten(), labels):
-        f.write(f"{int(frame)} {value:.6f} {label}\n")
-
-# Output individual cluster files
-for unique_label in np.unique(labels):
-    with open(f"{output_dir}/cluster.c{unique_label}.dat", 'w') as f:
+    output_dir = create_output_dir()
+    log_file = f"{output_dir}/cluster.log"
+    log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
+    log_to_file(f"Output directory: {output_dir}", log_file)
+    
+    
+    
+    values = np.loadtxt(data_file,usecols=(col,),unpack=True)
+    values = values.reshape(-1,1)
+    frames = np.arange(1, len(values)+1)
+    frames_subset = np.arange(1, len(values)+1, args.every)
+    values_subset = values[frames_subset-1]
+    
+    if n_clusters is None:
+        log_to_file("Determining optimal clusters via Elbow Method...",log_file)
+        n_clusters = elbow_method(values, range(1, 11),initial_centroids=approx_centroids)
+    
+    log_to_file(f"Using {n_clusters} clusters.", log_file)
+    
+    
+    log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...",log_file)
+    if args.method == 'kmeans':
+        # K-means
+        if approx_centroids is not None:
+            log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
+            approx_centroids = np.array(approx_centroids, dtype=float).reshape(-1, 1)
+            if n_clusters is None:
+                n_clusters = approx_centroids.shape[0]
+                log_to_file(f"No k provided; setting n_clusters={n_clusters} from initial guesses", log_file)
+            elif n_clusters != approx_centroids.shape[0]:
+                log_to_file(f"n_clusters ({n_clusters}) != #initial centroids ({approx_centroids.shape[0]}). Overriding k to {approx_centroids.shape[0]}.", log_file)
+                n_clusters = approx_centroids.shape[0]
+        else:
+            approx_centroids = None
+    
+        if tol is None:
+            log_to_file("Calculating initial tolerance...", log_file)
+            tol = 0.1 * np.std(values)
+            log_to_file(f"Initial tolerance set to {tol}", log_file)
+    
+        centroids, labels = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
+    
+    elif args.method == 'agglomerative':
+        # Agglomerative clustering
+        log_to_file(f"Using {args.linkage} linkage method", log_file)
+        centroids, labels = agglomerative_clustering(values_subset, n_clusters, args.linkage, output_dir)
+    
+    if args.every > 1:
+        # Apply clustering to full dataset
+        centroids, labels = fit_remaining_data(args.method, values_subset, values, n_clusters, args.linkage)
+    
+    summary_data = cluster_summary(values, labels, centroids)
+    
+    # Sort summary data by number of frames (Descending)
+    summary_data.sort(key=lambda x: x[1], reverse=True)
+    
+    # Relabel clusters based on sorted summary
+    new_labels = {}
+    for new_label, (old_label, *_rest) in enumerate(summary_data):
+        new_labels[old_label] = new_label
+    
+    # Update the labels array
+    for i, label in enumerate(labels):
+        labels[i] = new_labels[label]
+    
+    # Output to directory
+    with open(f"{output_dir}/cluster.all.dat", 'w') as f:
         f.write("#Frame Data Cluster\n")
         for frame, value, label in zip(frames, values.flatten(), labels):
-            if label == unique_label:
-                f.write(f"{int(frame)} {value:.6f} {label}\n")
+            f.write(f"{int(frame)} {value:.6f} {label}\n")
+    
+    # Output individual cluster files
+    for unique_label in np.unique(labels):
+        with open(f"{output_dir}/cluster.c{unique_label}.dat", 'w') as f:
+            f.write("#Frame Data Cluster\n")
+            for frame, value, label in zip(frames, values.flatten(), labels):
+                if label == unique_label:
+                    f.write(f"{int(frame)} {value:.6f} {label}\n")
+    
+    # Output cluster summary
+    with open(f"{output_dir}/cluster.sum", 'w') as f:
+        f.write("#Cluster   Frames     Frac  AvgDist    Stdev  Centroid AvgCDist   CValue \n")
+        for new_label, row in enumerate(summary_data):
+            f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
+    
+    # Use histogram script
+    bin_range = np.abs(np.max(values) - np.min(values))
+    num_bins = 100
+    binsize = bin_range / num_bins
+    for label in np.unique(labels):
+        os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{label}.histo' -col 1 -binsize {binsize}")
 
-# Output cluster summary
-with open(f"{output_dir}/cluster.sum", 'w') as f:
-    f.write("#Cluster   Frames     Frac  AvgDist    Stdev  Centroid AvgCDist   CValue \n")
-    for new_label, row in enumerate(summary_data):
-        f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
+    # Generate Gnuplot script
+    create_gnuplot_script(labels,output_dir)
+    log_to_file("Generated Gnuplot script.", log_file)
+    log_to_file(f"Run ended at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
+    # Run Gnuplot
+    os.system(f"cd {output_dir}; gnuplot plot_cluster.gnu; cd -")
 
-# Use histogram script
-bin_range = np.abs(np.max(values) - np.min(values))
-num_bins = 100
-binsize = bin_range / num_bins
-for label in np.unique(labels):
-    os.system(f"histogram.py -i '{output_dir}/cluster.c{label}.dat' -o '{output_dir}/cluster.c{label}.histo' -col 1 -binsize {binsize}")
-
-# Generate Gnuplot script
-create_gnuplot_script(labels,output_dir)
-log_to_file("Generated Gnuplot script.", log_file)
-log_to_file(f"Run ended at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
-# Run Gnuplot
-os.system(f"cd {output_dir}; gnuplot plot_cluster.gnu; cd -")
+if __name__ == "__main__":
+    main()
