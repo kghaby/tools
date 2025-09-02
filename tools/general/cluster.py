@@ -15,7 +15,7 @@ import argparse
 def log_to_file(message, log_file, printmsg=True):
     if printmsg:
         print(message)
-    with open(log_file, 'a') as f:
+    with open(log_file, "a") as f:
         f.write(f"{message}\n")
 
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
@@ -134,7 +134,7 @@ def parse_arguments():
     parser.add_argument("-c", "--col", type=int, default=1, help="0-based column index to cluster.")
     parser.add_argument("-e", "--every", type=int, default=1, help="Subsample stride for initial clustering.")
     parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative"], help="Clustering method.")
-    parser.add_argument("-n", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
+    parser.add_argument("-k", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
     parser.add_argument("-t", "--tol", type=float, default=None, help="KMeans tolerance; default 0.1*σ of subset.")
     parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help='Initial KMeans guesses, e.g. "--approx_centroids 1.2 9.3"')
     parser.add_argument("-l", "--linkage", default="ward", choices=["ward", "complete", "average", "single"], help="Agglomerative linkage.")
@@ -173,7 +173,7 @@ def main():
     log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
-    if args.method == 'kmeans':
+    if args.method == "kmeans":
         if approx_centroids is not None:
             log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
             approx_centroids = np.array(approx_centroids, dtype=float).reshape(-1, 1)
@@ -185,7 +185,7 @@ def main():
             log_to_file(f"Initial tolerance set to {tol}", log_file)
         model, centroids, labels_subset = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
 
-    elif args.method == 'agglomerative':
+    elif args.method == "agglomerative":
         log_to_file(f"Using {args.linkage} linkage method", log_file)
         model, centroids, labels_subset = agglomerative_clustering(values_subset, n_clusters, args.linkage)
 
@@ -202,19 +202,19 @@ def main():
     labels = np.array([relabel_map[l] for l in labels])
 
     # Write outputs
-    with open(f"{output_dir}/cluster.all.dat", 'w') as f:
+    with open(f"{output_dir}/cluster.all.dat", "w") as f:
         f.write("#Frame Data Cluster\n")
         for frame, val, lab in zip(frames, values.flatten(), labels):
             f.write(f"{int(frame)} {val:.6f} {lab}\n")
 
     for unique_label in np.unique(labels):
-        with open(f"{output_dir}/cluster.c{unique_label}.dat", 'w') as f:
+        with open(f"{output_dir}/cluster.c{unique_label}.dat", "w") as f:
             f.write("#Frame Data Cluster\n")
             for frame, val, lab in zip(frames, values.flatten(), labels):
                 if lab == unique_label:
                     f.write(f"{int(frame)} {val:.6f} {lab}\n")
 
-    with open(f"{output_dir}/cluster.sum", 'w') as f:
+    with open(f"{output_dir}/cluster.sum", "w") as f:
         f.write("#Cluster   Frames     Frac  AvgDist    Stdev  Centroid AvgCDist   CValue \n")
         for new_label, row in enumerate(summary_data):
             f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
