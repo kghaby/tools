@@ -117,7 +117,7 @@ def cluster_summary(data, labels, centroids):
 
 # Generate gnuplot script
 def create_gnuplot_script(labels, output_dir):
-    dir_gnu = f"{os.getcwd()}/{output_dir}".replace('_', '\\\_')
+    dir_gnu = f"{os.getcwd()}/{output_dir}".replace('_', '\\\\_')
     with open(f"{output_dir}/plot_cluster.gnu", "w") as f:
         # Set up the multiplot layout
         f.write('set multiplot layout 2, 1\n')
@@ -155,6 +155,7 @@ def create_output_dir(base="clusters"):
 # Argument Parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
+    #parser.add_argument('-h', '--help', action='help', help='Show this help message and exit')
     parser.add_argument('--data_file', default='forcluster.dat', help='File containing data to be clustered.')
     parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
     parser.add_argument('--every', type=int, default=1, help='Select every nth data point for initial clustering')
@@ -163,6 +164,9 @@ def parse_arguments():
     parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
     parser.add_argument('--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
     parser.add_argument('--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)    
     return parser.parse_args()
 args = parse_arguments()
 

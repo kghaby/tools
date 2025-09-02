@@ -1,0 +1,20 @@
+alchemical transformation with double-decoupling
+
+first
+    `python3 convert.py` (edit first to choose files)
+    `./get_pdb.sh` (edit first to choose files) 
+    `cp {system}/build/toppar/{igand}.prm toppar`
+    `python3 fix_atomtypes.py` (edit first to choose files)
+    
+conda to bfee env and run BFEE2Gui.py
+    when adding force fields, add cgenff, {ligand}.prm, and extra.prm last (in that order) 
+    doubled sim time of steps 1 and 2 (and in colvars) to get 2 ns sampling with the 100 strata. 3 and 4 does 1 ns with 200 strata
+
+After running BFEE2Gui.py to generate BFEE folder
+    in the BFEE folder, `./../remove_protein.sh`. It will also neutralize
+    `./rename_files.sh`
+    `python3 add_GPUresident.py`
+    `python3 change_run_settings.py`
+    `python3 make_slurms.py`
+
+Then proceed to BFEE/000_eq and start (dont forget to center (see BFEE/Readme.txt))
