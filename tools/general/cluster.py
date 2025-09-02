@@ -106,7 +106,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     uniq = np.unique(labs)
 
     fig = plt.figure(figsize=(10, 4.8), constrained_layout=True)
-    gs = GridSpec(nrows=1, ncols=2, width_ratios=[5.0, 1.6], wspace=0.0, figure=fig)
+    gs = GridSpec(nrows=1, ncols=2, width_ratios=[5.0, 1.6], wspace=0.0003, figure=fig)
     ax = fig.add_subplot(gs[0, 0])
     axh = fig.add_subplot(gs[0, 1], sharey=ax)
 
@@ -120,7 +120,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     for lab in uniq:
         m_idx = np.nonzero(labs == lab)[0]
         m_idx = np.intersect1d(m_idx, idx, assume_unique=False)
-        ax.plot(frames[m_idx], y[m_idx], ls="none", marker="o", ms=3.0, alpha=1, color=color_map[lab])
+        ax.plot(frames[m_idx], y[m_idx], ls="none", marker="o", ms=2.5, alpha=1, color=color_map[lab])
         ax.plot([], [], label=f"C{lab}", color=color_map[lab], lw=2) # for legend
 
     ax.set_xlabel("Frame")
@@ -133,12 +133,10 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     for lab in uniq: 
         axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal", 
                  histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab], label=None)
-
-    axh.yaxis.set_visible(False)
-    axh.set_xlabel("")
+        
     axh.grid(False)
     axh.axis("off")
-    axh.set_xlim(1e-6, axh.get_xlim()[1])
+    axh.set_xlim(0.1, axh.get_xlim()[1])
 
     ax.set_xlim(frames.min(),frames.max())
     ax.set_ylim(y_min, y_max)
