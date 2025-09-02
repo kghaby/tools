@@ -115,7 +115,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
         color_map[lab] = plt.rcParams["axes.prop_cycle"].by_key()["color"][i % len(plt.rcParams["axes.prop_cycle"].by_key()["color"])]
 
     step = max(len(frames) // 1000, 1)
-    ax.plot(frames[::step], y[::step], lw=0.8, alpha=0.5, , color="black")
+    ax.plot(frames[::step], y[::step], lw=0.8, alpha=0.5, color="black")
     for lab in uniq:
         m = labs == lab
         ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=0.7, label=f"C{lab}", color=color_map[lab])
