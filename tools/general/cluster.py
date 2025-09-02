@@ -134,11 +134,9 @@ def parse_arguments():
     parser.add_argument('-a','--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
     parser.add_argument('-l','--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
     
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 1 or sys.argv[1] in ('-h', '--help', 'help', 'h'):
         parser.print_help(sys.stderr)
-        sys.exit(1)    
-    if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help', 'help', 'h'):
-        parser.print_help(sys.stderr)
+        sys.exit(1) 
         
     return parser.parse_args()
         
