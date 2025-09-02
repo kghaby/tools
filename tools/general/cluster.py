@@ -40,7 +40,7 @@ def agglomerative_clustering(data, n_clusters, linkage):
     return model, centroids, model.labels_
 
 def elbow_method(data, k_range, initial_centroids=None):
-    # "discrete curvature" via second finite difference on inertia (≈ L-curve heuristic)
+    # "discrete curvature" via second finite difference on inertia
     inertia = []
     for k in k_range:
         model, centroids, _ = kmeans(data, k, initial_centroids)
