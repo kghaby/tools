@@ -106,7 +106,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     uniq = np.unique(labs)
 
     fig = plt.figure(figsize=(10, 4.8), constrained_layout=True)
-    gs = GridSpec(nrows=1, ncols=2, width_ratios=[5.0, 1.6], wspace=0.05, figure=fig)
+    gs = GridSpec(nrows=1, ncols=2, width_ratios=[5.0, 1.6], wspace=0.0, figure=fig)
     ax = fig.add_subplot(gs[0, 0])
     axh = fig.add_subplot(gs[0, 1], sharey=ax)
 
@@ -114,23 +114,24 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     for i, lab in enumerate(uniq):
         color_map[lab] = plt.rcParams["axes.prop_cycle"].by_key()["color"][i % len(plt.rcParams["axes.prop_cycle"].by_key()["color"])]
 
+    step = max(len(frames) // 1000, 1)
+    ax.plot(frames[::step], y[::step], lw=0.8, alpha=0.5, , color="black")
     for lab in uniq:
         m = labs == lab
-        step = max(len(frames) // 500, 1)
-        ax.plot(frames[m][::step], y[m][::step], lw=1.0, alpha=0.95, label=f"C{lab}", color=color_map[lab])
-        ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=0.7, color=color_map[lab])
+        ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=0.7, label=f"C{lab}", color=color_map[lab])
 
     ax.set_xlabel("Frame")
     ax.set_ylabel("Data")
-    ax.grid(True, lw=0.4, alpha=0.3)
-    ax.legend(loc="upper left", bbox_to_anchor=(0, 1), ncols=min(len(uniq), 4), fontsize=8, frameon=False)
+    ax.legend(loc="upper left", bbox_to_anchor=(0, 1), ncols=min(len(uniq), 4), fontsize=12, frameon=False)
 
     y_min, y_max = np.min(y), np.max(y)
     bins_edges = np.linspace(y_min, y_max, bins + 1)
 
-    for lab in uniq:
-        axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal",
-                 histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab], label=None)
+    counts, edges = np.histogram(y[labs == lab], bins=bins_edges)
+    for i in range(len(counts)):
+        if counts[i] > 0:
+            y0, y1 = edges[i], edges[i+1]
+            axh.hlines((y0 + y1)/2, 0, counts[i], color=color_map[lab], lw=1.2)
 
     axh.yaxis.set_visible(False)
     axh.set_xlabel("")
@@ -138,9 +139,10 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     axh.axis("off")
     axh.set_xlim(0, axh.get_xlim()[1])
 
-    # align y-lims and finalize
+    ax.set_xlim(frames.min(),frames.max())
     ax.set_ylim(y_min, y_max)
-    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)).replace("_", r"\_"), fontsize=10)
+    
+    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=10)
     fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
     if show:
         try:
