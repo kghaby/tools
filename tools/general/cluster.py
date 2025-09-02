@@ -130,14 +130,14 @@ def create_output_dir(base="clusters"):
 # Argument Parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
-    parser.add_argument('--data_file', default='forcluster.dat', help='File containing data to be clustered.')
-    parser.add_argument('--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
-    parser.add_argument('--every', type=int, default=1, help='Select every nth data point for initial clustering')
-    parser.add_argument('--method', default='kmeans', choices=['kmeans', 'agglomerative'], help='Clustering method to use: kmeans or agglomerative')
-    parser.add_argument('--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
-    parser.add_argument('--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
-    parser.add_argument('--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
-    parser.add_argument('--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
+    parser.add_argument('-i','--input_file', default='forcluster.dat', help='File containing data to be clustered.')
+    parser.add_argument('-c','--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
+    parser.add_argument('-e','--every', type=int, default=1, help='Select every nth data point for initial clustering')
+    parser.add_argument('-m','--method', default='kmeans', choices=['kmeans', 'agglomerative'], help='Clustering method to use: kmeans or agglomerative')
+    parser.add_argument('-n','--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
+    parser.add_argument('-t','--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
+    parser.add_argument('-a','--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
+    parser.add_argument('-l','--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
     
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -153,7 +153,7 @@ def main():
     from sklearn.cluster import AgglomerativeClustering,KMeans
     from sklearn.neighbors import NearestCentroid
     
-    data_file = args.data_file
+    input_file = args.input_file
     col = args.col
     n_clusters = args.n_clusters
     tol = args.tol
@@ -164,7 +164,7 @@ def main():
     log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
     log_to_file(f"Output directory: {output_dir}", log_file)
 
-    values = np.loadtxt(data_file, usecols=(col,), unpack=True).reshape(-1, 1)
+    values = np.loadtxt(input_file, usecols=(col,), unpack=True).reshape(-1, 1)
     frames = np.arange(1, len(values)+1)
     frames_subset = np.arange(1, len(values)+1, args.every)
     values_subset = values[frames_subset-1]
