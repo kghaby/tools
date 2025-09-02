@@ -95,31 +95,59 @@ def cluster_summary(data, labels, centroids, frames):
         
     return summary
 
-def create_gnuplot_script(labels, output_dir):
-    dir_gnu = f"{os.getcwd()}/{output_dir}".replace('_', '\\\\_')
-    with open(f"{output_dir}/plot_cluster.gnu", "w") as f:
-        # Set up the multiplot layout
-        f.write('set multiplot layout 2, 1\n')
+def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, show=True):
+    import matplotlib
+    matplotlib.use("Agg" if not show else matplotlib.get_backend())
+    import matplotlib.pyplot as plt
+    from matplotlib.gridspec import GridSpec
 
-        # First plot (main plot)
-        f.write(f'set xlabel "Frames"\n')
-        f.write('set ylabel "Data"\n')
-        f.write(f'set title "{dir_gnu}"\n')
-        f.write('set key outside\n')
-        f.write('plot\\\n')
-        for label in np.unique(labels):
-            f.write(f'"cluster.c{label}.dat" u 1:2 every 10 title "C{label}",\\\n')
-        f.write('\n')
+    y = values.flatten()
+    labs = np.asarray(labels)
+    uniq = np.unique(labs)
 
-        # Second plot (histogram)
-        f.write(f'set notitle \n')
-        f.write('set xlabel "Data"\n')
-        f.write('set ylabel "Count"\n')
-        f.write('plot\\\n')
-        for label in np.unique(labels):
-            f.write(f'"cluster.c{label}.histo" u 1:2 every 1 title "C{label}",\\\n')
-        f.write('\nunset multiplot\n')
-        f.write('\npause -1\n')
+    fig = plt.figure(figsize=(10, 4.8), constrained_layout=True)
+    gs = GridSpec(nrows=1, ncols=2, width_ratios=[5.0, 1.6], wspace=0.05, figure=fig)
+    ax = fig.add_subplot(gs[0, 0])
+    axh = fig.add_subplot(gs[0, 1], sharey=ax)
+
+    color_map = {}
+    for i, lab in enumerate(uniq):
+        color_map[lab] = plt.rcParams["axes.prop_cycle"].by_key()["color"][i % len(plt.rcParams["axes.prop_cycle"].by_key()["color"])]
+
+    for lab in uniq:
+        m = labs == lab
+        step = max(len(frames) // 500, 1)
+        ax.plot(frames[m][::step], y[m][::step], lw=1.0, alpha=0.95, label=f"C{lab}", color=color_map[lab])
+        ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=0.7, color=color_map[lab])
+
+    ax.set_xlabel("Frame")
+    ax.set_ylabel("Data")
+    ax.grid(True, lw=0.4, alpha=0.3)
+    ax.legend(loc="upper left", bbox_to_anchor=(0, 1), ncols=min(len(uniq), 4), fontsize=8, frameon=False)
+
+    y_min, y_max = np.min(y), np.max(y)
+    bins_edges = np.linspace(y_min, y_max, bins + 1)
+
+    for lab in uniq:
+        axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal",
+                 histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab], label=None)
+
+    axh.yaxis.set_visible(False)
+    axh.set_xlabel("")
+    axh.grid(False)
+    axh.axis("off")
+    axh.set_xlim(0, axh.get_xlim()[1])
+
+    # align y-lims and finalize
+    ax.set_ylim(y_min, y_max)
+    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)).replace("_", r"\_"), fontsize=10)
+    fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
+    if show:
+        try:
+            plt.show()
+        except Exception:
+            pass
+    plt.close(fig)
 
 def create_output_dir(base="clusters"):
     counter = 1
@@ -220,15 +248,19 @@ def main():
             f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
 
     # Histograms and plotting
-    bin_range = np.max(values) - np.min(values)
-    binsize = bin_range / 100
-    for lab in np.unique(labels):
-        os.system(f"histogram.py -i '{output_dir}/cluster.c{lab}.dat' -o '{output_dir}/cluster.c{lab}.histo' -col 1 -binsize {binsize}")
+    out_pdf = os.path.join(output_dir, "cluster.pdf")
+    plot_timeseries_with_right_hist(
+        frames=frames,
+        values=values,
+        labels=labels,
+        out_pdf=out_pdf,
+        bins=args.bins,
+        show=not args.no_show,
+    )
 
-    create_gnuplot_script(labels, output_dir)
-    log_to_file("Generated Gnuplot script.", log_file)
+    log_to_file(f"Saved plot: {out_pdf}", log_file)
     log_to_file(f"Run ended at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
-    os.system(f"cd {output_dir}; gnuplot plot_cluster.gnu; cd -")
+
 
 if __name__ == "__main__":
     main()
