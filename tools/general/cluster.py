@@ -201,15 +201,23 @@ log_to_file(f"Using {n_clusters} clusters.", log_file)
 
 log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...",log_file)
 if args.method == 'kmeans':
-    # K-means clustering
-    if approx_centroids:
+    # K-means
+    if approx_centroids is not None:
         log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
-    approx_centroids=np.array(approx_centroids).reshape(-1, 1)
-    
+        approx_centroids = np.array(approx_centroids, dtype=float).reshape(-1, 1)
+        if n_clusters is None:
+            n_clusters = approx_centroids.shape[0]
+            log_to_file(f"No k provided; setting n_clusters={n_clusters} from initial guesses", log_file)
+        elif n_clusters != approx_centroids.shape[0]:
+            log_to_file(f"n_clusters ({n_clusters}) != #initial centroids ({approx_centroids.shape[0]}). Overriding k to {approx_centroids.shape[0]}.", log_file)
+            n_clusters = approx_centroids.shape[0]
+    else:
+        approx_centroids = None
+
     if tol is None:
-        log_to_file("Calculating initial tolerance...",log_file)
-        tol = 0.1 * np.std(values)  # 10% of standard deviation as initial tolerance
-        log_to_file(f"Initial tolerance set to {tol}",log_file)
+        log_to_file("Calculating initial tolerance...", log_file)
+        tol = 0.1 * np.std(values)
+        log_to_file(f"Initial tolerance set to {tol}", log_file)
 
     centroids, labels = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
 
