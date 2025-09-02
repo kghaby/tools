@@ -5,10 +5,8 @@ import sys
 import os 
 from datetime import datetime
 import argparse
-
-# Heavy imports moved to after arg parser
-# from sklearn.cluster import AgglomerativeClustering,KMeans
-# from sklearn.neighbors import NearestCentroid
+from sklearn.cluster import AgglomerativeClustering,KMeans
+from sklearn.neighbors import NearestCentroid
 
 #TODO: Expand it to use arbitrary amount of columns ie dimensions
 
@@ -149,9 +147,6 @@ def parse_arguments():
         
 def main():
     args = parse_arguments()
-
-    from sklearn.cluster import AgglomerativeClustering,KMeans
-    from sklearn.neighbors import NearestCentroid
     
     input_file = args.input_file
     col = args.col
