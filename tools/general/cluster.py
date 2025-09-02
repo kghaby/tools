@@ -5,8 +5,10 @@ import sys
 import os 
 from datetime import datetime
 import argparse
-from sklearn.cluster import AgglomerativeClustering,KMeans
-from sklearn.neighbors import NearestCentroid
+
+# Moved heavy imports to respective functions 
+# from sklearn.cluster import AgglomerativeClustering,KMeans
+# from sklearn.neighbors import NearestCentroid
 
 #TODO: Expand it to use arbitrary amount of columns ie dimensions
 
@@ -17,6 +19,7 @@ def log_to_file(message, log_file,printmsg=True):
         f.write(f"{message}\n")
 
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
+    from sklearn.cluster import KMeans # heavy import
     if initial_centroids is not None:
         if len(initial_centroids) != k:
             raise ValueError("Number of initial centroids must match k")
@@ -30,6 +33,7 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
     return model, model.cluster_centers_, model.labels_
 
 def agglomerative_clustering(data, n_clusters, linkage):
+    from sklearn.cluster import AgglomerativeClustering # heavy import
     model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
     model.fit(data)
     centroids = np.array([data[model.labels_ == i].mean(axis=0) for i in range(n_clusters)])
@@ -47,6 +51,7 @@ def label_full_data(model, method, full_data, subset_data=None, subset_labels=No
     if method == "kmeans":
         return model.predict(full_data)
     else:
+        from sklearn.neighbors import NearestCentroid # heavy import
         clf = NearestCentroid()
         clf.fit(subset_data, subset_labels)
         return clf.predict(full_data)
