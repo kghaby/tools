@@ -114,11 +114,11 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     for i, lab in enumerate(uniq):
         color_map[lab] = plt.rcParams["axes.prop_cycle"].by_key()["color"][i % len(plt.rcParams["axes.prop_cycle"].by_key()["color"])]
 
-    step = max(len(frames) // 1000, 1)
-    ax.plot(frames[::step], y[::step], lw=0.8, alpha=0.5, color="black")
+    step = max(len(frames) // 10000, 1)
+    ax.plot(frames[::step], y[::step], lw=0.8, alpha=0.3, color="black")
     for lab in uniq:
         m = labs == lab
-        ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=0.7, label=f"C{lab}", color=color_map[lab])
+        ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=1, label=f"C{lab}", color=color_map[lab])
 
     ax.set_xlabel("Frame")
     ax.set_ylabel("Data")
@@ -127,11 +127,9 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     y_min, y_max = np.min(y), np.max(y)
     bins_edges = np.linspace(y_min, y_max, bins + 1)
 
-    counts, edges = np.histogram(y[labs == lab], bins=bins_edges)
-    for i in range(len(counts)):
-        if counts[i] > 0:
-            y0, y1 = edges[i], edges[i+1]
-            axh.hlines((y0 + y1)/2, 0, counts[i], color=color_map[lab], lw=1.2)
+    for lab in uniq: 
+        axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal", 
+                 histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab], label=None)
 
     axh.yaxis.set_visible(False)
     axh.set_xlabel("")
