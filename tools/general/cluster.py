@@ -138,7 +138,7 @@ def parse_arguments():
         parser.print_help(sys.stderr)
         sys.exit(1)    
     if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help', 'help', 'h'):
-        print_help()
+        parser.print_help(sys.stderr)
         
     return parser.parse_args()
         
