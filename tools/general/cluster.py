@@ -138,7 +138,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     axh.axis("off")
     axh.set_xlim(0.1, axh.get_xlim()[1])
 
-    ax.set_xlim(frames.min(),frames.max())
+    ax.set_xlim(frames.min(),frames.max()-1)
     ax.set_ylim(y_min, y_max)
     
     fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=10)
@@ -211,7 +211,7 @@ def main():
                 log_to_file(f"Setting n_clusters={n_clusters} based on initial guesses", log_file)
         if tol is None:
             tol = 0.1 * np.std(values_subset)
-            log_to_file(f"Initial tolerance set to {tol}", log_file)
+        log_to_file(f"Tolerance set to {tol}", log_file)
         model, centroids, labels_subset = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
 
     elif args.method == "agglomerative":
