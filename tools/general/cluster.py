@@ -115,10 +115,13 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
         color_map[lab] = plt.rcParams["axes.prop_cycle"].by_key()["color"][i % len(plt.rcParams["axes.prop_cycle"].by_key()["color"])]
 
     step = max(len(frames) // 10000, 1)
-    ax.plot(frames[::step], y[::step], lw=0.8, alpha=0.3, color="black")
+    idx = np.arange(frames.size)[::step]
+    ax.plot(frames[idx], y[idx], lw=0.8, alpha=0.3, color="black")
     for lab in uniq:
-        m = labs == lab
-        ax.plot(frames[m][::step], y[m][::step], ls="none", marker="o", ms=2.0, alpha=1, label=f"C{lab}", color=color_map[lab])
+        m_idx = np.nonzero(labs == lab)[0]
+        m_idx = np.intersect1d(m_idx, idx, assume_unique=False)
+        ax.plot(frames[m_idx], y[m_idx], ls="none", marker="o", ms=3.0, alpha=1, color=color_map[lab])
+        ax.plot([], [], label=f"C{lab}", color=color_map[lab], lw=2) # for legend
 
     ax.set_xlabel("Frame")
     ax.set_ylabel("Data")
@@ -135,7 +138,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
     axh.set_xlabel("")
     axh.grid(False)
     axh.axis("off")
-    axh.set_xlim(0, axh.get_xlim()[1])
+    axh.set_xlim(1e-6, axh.get_xlim()[1])
 
     ax.set_xlim(frames.min(),frames.max())
     ax.set_ylim(y_min, y_max)
