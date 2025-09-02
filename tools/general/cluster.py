@@ -70,7 +70,7 @@ def cluster_summary(data, labels, centroids, frames):
         fraction = n_cluster_frames / n_frames
         avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
 
-        sum_distances, sum_squared_distances, n = 0, 0, 0
+        sum_distances, sum_squared_distances, n = 0.0, 0.0, 0
         for point in cluster_data:
             distances = np.abs(point - cluster_data)
             sum_distances += np.sum(distances)
@@ -78,7 +78,7 @@ def cluster_summary(data, labels, centroids, frames):
             n += len(distances)
 
         mean_distance = sum_distances / n
-        stdev = np.sqrt((sum_squared_distances - (mean_distance ** 2 * n)) / (n - 1))
+        stdev = np.sqrt((sum_squared_distances - (mean_distance ** 2 * n)) / max(n - 1, 1))
         
         # Centroid calculation
         cumulative_dists = [np.sum(np.abs(point - cluster_data)) for point in cluster_data]
@@ -86,10 +86,12 @@ def cluster_summary(data, labels, centroids, frames):
         centroid_value = centroids[label][0]
         
         # AvgCDist: Average distance to other clusters
-        other_clusters = np.concatenate([data[labels == other_label] for other_label in unique_labels if other_label != label])
-        avg_cdist = np.mean(np.abs(cluster_data.mean() - other_clusters))
-        
-        summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), avg_cdist,centroid_value])
+        other_clusters = np.concatenate(
+            [data[labels == other_label] for other_label in unique_labels if other_label != label]
+        ) if len(unique_labels) > 1 else np.array([np.nan])
+        avg_cdist = np.mean(np.abs(cluster_data.mean() - other_clusters)) if other_clusters.size else np.nan
+
+        summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), avg_cdist, centroid_value])
         
     return summary
 
@@ -127,20 +129,20 @@ def create_output_dir(base="clusters"):
     return f"{base}_{counter}"
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Cluster data using various algorithms.')
-    parser.add_argument('-i','--input_file', default='forcluster.dat', help='File containing data to be clustered.')
-    parser.add_argument('-c','--col', type=int, default=1, help='Column of data to cluster. Indexing starts at 0.')
-    parser.add_argument('-e','--every', type=int, default=1, help='Select every nth data point for initial clustering')
-    parser.add_argument('-m','--method', default='kmeans', choices=['kmeans', 'agglomerative'], help='Clustering method to use: kmeans or agglomerative')
-    parser.add_argument('-n','--n_clusters', type=int, default=None, help='Number of clusters. Default determined by Elbow Method.')
-    parser.add_argument('-t','--tol', type=float, default=None, help='Tolerance for centroid convergence for Kmeans. Default determined by Davies-Bouldin Index.')
-    parser.add_argument('-a','--approx_centroids', nargs='+', type=float, default=None, help='Initial centroid guesses for Kmeans. Example usage to pass multiple values "--approx_centroids 1.2 9.3"')
-    parser.add_argument('-l','--linkage', default='ward', choices=['ward', 'complete', 'average', 'single'], help='Linkage criterion for Agglomerative Clustering')
-    
-    if len(sys.argv) == 1 or sys.argv[1] in ('-h', '--help', 'help', 'h'):
+    parser = argparse.ArgumentParser(description="Cluster a univariate series and plot with an attached histogram.")
+    parser.add_argument("-i", "--input_file", default="forcluster.dat", help="Data file.")
+    parser.add_argument("-c", "--col", type=int, default=1, help="0-based column index to cluster.")
+    parser.add_argument("-e", "--every", type=int, default=1, help="Subsample stride for initial clustering.")
+    parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative"], help="Clustering method.")
+    parser.add_argument("-n", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
+    parser.add_argument("-t", "--tol", type=float, default=None, help="KMeans tolerance; default 0.1*σ of subset.")
+    parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help='Initial KMeans guesses, e.g. "--approx_centroids 1.2 9.3"')
+    parser.add_argument("-l", "--linkage", default="ward", choices=["ward", "complete", "average", "single"], help="Agglomerative linkage.")
+    parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
+    parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
+    if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help", "help", "h"):
         parser.print_help(sys.stderr)
-        sys.exit(1) 
-        
+        sys.exit(1)
     return parser.parse_args()
         
 def main():
