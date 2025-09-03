@@ -10,8 +10,6 @@ import argparse
 # from sklearn.cluster import AgglomerativeClustering,KMeans
 # from sklearn.neighbors import NearestCentroid
 
-#TODO: Expand it to use arbitrary amount of columns ie dimensions
-
 def log_to_file(message, log_file, printmsg=True):
     if printmsg:
         print(message)
@@ -23,32 +21,41 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
     if initial_centroids is not None:
         if len(initial_centroids) != k:
             raise ValueError("Number of initial centroids must match k")
-        init = np.array(initial_centroids)
+        init = np.array(initial_centroids, dtype=float)
         n_init = 1
     else:
         init = "k-means++"
         n_init = 10
     model = KMeans(n_clusters=k, init=init, n_init=n_init, tol=tol, max_iter=max_iter)
     model.fit(data)
-    return model, model.cluster_centers_, model.labels_
+    return model, model.cluster_centers_, model.labels_, model.inertia_
 
 def agglomerative_clustering(data, n_clusters, linkage):
     from sklearn.cluster import AgglomerativeClustering # heavy import
     model = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
     model.fit(data)
     centroids = np.array([data[model.labels_ == i].mean(axis=0) for i in range(n_clusters)])
-    return model, centroids, model.labels_
+    inertia = 0.0
+    for i in range(n_clusters):
+        Xc = data[model.labels_ == i]
+        if Xc.size:
+            dif = Xc - centroids[i]
+            inertia += (dif * dif).sum()
+    return model, centroids, model.labels_, inertia
 
-def elbow_method(data, k_range, initial_centroids=None):
-    # "discrete curvature" via second finite difference on inertia
+def elbow_method(data, k_range, method="kmeans", initial_centroids=None, linkage="ward", tol=1e-4, max_iter=100):
     inertia = []
     for k in k_range:
-        model, centroids, _ = kmeans(data, k, initial_centroids)
-        # inertia compatible with np.linalg.norm on broadcasted [k,d] vs [n,d]
-        d = np.linalg.norm(data - centroids[:, np.newaxis], axis=2)
-        inertia.append(np.sum(np.min(d, axis=0)))
+        if method == "kmeans":
+            _, _, _, iner = kmeans(data, k, initial_centroids, tol=tol, max_iter=max_iter)
+        else:
+            _, _, _, iner = agglomerative_clustering(data, k, linkage)
+        inertia.append(iner)
+    inertia = np.asarray(inertia, dtype=float)
+    if inertia.size < 3:
+        return int(k_range[0])
     rate_change = np.diff(np.diff(inertia))
-    return np.argmax(rate_change) + k_range[0] + 1
+    return int(np.argmax(rate_change) + k_range[0] + 1)
 
 def label_full_data(model, method, full_data, subset_data=None, subset_labels=None):
     if method == "kmeans":
@@ -58,41 +65,43 @@ def label_full_data(model, method, full_data, subset_data=None, subset_labels=No
         clf = NearestCentroid()
         clf.fit(subset_data, subset_labels)
         return clf.predict(full_data)
+    
+def _pairwise_l1_stats(cluster_data):
+    if len(cluster_data) <= 1:
+        return 0.0, 0.0
+    dif = np.abs(cluster_data[:, None, :] - cluster_data[None, :, :]).sum(axis=2)
+    iu = np.triu_indices_from(dif, k=1)
+    d = dif[iu]
+    return float(d.mean()), float(d.std(ddof=1)) if d.size > 1 else 0.0
 
 def cluster_summary(data, labels, centroids, frames):
     unique_labels = np.unique(labels)
     n_frames = len(data)
     summary = []
-    
     for label in unique_labels:
         cluster_data = data[labels == label]
         n_cluster_frames = len(cluster_data)
         fraction = n_cluster_frames / n_frames
-        avg_dist = np.mean([np.mean(np.abs(point - cluster_data)) for point in cluster_data])
-
-        sum_distances, sum_squared_distances, n = 0.0, 0.0, 0
-        for point in cluster_data:
-            distances = np.abs(point - cluster_data)
-            sum_distances += np.sum(distances)
-            sum_squared_distances += np.sum(distances ** 2)
-            n += len(distances)
-
-        mean_distance = sum_distances / n
-        stdev = np.sqrt((sum_squared_distances - (mean_distance ** 2 * n)) / max(n - 1, 1))
-        
-        # Centroid calculation
-        cumulative_dists = [np.sum(np.abs(point - cluster_data)) for point in cluster_data]
-        centroid_frame = frames[labels == label][np.argmin(cumulative_dists)]
-        centroid_value = centroids[label][0]
-        
-        # AvgCDist: Average distance to other clusters
-        other_clusters = np.concatenate(
-            [data[labels == other_label] for other_label in unique_labels if other_label != label]
-        ) if len(unique_labels) > 1 else np.array([np.nan])
-        avg_cdist = np.mean(np.abs(cluster_data.mean() - other_clusters)) if other_clusters.size else np.nan
-
-        summary.append([label, n_cluster_frames, fraction, avg_dist, stdev, int(centroid_frame), avg_cdist, centroid_value])
-        
+        # avg_dist: mean L1 distance of each point to its cluster mean
+        mu = cluster_data.mean(axis=0, keepdims=True)
+        avg_dist = float(np.abs(cluster_data - mu).sum(axis=1).mean())
+        mean_distance, stdev = _pairwise_l1_stats(cluster_data)
+        # medoid frame (min sum L1 to all others)
+        if n_cluster_frames:
+            D = np.abs(cluster_data[:, None, :] - cluster_data[None, :, :]).sum(axis=2).sum(axis=1)
+            centroid_frame = int(frames[labels == label][int(np.argmin(D))])
+        else:
+            centroid_frame = -1
+        # AvgCDist: mean L1 distance to other clusters mean
+        other_clusters = [data[labels == other_label] for other_label in unique_labels if other_label != label]
+        if other_clusters:
+            other = np.concatenate(other_clusters, axis=0)
+            avg_cdist = float(np.abs(cluster_data.mean(axis=0) - other.mean(axis=0)).sum())
+        else:
+            avg_cdist = float("nan")
+        centroid_value = "[" + " ".join(f"{v:.6f}" for v in centroids[label].ravel()) + "]"
+        summary.append([int(label), int(n_cluster_frames), float(fraction), float(avg_dist), float(stdev),
+                        int(centroid_frame), float(avg_cdist), centroid_value])
     return summary
 
 def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, show=True):
@@ -150,6 +159,64 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
             pass
     plt.close(fig)
 
+def _white_to_color_cmap(base_color):
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LinearSegmentedColormap, to_rgb
+    rgb = to_rgb(base_color)
+    return LinearSegmentedColormap.from_list("w2c", [(1, 1, 1), rgb], N=256)
+
+def plot_2d_hist_by_cluster(data2d, labels, out_pdf, bins=100, show=True):
+    # overlay cluster-wise 2D histograms, each with white->cluster-color cmap; darker = higher count
+    import matplotlib
+    matplotlib.use("Agg" if not show else matplotlib.get_backend())
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LogNorm
+
+    x, y = data2d[:, 0], data2d[:, 1]
+    labs = np.asarray(labels)
+    uniq = np.unique(labs)
+
+    fig, ax = plt.subplots(figsize=(6.2, 5.6), constrained_layout=True)
+    palette = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+    # global extents to align pcolormesh grids
+    x_min, x_max = float(x.min()), float(x.max())
+    y_min, y_max = float(y.min()), float(y.max())
+    x_edges = np.linspace(x_min, x_max, bins + 1)
+    y_edges = np.linspace(y_min, y_max, bins + 1)
+
+    # draw per-cluster hist with additive alpha compositing (Plenoptic mixing; approximation)
+    for i, lab in enumerate(uniq):
+        xi = x[labs == lab]
+        yi = y[labs == lab]
+        if xi.size == 0:
+            continue
+        H, _, _ = np.histogram2d(xi, yi, bins=(x_edges, y_edges))
+        # avoid log(0); use linear norm for transparency while keeping dynamic range by alpha scaling
+        H = H.T  # for pcolormesh orientation
+        cmap = _white_to_color_cmap(palette[i % len(palette)])
+        # normalize each cluster by its max to span white->color; alpha scales with relative density
+        H_norm = (H / (H.max() if H.max() > 0 else 1.0))
+        # plot with per-cell facecolor derived from cmap(H_norm) and alpha=H_norm
+        C = cmap(H_norm)
+        C[..., -1] = H_norm  # set alpha channel
+        ax.pcolormesh(x_edges, y_edges, H_norm, shading="auto", cmap=cmap, alpha=None)
+        ax.plot([], [], lw=6, color=palette[i % len(palette)], label=f"C{lab}")
+
+    ax.set_xlabel("Col 0")
+    ax.set_ylabel("Col 1")
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(y_min, y_max)
+    ax.legend(loc="upper right", frameon=False)
+    ax.set_title("2D clustered histogram (white→dark=counts per cluster)")
+    fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
+    if show:
+        try:
+            plt.show()
+        except Exception:
+            pass
+    plt.close(fig)
+
 def create_output_dir(base="clusters"):
     counter = 1
     while os.path.exists(f"{base}_{counter}"):
@@ -160,12 +227,12 @@ def create_output_dir(base="clusters"):
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Cluster a univariate series and plot with an attached histogram.")
     parser.add_argument("-i", "--input_file", default="forcluster.dat", help="Data file.")
-    parser.add_argument("-c", "--col", type=int, default=1, help="0-based column index to cluster.")
+    parser.add_argument("-c", "--col", type=int, nargs="+", default=[1], help="0-based column index/indices to cluster. Provide one or more.")
     parser.add_argument("-e", "--every", type=int, default=1, help="Subsample stride for initial clustering.")
     parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative"], help="Clustering method.")
     parser.add_argument("-k", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
     parser.add_argument("-t", "--tol", type=float, default=None, help="KMeans tolerance; default 0.1*σ of subset.")
-    parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help='Initial KMeans guesses, e.g. "--approx_centroids 1.2 9.3"')
+    parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help='Initial KMeans guesses flattened; length must be k*d (row-major).')
     parser.add_argument("-l", "--linkage", default="ward", choices=["ward", "complete", "average", "single"], help="Agglomerative linkage.")
     parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
     parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
@@ -178,7 +245,8 @@ def main():
     args = parse_arguments()
     
     input_file = args.input_file
-    col = args.col
+    cols = list(args.col)
+    d = len(cols)
     n_clusters = args.n_clusters
     tol = args.tol
     approx_centroids = args.approx_centroids
@@ -188,35 +256,46 @@ def main():
     log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
     log_to_file(f"Output directory: {output_dir}", log_file)
 
-    values = np.loadtxt(input_file, usecols=(col,), unpack=True).reshape(-1, 1)
-    frames = np.arange(1, len(values)+1)
-    frames_subset = np.arange(1, len(values)+1, args.every)
-    values_subset = values[frames_subset-1]
+    values = np.loadtxt(input_file, usecols=tuple(cols), unpack=False, ndmin=2)
+    if values.ndim == 1:
+        values = values[:, None]
+    frames = np.arange(1, len(values) + 1)
+    frames_subset = np.arange(1, len(values) + 1, args.every)
+    values_subset = values[frames_subset - 1, :]
+    
+    # prepare initial centroid guesses if provided: expect k*d floats; reshape to (k,d)
+    if approx_centroids is not None:
+        approx_centroids = np.array(approx_centroids, dtype=float)
+        if n_clusters is None:
+            if approx_centroids.size % d != 0:
+                raise ValueError("Length of --approx_centroids must be a multiple of dimensionality d=len(--col).")
+            n_clusters = approx_centroids.size // d
+        if approx_centroids.size != n_clusters * d:
+            raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
+        approx_centroids = approx_centroids.reshape(n_clusters, d)
 
-    # Get clusters
+    # choose k if unspecified
     if n_clusters is None:
         log_to_file("Determining optimal clusters via Elbow Method...", log_file)
-        n_clusters = elbow_method(values_subset, range(1, 11), initial_centroids=approx_centroids)
+        n_clusters = elbow_method(values_subset, range(1, 11),
+                                  method=args.method,
+                                  initial_centroids=approx_centroids,
+                                  linkage=args.linkage,
+                                  tol=(0.1 * float(np.std(values_subset)) if tol is None else tol))
 
     log_to_file(f"Using {n_clusters} clusters.", log_file)
     log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
     if args.method == "kmeans":
-        if approx_centroids is not None:
-            log_to_file(f"Initially guessing {len(approx_centroids)} centroids at {approx_centroids}", log_file)
-            approx_centroids = np.array(approx_centroids, dtype=float).reshape(-1, 1)
-            if n_clusters is None or n_clusters != len(approx_centroids):
-                n_clusters = len(approx_centroids)
-                log_to_file(f"Setting n_clusters={n_clusters} based on initial guesses", log_file)
         if tol is None:
-            tol = 0.1 * np.std(values_subset)
+            tol = 0.1 * float(np.std(values_subset))
         log_to_file(f"Tolerance set to {tol}", log_file)
-        model, centroids, labels_subset = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
+        model, centroids, labels_subset, _ = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
 
     elif args.method == "agglomerative":
         log_to_file(f"Using {args.linkage} linkage method", log_file)
-        model, centroids, labels_subset = agglomerative_clustering(values_subset, n_clusters, args.linkage)
+        model, centroids, labels_subset, _ = agglomerative_clustering(values_subset, n_clusters, args.linkage)
 
     # Fit labels to full dataset
     if args.every > 1:
@@ -228,38 +307,37 @@ def main():
     summary_data = cluster_summary(values, labels, centroids, frames)
     summary_data.sort(key=lambda x: x[1], reverse=True)
     relabel_map = {old: new for new, (old, *_) in enumerate(summary_data)}
-    labels = np.array([relabel_map[l] for l in labels])
+    labels = np.array([relabel_map[int(l)] for l in labels], dtype=int)
 
     # Write outputs
     with open(f"{output_dir}/cluster.all.dat", "w") as f:
-        f.write("#Frame Data Cluster\n")
-        for frame, val, lab in zip(frames, values.flatten(), labels):
-            f.write(f"{int(frame)} {val:.6f} {lab}\n")
+        f.write("#Frame " + " ".join([f"Col{j}" for j in range(d)]) + " Cluster\n")
+        for frame, row, lab in zip(frames, values, labels):
+            f.write(f"{int(frame)} " + " ".join(f"{v:.6f}" for v in row) + f" {int(lab)}\n")
 
     for unique_label in np.unique(labels):
-        with open(f"{output_dir}/cluster.c{unique_label}.dat", "w") as f:
-            f.write("#Frame Data Cluster\n")
-            for frame, val, lab in zip(frames, values.flatten(), labels):
-                if lab == unique_label:
-                    f.write(f"{int(frame)} {val:.6f} {lab}\n")
+        with open(f"{output_dir}/cluster.c{int(unique_label)}.dat", "w") as f:
+            f.write("#Frame " + " ".join([f"Col{j}" for j in range(d)]) + " Cluster\n")
+            sel = (labels == unique_label)
+            for frame, row, lab in zip(frames[sel], values[sel], labels[sel]):
+                f.write(f"{int(frame)} " + " ".join(f"{v:.6f}" for v in row) + f" {int(lab)}\n")
 
     with open(f"{output_dir}/cluster.sum", "w") as f:
-        f.write("#Cluster   Frames     Frac  AvgDist    Stdev  Centroid AvgCDist   CValue \n")
+        f.write("#Cluster   Frames     Frac  AvgL1     StdevL1  Centroid  AvgCDist   CVector\n")
         for new_label, row in enumerate(summary_data):
-            f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:8.3f} {row[7]:8.3f}\n")
+            f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:9.3f} {row[7]}\n")
 
-    # Histograms and plotting
+    # Plotting
     out_pdf = os.path.join(output_dir, "cluster.pdf")
-    plot_timeseries_with_right_hist(
-        frames=frames,
-        values=values,
-        labels=labels,
-        out_pdf=out_pdf,
-        bins=args.bins,
-        show=not args.no_show,
-    )
-
-    log_to_file(f"Saved plot: {out_pdf}", log_file)
+    if d == 1:
+        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels,
+                                        out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
+        log_to_file(f"Saved plot: {out_pdf}", log_file)
+    elif d == 2:
+        plot_2d_hist_by_cluster(values[:, :2], labels, out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
+        log_to_file(f"Saved 2D histogram: {out_pdf}", log_file)
+    else:
+        log_to_file("Dimensionality > 2; skipping plotting.", log_file)
     log_to_file(f"Run ended at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
 
 
