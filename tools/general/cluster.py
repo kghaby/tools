@@ -311,13 +311,14 @@ def main():
     
 
     # Summarize clusters
-    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Getting centroids, etc", log_file)
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Getting centroids, etc.", log_file)
     summary_data = cluster_summary(values, labels, centroids, frames)
     summary_data.sort(key=lambda x: x[1], reverse=True)
     relabel_map = {old: new for new, (old, *_) in enumerate(summary_data)}
     labels = np.array([relabel_map[int(l)] for l in labels], dtype=int)
 
     # Write outputs
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Writing outputs.", log_file)
     with open(f"{output_dir}/cluster.all.dat", "w") as f:
         f.write("#Frame " + " ".join([f"Col{j}" for j in range(d)]) + " Cluster\n")
         for frame, row, lab in zip(frames, values, labels):
