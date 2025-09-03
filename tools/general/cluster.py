@@ -289,7 +289,7 @@ def main():
                                   tol=tol)
 
     log_to_file(f"Using {n_clusters} clusters.", log_file)
-    log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...", log_file)
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
     if args.method == "kmeans":
@@ -300,10 +300,12 @@ def main():
         model, centroids, labels_subset, _ = agglomerative_clustering(values_subset, n_clusters, args.linkage)
 
     # Fit labels to full dataset
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Fitting labels to the full dataset")
     if args.every > 1:
         labels = label_full_data(model, args.method, values, values_subset, labels_subset)
     else:
         labels = labels_subset
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Done with labels")
 
     # Summarize clusters
     summary_data = cluster_summary(values, labels, centroids, frames)
