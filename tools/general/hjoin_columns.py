@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+from datetime import datetime
 import pandas as pd
 
 def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
@@ -23,7 +24,9 @@ def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
     merged.to_csv(output_file, index=False, sep="\t")
 
     with open(log_file, "w") as f:
-        f.write(f"Combined {file1} col {data_col1} and {file2} col {data_col2} into {output_file}\n")
+        message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined {file1} col {data_col1} and {file2} col {data_col2} into {output_file}\n"
+        f.write(message)
+        print(message)
 
 def main():
     p = argparse.ArgumentParser(description="Horizontally merge two columns into a new file (keeping Frames from the first file)")
