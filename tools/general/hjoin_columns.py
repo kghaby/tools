@@ -24,7 +24,7 @@ def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
     merged.to_csv(output_file, index=False, sep="\t")
 
     with open(log_file, "w") as f:
-        message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined {file1} col {col1_idx} and {file2} col {col2_idx} into {output_file}\n"
+        message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined {file1} col {col1_idx} and {file2} col {col2_idx} into {output_file}"
         f.write(message)
         print(message)
 
