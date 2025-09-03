@@ -3,8 +3,8 @@ import argparse
 import pandas as pd
 
 def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
-    df1 = pd.read_csv(file1, sep='\s+', comment='#')
-    df2 = pd.read_csv(file2, sep='\s+', comment='#')
+    df1 = pd.read_csv(file1, sep="\s+", comment="#")
+    df2 = pd.read_csv(file2, sep="\s+", comment="#")
 
     frame_col1 = df1.columns[0]
     frame_col2 = df2.columns[0]
@@ -17,12 +17,12 @@ def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
         df2[[frame_col2, data_col2]],
         left_on=frame_col1,
         right_on=frame_col2,
-        how='inner'
+        how="inner"
     ).drop(columns=[frame_col2])
 
-    merged.to_csv(output_file, index=False, sep='\t')
+    merged.to_csv(output_file, index=False, sep="\t")
 
-    with open(log_file, 'w') as f:
+    with open(log_file, "w") as f:
         f.write(f"Combined {file1} col {data_col1} and {file2} col {data_col2} into {output_file}\n")
 
 def main():
