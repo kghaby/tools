@@ -168,7 +168,7 @@ def _white_to_color_cmap(base_color):
     rgb = to_rgb(base_color)
     return LinearSegmentedColormap.from_list("w2c", [(1, 1, 1), rgb], N=256)
 
-def plot_2d_hist_by_cluster(data2d, labels, out_pdf, bins=100, show=True):
+def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=100, show=True):
     # overlay cluster-wise 2D histograms, each with white->cluster-color cmap; darker = higher count
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
@@ -188,7 +188,7 @@ def plot_2d_hist_by_cluster(data2d, labels, out_pdf, bins=100, show=True):
     x_edges = np.linspace(x_min, x_max, bins + 1)
     y_edges = np.linspace(y_min, y_max, bins + 1)
 
-    # draw per-cluster hist with additive alpha compositing (Plenoptic mixing; approximation)
+    # draw per-cluster hist with additive alpha compositing
     for i, lab in enumerate(uniq):
         xi = x[labs == lab]
         yi = y[labs == lab]
@@ -206,12 +206,11 @@ def plot_2d_hist_by_cluster(data2d, labels, out_pdf, bins=100, show=True):
         ax.pcolormesh(x_edges, y_edges, H_norm, shading="auto", cmap=cmap, alpha=None)
         ax.plot([], [], lw=6, color=palette[i % len(palette)], label=f"C{lab}")
 
-    ax.set_xlabel("Col 0")
-    ax.set_ylabel("Col 1")
+    ax.set_xlabel(f"Col {colx_idx}")
+    ax.set_ylabel(f"Col {coly_idx}")
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
     ax.legend(loc="upper right", frameon=False)
-    ax.set_title("2D clustered histogram (white→dark=counts per cluster)")
     fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
     if show:
         try:
@@ -235,7 +234,7 @@ def parse_arguments():
     parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative"], help="Clustering method.")
     parser.add_argument("-k", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
     parser.add_argument("-t", "--tol", type=float, default=None, help="KMeans tolerance; default 0.1*σ of subset.")
-    parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help='Initial KMeans guesses flattened; length must be k*d (row-major).')
+    parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help="Initial KMeans guesses flattened; length must be k*d (row-major).")
     parser.add_argument("-l", "--linkage", default="ward", choices=["ward", "complete", "average", "single"], help="Agglomerative linkage.")
     parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
     parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
@@ -326,7 +325,7 @@ def main():
 
     for unique_label in np.unique(labels):
         with open(f"{output_dir}/cluster.c{int(unique_label)}.dat", "w") as f:
-            f.write("#Frame " + " ".join([f"Col{j}" for j in range(d)]) + " Cluster\n")
+            f.write("#Frame " + " ".join([f"Col{j}" for j in cols]) + " Cluster\n")
             sel = (labels == unique_label)
             for frame, row, lab in zip(frames[sel], values[sel], labels[sel]):
                 f.write(f"{int(frame)} " + " ".join(f"{v:.6f}" for v in row) + f" {int(lab)}\n")
@@ -343,7 +342,7 @@ def main():
                                         out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved plot: {out_pdf}", log_file)
     elif d == 2:
-        plot_2d_hist_by_cluster(values[:, :2], labels, out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
+        plot_2d_hist_by_cluster(values[:, :2], labels, out_pdf=out_pdf, colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved 2D histogram: {out_pdf}", log_file)
     else:
         log_to_file("Dimensionality > 2; skipping plotting.", log_file)
