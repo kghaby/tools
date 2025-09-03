@@ -274,6 +274,11 @@ def main():
             raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
         approx_centroids = approx_centroids.reshape(n_clusters, d)
 
+    # tol
+    if tol is None:
+        tol = 0.1 * float(np.std(values_subset))
+    log_to_file(f"Tolerance set to {tol}", log_file)
+        
     # choose k if unspecified
     if n_clusters is None:
         log_to_file("Determining optimal clusters via Elbow Method...", log_file)
@@ -281,16 +286,13 @@ def main():
                                   method=args.method,
                                   initial_centroids=approx_centroids,
                                   linkage=args.linkage,
-                                  tol=(0.1 * float(np.std(values_subset)) if tol is None else tol))
+                                  tol=tol)
 
     log_to_file(f"Using {n_clusters} clusters.", log_file)
     log_to_file(f"Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
     if args.method == "kmeans":
-        if tol is None:
-            tol = 0.1 * float(np.std(values_subset))
-        log_to_file(f"Tolerance set to {tol}", log_file)
         model, centroids, labels_subset, _ = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
 
     elif args.method == "agglomerative":
