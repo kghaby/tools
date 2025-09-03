@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 
 def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
-    df1 = pd.read_csv(file1, sep=r"\s+", header=True)
-    df2 = pd.read_csv(file2, sep=r"\s+", header=True)
+    df1 = pd.read_csv(file1, sep=r"\s+", comment="#")
+    df2 = pd.read_csv(file2, sep=r"\s+", comment="#")
 
     frame_col1 = df1.columns[0]
     frame_col2 = df2.columns[0]
@@ -21,7 +21,7 @@ def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
         how="inner"
     ).drop(columns=[frame_col2])
 
-    merged.to_csv(output_file, index=False, sep="\t")
+    merged.to_csv(output_file, index=False, sep="\t", header=True)
 
     with open(log_file, "w") as f:
         message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined {file1} col {col1_idx} and {file2} col {col2_idx} into {output_file}"
