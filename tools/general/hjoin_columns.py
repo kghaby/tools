@@ -35,7 +35,7 @@ def main():
     p.add_argument("-c2", type=int, default=1, help="Column index from file2 (0-based, default=1)")
     a = p.parse_args()
 
-    combine_data(a.i1, a.i2, a.o, a.l, a.col1, a.col2)
+    combine_data(a.i1, a.i2, a.o, a.l, a.c1, a.c2)
 
 if __name__ == "__main__":
     main()
