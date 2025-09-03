@@ -169,11 +169,9 @@ def _white_to_color_cmap(base_color):
     return LinearSegmentedColormap.from_list("w2c", [(1, 1, 1), rgb], N=256)
 
 def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=100, show=True):
-    # overlay cluster-wise 2D histograms, each with white->cluster-color cmap; darker = higher count
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
-    from matplotlib.colors import LogNorm
 
     x, y = data2d[:, 0], data2d[:, 1]
     labs = np.asarray(labels)
@@ -182,28 +180,27 @@ def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=10
     fig, ax = plt.subplots(figsize=(6.2, 5.6), constrained_layout=True)
     palette = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
-    # global extents to align pcolormesh grids
     x_min, x_max = float(x.min()), float(x.max())
     y_min, y_max = float(y.min()), float(y.max())
     x_edges = np.linspace(x_min, x_max, bins + 1)
     y_edges = np.linspace(y_min, y_max, bins + 1)
 
-    # draw per-cluster hist with additive alpha compositing
+    # draw per-cluster hist with *per-pixel alpha*; color from white→cluster-color, α = normalized counts
     for i, lab in enumerate(uniq):
-        xi = x[labs == lab]
-        yi = y[labs == lab]
-        if xi.size == 0:
+        sel = (labs == lab)
+        if not np.any(sel):
             continue
-        H, _, _ = np.histogram2d(xi, yi, bins=(x_edges, y_edges))
-        # avoid log(0); use linear norm for transparency while keeping dynamic range by alpha scaling
-        H = H.T  # for pcolormesh orientation
+        H, _, _ = np.histogram2d(x[sel], y[sel], bins=(x_edges, y_edges))
+        H = H.T  # (Ny, Nx) for pcolormesh
+        H_norm = H / (H.max() if H.max() > 0 else 1.0)
+
         cmap = _white_to_color_cmap(palette[i % len(palette)])
-        # normalize each cluster by its max to span white->color; alpha scales with relative density
-        H_norm = (H / (H.max() if H.max() > 0 else 1.0))
-        # plot with per-cell facecolor derived from cmap(H_norm) and alpha=H_norm
-        C = cmap(H_norm)
-        C[..., -1] = H_norm  # set alpha channel
-        ax.pcolormesh(x_edges, y_edges, H_norm, shading="auto", cmap=cmap, alpha=None)
+        # map intensity via cmap; control visibility via alpha=H_norm (crucial fix)
+        qm = ax.pcolormesh(
+            x_edges, y_edges, H_norm,
+            shading="auto", cmap=cmap, vmin=0.0, vmax=1.0,
+            alpha=H_norm, antialiased=False, zorder=1+i
+        )
         ax.plot([], [], lw=6, color=palette[i % len(palette)], label=f"C{lab}")
 
     ax.set_xlabel(f"Col {colx_idx}")
