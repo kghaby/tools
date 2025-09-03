@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 
 def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
-    df1 = pd.read_csv(file1, sep=r"\s+", comment="#")
-    df2 = pd.read_csv(file2, sep=r"\s+", comment="#")
+    df1 = pd.read_csv(file1, sep=r"\s+", comment="#", header=0)
+    df2 = pd.read_csv(file2, sep=r"\s+", comment="#", header=0)
 
     frame_col1 = df1.columns[0]
     frame_col2 = df2.columns[0]
