@@ -300,12 +300,12 @@ def main():
         model, centroids, labels_subset, _ = agglomerative_clustering(values_subset, n_clusters, args.linkage)
 
     # Fit labels to full dataset
-    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Fitting labels to the full dataset")
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Fitting labels to the full dataset", log_file)
     if args.every > 1:
         labels = label_full_data(model, args.method, values, values_subset, labels_subset)
     else:
         labels = labels_subset
-    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Done with labels")
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Done with labels", log_file)
 
     # Summarize clusters
     summary_data = cluster_summary(values, labels, centroids, frames)
