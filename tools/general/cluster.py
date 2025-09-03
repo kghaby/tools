@@ -308,9 +308,10 @@ def main():
         labels = label_full_data(model, args.method, values, values_subset, labels_subset)
     else:
         labels = labels_subset
-    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Done with labels", log_file)
+    
 
     # Summarize clusters
+    log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Getting centroids, etc", log_file)
     summary_data = cluster_summary(values, labels, centroids, frames)
     summary_data.sort(key=lambda x: x[1], reverse=True)
     relabel_map = {old: new for new, (old, *_) in enumerate(summary_data)}
