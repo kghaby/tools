@@ -67,12 +67,12 @@ def label_full_data(model, method, full_data, subset_data=None, subset_labels=No
         return clf.predict(full_data)
     
 def _pairwise_l1_stats(cluster_data):
+    # compute L1 distances to the cluster mean
     if len(cluster_data) <= 1:
         return 0.0, 0.0
-    dif = np.abs(cluster_data[:, None, :] - cluster_data[None, :, :]).sum(axis=2)
-    iu = np.triu_indices_from(dif, k=1)
-    d = dif[iu]
-    return float(d.mean()), float(d.std(ddof=1)) if d.size > 1 else 0.0
+    mu = cluster_data.mean(axis=0, keepdims=True)
+    d = np.abs(cluster_data - mu).sum(axis=1)
+    return float(d.mean()), float(d.std(ddof=1))
 
 def cluster_summary(data, labels, centroids, frames):
     unique_labels = np.unique(labels)
@@ -83,13 +83,15 @@ def cluster_summary(data, labels, centroids, frames):
         n_cluster_frames = len(cluster_data)
         fraction = n_cluster_frames / n_frames
         # avg_dist: mean L1 distance of each point to its cluster mean
-        mu = cluster_data.mean(axis=0, keepdims=True)
-        avg_dist = float(np.abs(cluster_data - mu).sum(axis=1).mean())
+        mu = cluster_data.mean(axis=0, keepdims=True) if n_cluster_frames else np.zeros((1, data.shape[1]))
+        avg_dist = float(np.abs(cluster_data - mu).sum(axis=1).mean()) if n_cluster_frames else 0.0
         mean_distance, stdev = _pairwise_l1_stats(cluster_data)
-        # medoid frame (min sum L1 to all others)
+
+        # centroid_frame: pick point closest to mean in L1
         if n_cluster_frames:
-            D = np.abs(cluster_data[:, None, :] - cluster_data[None, :, :]).sum(axis=2).sum(axis=1)
-            centroid_frame = int(frames[labels == label][int(np.argmin(D))])
+            d_to_mu = np.abs(cluster_data - mu).sum(axis=1)
+            centroid_idx = int(np.argmin(d_to_mu))
+            centroid_frame = int(frames[labels == label][centroid_idx])
         else:
             centroid_frame = -1
         # AvgCDist: mean L1 distance to other clusters mean
@@ -99,6 +101,7 @@ def cluster_summary(data, labels, centroids, frames):
             avg_cdist = float(np.abs(cluster_data.mean(axis=0) - other.mean(axis=0)).sum())
         else:
             avg_cdist = float("nan")
+
         centroid_value = "[" + " ".join(f"{v:.6f}" for v in centroids[label].ravel()) + "]"
         summary.append([int(label), int(n_cluster_frames), float(fraction), float(avg_dist), float(stdev),
                         int(centroid_frame), float(avg_cdist), centroid_value])
