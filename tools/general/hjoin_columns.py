@@ -19,7 +19,9 @@ def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
         left_on=frame_col1,
         right_on=frame_col2,
         how="inner"
-    ).drop(columns=[frame_col2])
+    )
+    
+    merged = merged[[frame_col1, data_col1, data_col2]]
 
     merged.to_csv(output_file, index=False, sep="\t", header=True)
 
