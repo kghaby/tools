@@ -324,8 +324,8 @@ def main():
             raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
         approx_centroids = approx_centroids.reshape(n_clusters, d)
         if args.method != "keans":
-            log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will not be used.")
-        log_to_file(f"Initial centroids:\n{approx_centroids}")
+            log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will not be used.", log_file)
+        log_to_file(f"Initial centroids:\n{approx_centroids}", log_file)
 
     # tol
     if tol is None:
