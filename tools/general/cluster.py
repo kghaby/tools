@@ -312,6 +312,7 @@ def main():
         if approx_centroids.size != n_clusters * d:
             raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
         approx_centroids = approx_centroids.reshape(n_clusters, d)
+        log_to_file(f"Initial centroids:\n{approx_centroids}")
 
     # tol
     if tol is None:
