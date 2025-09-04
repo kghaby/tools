@@ -172,6 +172,7 @@ def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=10
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
+    import numpy as np
 
     x, y = data2d[:, 0], data2d[:, 1]
     labs = np.asarray(labels)
@@ -185,21 +186,60 @@ def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=10
     x_edges = np.linspace(x_min, x_max, bins + 1)
     y_edges = np.linspace(y_min, y_max, bins + 1)
 
-    # draw per-cluster hist with *per-pixel alpha*; color from white→cluster-color, α = normalized counts
-    for i, lab in enumerate(uniq):
+    # Precompute all histograms first to get global normalization
+    all_hists = []
+    for lab in uniq:
         sel = (labs == lab)
         if not np.any(sel):
+            all_hists.append(None)
             continue
         H, _, _ = np.histogram2d(x[sel], y[sel], bins=(x_edges, y_edges))
         H = H.T  # (Ny, Nx) for pcolormesh
-        H_norm = H / (H.max() if H.max() > 0 else 1.0)
-
+        all_hists.append(H)
+    
+    # Get global maximum for normalization (excluding zeros for log scale)
+    all_nonzero = np.concatenate([H[H > 0] for H in all_hists if H is not None])
+    if len(all_nonzero) > 0:
+        global_max = np.max(all_nonzero)
+        # For log scale, we need to handle zeros and set a reasonable minimum
+        log_min = np.min(all_nonzero) if len(all_nonzero) > 0 else 1
+    else:
+        global_max = 1
+        log_min = 1
+    
+    # Draw histograms with global normalization and logarithmic scaling
+    for i, (lab, H) in enumerate(zip(uniq, all_hists)):
+        if H is None:
+            continue
+        
+        # Apply logarithmic scaling to the histogram values
+        H_log = np.zeros_like(H)
+        non_zero_mask = H > 0
+        H_log[non_zero_mask] = np.log10(H[non_zero_mask])
+        
+        # Normalize to [0, 1] range for coloring
+        if np.any(non_zero_mask):
+            log_max = np.log10(global_max)
+            log_range = log_max - np.log10(log_min)
+            if log_range > 0:
+                H_norm = (H_log - np.log10(log_min)) / log_range
+            else:
+                H_norm = np.ones_like(H_log)
+            H_norm = np.clip(H_norm, 0, 1)
+        else:
+            H_norm = np.zeros_like(H)
+        
         cmap = _white_to_color_cmap(palette[i % len(palette)])
-        # map intensity via cmap; control visibility via alpha=H_norm (crucial fix)
+        
+        # Use normalized values for both color and alpha, but with different scaling
         qm = ax.pcolormesh(
             x_edges, y_edges, H_norm,
-            shading="auto", cmap=cmap, vmin=0.0, vmax=1.0,
-            alpha=H_norm, antialiased=False, zorder=1+i
+            shading="auto", cmap=cmap, 
+            vmin=0.0, vmax=1.0,
+            # Use a nonlinear alpha scaling to make low values more visible
+            alpha=H_norm**0.5,  # Square root scaling for better visibility
+            antialiased=False, 
+            zorder=1+i
         )
         ax.plot([], [], lw=6, color=palette[i % len(palette)], label=f"C{lab}")
 
