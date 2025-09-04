@@ -18,10 +18,11 @@ def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
         df2[[frame_col2, data_col2]],
         left_on=frame_col1,
         right_on=frame_col2,
-        how="inner"
+        how="inner",
+        suffixes=('_f1', '_f2')
     )
     
-    merged = merged[[frame_col1, data_col1, data_col2]]
+    merged = merged[[frame_col1, data_col1 + '_f1', data_col2 + '_f2']]
 
     merged.to_csv(output_file, index=False, sep="\t", header=True)
 
