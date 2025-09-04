@@ -320,7 +320,7 @@ def main():
         
     # choose k if unspecified
     if n_clusters is None:
-        log_to_file("Determining optimal clusters via Elbow Method...", log_file)
+        log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Determining optimal clusters via Elbow Method...", log_file)
         n_clusters = elbow_method(values_subset, range(1, 11),
                                   method=args.method,
                                   initial_centroids=approx_centroids,
