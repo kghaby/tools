@@ -372,7 +372,7 @@ def main():
     for old_label, new_label in relabel_map.items():
         new_centroids[new_label] = centroids[old_label]
     centroids = new_centroids
-    log_to_file(f"Centroids:\n{centroids}")
+    log_to_file(f"Centroids:\n{centroids}", log_file)
 
     # Write outputs
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Writing outputs.", log_file)
