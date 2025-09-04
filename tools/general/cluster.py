@@ -107,7 +107,7 @@ def cluster_summary(data, labels, centroids, frames):
                         int(centroid_frame), float(avg_cdist), centroid_value])
     return summary
 
-def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, show=True):
+def plot_timeseries_with_right_hist(frames, values, labels, centroids, out_pdf, bins=100, show=True):
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
@@ -146,6 +146,11 @@ def plot_timeseries_with_right_hist(frames, values, labels, out_pdf, bins=100, s
         axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal", 
                  histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab], label=None)
         
+    # Add centroid lines to histogram
+    for lab in uniq:
+        centroid_value = centroids[lab][0]  # For 1D data, centroid is a single value
+        axh.axhline(y=centroid_value, color=color_map[lab], linestyle='--', linewidth=2, alpha=0.8)
+
     axh.grid(False)
     axh.axis("off")
     axh.set_xlim(0.1, axh.get_xlim()[1])
@@ -168,7 +173,7 @@ def _white_to_color_cmap(base_color):
     rgb = to_rgb(base_color)
     return LinearSegmentedColormap.from_list("w2c", [(1, 1, 1), rgb], N=256)
 
-def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=100, show=True):
+def plot_2d_hist_by_cluster(data2d, labels, centroids, out_pdf, colx_idx, coly_idx, bins=100, show=True):
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
@@ -243,6 +248,12 @@ def plot_2d_hist_by_cluster(data2d, labels, out_pdf, colx_idx, coly_idx, bins=10
         )
         ax.plot([], [], lw=6, color=palette[i % len(palette)], label=f"C{lab}")
 
+    # Add centroid markers with black borders
+    for i, lab in enumerate(uniq):
+        centroid_x, centroid_y = centroids[lab]
+        ax.scatter(centroid_x, centroid_y, s=100, color=palette[i % len(palette)], 
+                  edgecolors='black', linewidth=2, zorder=100, marker='o')
+
     ax.set_xlabel(f"Col {colx_idx}")
     ax.set_ylabel(f"Col {coly_idx}")
     ax.set_xlim(x_min, x_max)
@@ -312,6 +323,8 @@ def main():
         if approx_centroids.size != n_clusters * d:
             raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
         approx_centroids = approx_centroids.reshape(n_clusters, d)
+        if args.method != "keans":
+            log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will not be used.")
         log_to_file(f"Initial centroids:\n{approx_centroids}")
 
     # tol
@@ -353,6 +366,12 @@ def main():
     summary_data.sort(key=lambda x: x[1], reverse=True)
     relabel_map = {old: new for new, (old, *_) in enumerate(summary_data)}
     labels = np.array([relabel_map[int(l)] for l in labels], dtype=int)
+    
+    # Reorder centroids to match the new labeling
+    new_centroids = np.zeros_like(centroids)
+    for old_label, new_label in relabel_map.items():
+        new_centroids[new_label] = centroids[old_label]
+    centroids = new_centroids
 
     # Write outputs
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Writing outputs.", log_file)
@@ -376,11 +395,11 @@ def main():
     # Plotting
     out_pdf = os.path.join(output_dir, "cluster.pdf")
     if d == 1:
-        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels,
+        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels, centroids=centroids,
                                         out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved plot: {out_pdf}", log_file)
     elif d == 2:
-        plot_2d_hist_by_cluster(values[:, :2], labels, out_pdf=out_pdf, colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
+        plot_2d_hist_by_cluster(values[:, :2], labels, centroids, out_pdf=out_pdf, colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved 2D histogram: {out_pdf}", log_file)
     else:
         log_to_file("Dimensionality > 2; skipping plotting.", log_file)
