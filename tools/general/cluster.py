@@ -285,6 +285,7 @@ def parse_arguments():
     parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help="Initial KMeans guesses flattened; length must be k*d (row-major).")
     parser.add_argument("-l", "--linkage", default="ward", choices=["ward", "complete", "average", "single"], help="Agglomerative linkage.")
     parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
+    parser.add_argument("-x", "--max_iter", type=int, default=100, help="Max iterations for kmeans algorithm.")
     parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
     if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help", "help", "h"):
         parser.print_help(sys.stderr)
@@ -339,14 +340,15 @@ def main():
                                   method=args.method,
                                   initial_centroids=approx_centroids,
                                   linkage=args.linkage,
-                                  tol=tol)
+                                  tol=tol,
+                                  max_iter=args.max_iter)
 
     log_to_file(f"Using {n_clusters} clusters.", log_file)
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
     if args.method == "kmeans":
-        model, centroids, labels_subset, _ = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol)
+        model, centroids, labels_subset, _ = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol, max_iter=args.max_iter)
 
     elif args.method == "agglomerative":
         log_to_file(f"Using {args.linkage} linkage method", log_file)
