@@ -13,7 +13,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     # Read all files
     dfs = []
     for file_path in files:
-        dfs.append(pd.read_csv(file_path, sep=r"\s+", header=0))
+        dfs.append(pd.read_csv(file_path, sep=r"\s+", comment=#))
     
     if no_frame_col:
         # Files don't have frame columns - assume they have the same number of rows
