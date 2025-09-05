@@ -24,35 +24,40 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
             if col_idx >= len(df.columns):
                 raise ValueError(f"Column index {col_idx} out of bounds for file {file_path} (has {len(df.columns)} columns)")
             
-            col_name = f"{file_path}_col{col_idx}"
+            col_name = df.columns[col_idx]
             merged_data[col_name] = df.iloc[:, col_idx].values
         
         # Create DataFrame from combined data
         merged = pd.DataFrame(merged_data)
         
     else:
-        # Files have frame columns - merge using the first file's frame column
-        frame_col = dfs[0].columns[0]
-        merged = dfs[0][[frame_col, dfs[0].columns[columns[0]]]].copy()
-        merged.columns = [frame_col, f"{files[0]}_col{columns[0]}"]
+        # Files have frame columns - merge using the first column of each file as the key
+        # Use the first file's first column as the primary key
+        primary_key_col = dfs[0].columns[0]
+        data_col_1 = dfs[0].columns[columns[0]]
+        merged = dfs[0].iloc[:, [0, columns[0]]].copy()
+        merged.columns = [primary_key_col, data_col_1]
         
         # Merge remaining files
         for i in range(1, len(files)):
             df = dfs[i]
-            current_frame_col = df.columns[0]
+            if len(df.columns) <= columns[i]:
+                raise ValueError(f"Column index {columns[i]} out of bounds for file {files[i]}")
+            
+            # Use the first column as the merge key for each file
+            key_col = df.columns[0]
             data_col = df.columns[columns[i]]
+            
+            # Create temporary dataframe with just the key and data columns
+            temp_df = df.iloc[:, [0, columns[i]]].copy()
+            temp_df.columns = [primary_key_col, data_col]
             
             merged = pd.merge(
                 merged,
-                df[[current_frame_col, data_col]],
-                left_on=frame_col,
-                right_on=current_frame_col,
+                temp_df,
+                on=primary_key_col,
                 how="inner"
             )
-            
-            # Drop the duplicate frame column and rename the data column
-            merged = merged.drop(columns=[current_frame_col])
-            merged = merged.rename(columns={data_col: f"{files[i]}_col{columns[i]}"})
     
     # Save the combined data
     merged.to_csv(output_file, index=False, sep="\t", header=True)
@@ -60,7 +65,8 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     # Log message
     log_lines = [f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined data from multiple files:"]
     for i, (file_path, col_idx) in enumerate(zip(files, columns)):
-        log_lines.append(f"  File {i+1}: {file_path} (column {col_idx})")
+        col_name = dfs[i].columns[col_idx]
+        log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
     log_lines.append(f"  Output: {output_file}")
     log_lines.append(f"  Total columns combined: {len(files)}")
     log_lines.append(f"  Frame columns: {'excluded' if no_frame_col else 'included'}")
@@ -74,11 +80,11 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
 
 def main():
     p = argparse.ArgumentParser(description="Horizontally merge multiple columns from multiple files into a new file")
-    p.add_argument("-i", "--input", nargs="+", required=True, 
+    p.add_argument("-i", "--inputs", nargs="+", required=True, 
                   help="Paths to input files (space-separated)")
-    p.add_argument("-c", "--columns", nargs="+", type=int, default=None,
+    p.add_argument("-c", "--cols", nargs="+", type=int, default=None,
                   help="Column indices for each file (0-based, space-separated). "
-                       "If not specified, uses column 0 for all files.")
+                       "If not specified, uses column 1 for files with frame columns, column 0 for files without.")
     p.add_argument("-o", "--output", default="hjoined_data.dat", 
                   help="Output file name")
     p.add_argument("-l", "--log", default="hjoin.log", 
@@ -89,17 +95,17 @@ def main():
     a = p.parse_args()
     
     # Set default columns if not provided
-    if a.columns is None:
+    if a.cols is None:
         # Use column 0 if no frame columns, column 1 if frame columns present
-        columns = [0 if a.nox else 1] * len(a.input)
+        columns = [0 if a.nox else 1] * len(a.inputs)
     else:
-        columns = a.columns
+        columns = a.cols
     
     # Validate input
-    if len(a.input) != len(columns):
-        raise ValueError(f"Number of files ({len(a.input)}) must match number of column indices ({len(columns)})")
+    if len(a.inputs) != len(columns):
+        raise ValueError(f"Number of files ({len(a.inputs)}) must match number of column indices ({len(columns)})")
     
-    combine_data(a.input, columns, a.output, a.log, a.nox)
+    combine_data(a.inputs, columns, a.output, a.log, a.nox)
 
 if __name__ == "__main__":
     main()
