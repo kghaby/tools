@@ -43,19 +43,39 @@ def agglomerative_clustering(data, n_clusters, linkage):
             inertia += (dif * dif).sum()
     return model, centroids, model.labels_, inertia
 
+def _kneedle(x, y, decreasing=True):
+    """
+    Kneedle (Satopaa et al.) for monotone curves.
+    x, y: 1D arrays; y must be monotone (here, decreasing inertia vs k).
+    Returns index of knee in x.
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    # normalize to [0,1]
+    x_n = (x - x.min()) / (x.max() - x.min() + 1e-12)
+    y_n = (y - y.min()) / (y.max() - y.min() + 1e-12)
+    if decreasing:
+        y_n = 1.0 - y_n  # convert to increasing
+    # distance from identity
+    diff = y_n - x_n
+    return int(np.argmax(diff))
+
 def elbow_method(data, k_range, method="kmeans", initial_centroids=None, linkage="ward", tol=1e-4, max_iter=100):
+    ks = list(k_range)
     inertia = []
-    for k in k_range:
+    for k in ks:
         if method == "kmeans":
             _, _, _, iner = kmeans(data, k, initial_centroids, tol=tol, max_iter=max_iter)
         else:
             _, _, _, iner = agglomerative_clustering(data, k, linkage)
-        inertia.append(iner)
+        inertia.append(float(iner))
     inertia = np.asarray(inertia, dtype=float)
-    if inertia.size < 3:
-        return int(k_range[0])
-    rate_change = np.diff(np.diff(inertia))
-    return int(np.argmax(rate_change) + k_range[0] + 1)
+    if inertia.size == 0:
+        raise ValueError("Empty k_range for elbow_method.")
+    if inertia.size == 1:
+        return int(ks[0])
+    idx = _kneedle(np.asarray(ks, dtype=float), inertia, decreasing=True)
+    return int(ks[idx])
 
 def label_full_data(model, method, full_data, subset_data=None, subset_labels=None):
     if method == "kmeans":
@@ -324,7 +344,7 @@ def main():
         if approx_centroids.size != n_clusters * d:
             raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
         approx_centroids = approx_centroids.reshape(n_clusters, d)
-        if args.method != "keans":
+        if args.method != "kmeans":
             log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will not be used.", log_file)
         log_to_file(f"Initial centroids:\n{approx_centroids}", log_file)
 
