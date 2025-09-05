@@ -10,21 +10,37 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     if len(files) < 2:
         raise ValueError("At least 2 files are required")
     
-    # Read all files
+    # Read all files - check if first line starts with comment to determine if there's a header
     dfs = []
+    has_headers = []
     for file_path in files:
-        dfs.append(pd.read_csv(file_path, sep=r"\s+", comment="#"))
+        # Check if first line starts with comment character
+        with open(file_path, 'r') as f:
+            first_line = f.readline().strip()
+        
+        if first_line.startswith('#'):
+            # File has header (starts with comment)
+            df = pd.read_csv(file_path, sep=r"\s+", header=0, comment='#')
+            has_headers.append(True)
+        else:
+            # File doesn't have header
+            df = pd.read_csv(file_path, sep=r"\s+", header=None)
+            has_headers.append(False)
+        dfs.append(df)
     
     if no_frame_col:
         # Files don't have frame columns - assume they have the same number of rows
         # Create a list of Series with unique column names
         series_list = []
         
-        for i, (df, file_path, col_idx) in enumerate(zip(dfs, files, columns)):
+        for i, (df, file_path, col_idx, has_header) in enumerate(zip(dfs, files, columns, has_headers)):
             if col_idx >= len(df.columns):
                 raise ValueError(f"Column index {col_idx} out of bounds for file {file_path} (has {len(df.columns)} columns)")
             
-            col_name = df.columns[col_idx]
+            if has_header:
+                col_name = df.columns[col_idx]
+            else:
+                col_name = f"col{col_idx}"
             series = df.iloc[:, col_idx]
             
             # Check if column name already exists and rename if necessary
@@ -48,8 +64,13 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     else:
         # Files have frame columns - merge using the first column of each file as the key
         # Use the first file's first column as the primary key
-        primary_key_col = dfs[0].columns[0]
-        data_col_1 = dfs[0].columns[columns[0]]
+        if has_headers[0]:
+            primary_key_col = dfs[0].columns[0]
+            data_col_1 = dfs[0].columns[columns[0]]
+        else:
+            primary_key_col = "Frame"
+            data_col_1 = f"col{columns[0]}"
+        
         merged = dfs[0].iloc[:, [0, columns[0]]].copy()
         merged.columns = [primary_key_col, data_col_1]
         
@@ -60,8 +81,12 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
                 raise ValueError(f"Column index {columns[i]} out of bounds for file {files[i]}")
             
             # Use the first column as the merge key for each file
-            key_col = df.columns[0]
-            data_col = df.columns[columns[i]]
+            if has_headers[i]:
+                key_col = df.columns[0]
+                data_col = df.columns[columns[i]]
+            else:
+                key_col = "Frame"
+                data_col = f"col{columns[i]}"
             
             # Create temporary dataframe with just the key and data columns
             temp_df = df.iloc[:, [0, columns[i]]].copy()
@@ -79,9 +104,12 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     
     # Log message
     log_lines = [f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined data from multiple files:"]
-    for i, (file_path, col_idx) in enumerate(zip(files, columns)):
-        col_name = dfs[i].columns[col_idx]
-        log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
+    for i, (file_path, col_idx, has_header) in enumerate(zip(files, columns, has_headers)):
+        if has_header:
+            col_name = dfs[i].columns[col_idx]
+            log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
+        else:
+            log_lines.append(f"  File {i+1}: {file_path} (column {col_idx})")
     log_lines.append(f"  Output: {output_file}")
     log_lines.append(f"  Total columns combined: {len(files)}")
     log_lines.append(f"  Frame columns: {'excluded' if no_frame_col else 'included'}")
