@@ -31,7 +31,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
             df = pd.read_csv(file_path, sep=r"\s+", header=None)
             has_headers.append(False)
             # Generate column names
-            all_headers.append([f"col_{i}" for i in range(len(df.columns))])
+            all_headers.append([f"col{i}" for i in range(len(df.columns))])
         dfs.append(df)
     
     # Extract the requested columns with proper naming
@@ -99,7 +99,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
         col_name = column_names[i]
         if has_header:
             original_name = all_headers[i][col_idx]
-            log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{original_name}' → '{col_name}')")
+            log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{original_name}' -> '{col_name}')")
         else:
             log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
     log_lines.append(f"  Output: {output_file}")
