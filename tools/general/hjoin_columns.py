@@ -58,7 +58,6 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
             
             series_list.append(series)
         
-        # Create DataFrame from combined series
         merged = pd.concat(series_list, axis=1)
         
     else:
@@ -68,7 +67,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
             primary_key_col = dfs[0].columns[0]
             data_col_1 = dfs[0].columns[columns[0]]
         else:
-            primary_key_col = "Frame"
+            primary_key_col = "#Frame"
             data_col_1 = f"col{columns[0]}"
         
         merged = dfs[0].iloc[:, [0, columns[0]]].copy()
