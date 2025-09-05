@@ -62,7 +62,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     else:
         # Merge using frame columns
         frame_data = []
-        frame_column_name = "#Frame"
+        frame_column_name = "Frame"
         
         for i, df in enumerate(dfs):
             if 0 >= len(df.columns):
