@@ -17,18 +17,33 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     
     if no_frame_col:
         # Files don't have frame columns - assume they have the same number of rows
-        # and we're merging by row index
-        merged_data = {}
+        # Create a list of Series with unique column names
+        series_list = []
         
         for i, (df, file_path, col_idx) in enumerate(zip(dfs, files, columns)):
             if col_idx >= len(df.columns):
                 raise ValueError(f"Column index {col_idx} out of bounds for file {file_path} (has {len(df.columns)} columns)")
             
             col_name = df.columns[col_idx]
-            merged_data[col_name] = df.iloc[:, col_idx].values
+            series = df.iloc[:, col_idx]
+            
+            # Check if column name already exists and rename if necessary
+            existing_names = [s.name for s in series_list]
+            if col_name in existing_names:
+                # Add suffix to make column name unique
+                suffix_num = 1
+                new_name = f"{col_name}_{suffix_num}"
+                while new_name in existing_names:
+                    suffix_num += 1
+                    new_name = f"{col_name}_{suffix_num}"
+                series.name = new_name
+            else:
+                series.name = col_name
+            
+            series_list.append(series)
         
-        # Create DataFrame from combined data
-        merged = pd.DataFrame(merged_data)
+        # Create DataFrame from combined series
+        merged = pd.concat(series_list, axis=1)
         
     else:
         # Files have frame columns - merge using the first column of each file as the key
@@ -101,7 +116,7 @@ def main():
             print("AMBIGUITY WARNING: --nox was used but --cols (-c) was not. Using col 0 of the files.")
         else:
             columns = [1] * len(a.inputs)
-            print("AMBIGUITY WARNING: --nox was used but --cols (-c) was not. Using col 1 of the files.")
+            print("AMBIGUITY WARNING: --cols (-c) was not specified. Using col 1 of the files.")
     else:
         columns = a.cols
     
