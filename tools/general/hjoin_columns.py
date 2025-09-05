@@ -3,46 +3,83 @@ import argparse
 from datetime import datetime
 import pandas as pd
 
-def combine_data(file1, file2, output_file, log_file, col1_idx, col2_idx):
-    df1 = pd.read_csv(file1, sep=r"\s+", header=0)
-    df2 = pd.read_csv(file2, sep=r"\s+", header=0)
-
-    frame_col1 = df1.columns[0]
-    frame_col2 = df2.columns[0]
-
-    data_col1 = df1.columns[col1_idx]
-    data_col2 = df2.columns[col2_idx]
-
-    merged = pd.merge(
-        df1[[frame_col1, data_col1]],
-        df2[[frame_col2, data_col2]],
-        left_on=frame_col1,
-        right_on=frame_col2,
-        how="inner",
-        suffixes=('_f1', '_f2')
-    )
+def combine_data(files, columns, output_file, log_file):
+    if len(files) != len(columns):
+        raise ValueError("Number of files must match number of column indices")
     
-    merged = merged[[frame_col1, data_col1 + '_f1', data_col2 + '_f2']]
-
+    if len(files) < 2:
+        raise ValueError("At least 2 files are required")
+    
+    # Read all files
+    dfs = []
+    for file_path in files:
+        dfs.append(pd.read_csv(file_path, sep=r"\s+", header=0))
+    
+    # Start with the first file's frame column and selected data column
+    frame_col = dfs[0].columns[0]
+    merged = dfs[0][[frame_col, dfs[0].columns[columns[0]]]].copy()
+    merged.columns = [frame_col, f"{files[0]}_col{columns[0]}"]
+    
+    # Merge remaining files
+    for i in range(1, len(files)):
+        df = dfs[i]
+        current_frame_col = df.columns[0]
+        data_col = df.columns[columns[i]]
+        
+        merged = pd.merge(
+            merged,
+            df[[current_frame_col, data_col]],
+            left_on=frame_col,
+            right_on=current_frame_col,
+            how="inner"
+        )
+        
+        # Drop the duplicate frame column and rename the data column
+        merged = merged.drop(columns=[current_frame_col])
+        merged = merged.rename(columns={data_col: f"{files[i]}_col{columns[i]}"})
+    
+    # Save the combined data
     merged.to_csv(output_file, index=False, sep="\t", header=True)
-
+    
+    # Create detailed log message
+    log_lines = [f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined data from multiple files:"]
+    for i, (file_path, col_idx) in enumerate(zip(files, columns)):
+        log_lines.append(f"  File {i+1}: {file_path} (column {col_idx})")
+    log_lines.append(f"  Output: {output_file}")
+    log_lines.append(f"  Total columns combined: {len(files)}")
+    
+    log_message = "\n".join(log_lines)
+    
     with open(log_file, "w") as f:
-        message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined {file1} col {col1_idx} and {file2} col {col2_idx} into {output_file}"
-        f.write(message)
-        print(message)
+        f.write(log_message)
+    
+    print(log_message)
 
 def main():
-    p = argparse.ArgumentParser(description="Horizontally merge two columns into a new file (keeping Frames from the first file)")
-    p.add_argument("-i1", required=True, help="Path to first input file")
-    p.add_argument("-i2", required=True, help="Path to second input file")
-    p.add_argument("-o", default="hjoined_data.dat", help="Output file name")
-    p.add_argument("-l", default="hjoin.log", help="Log file name")
-    p.add_argument("-c1", type=int, default=1, help="Column index from file1 (0-based, default=1)")
-    p.add_argument("-c2", type=int, default=1, help="Column index from file2 (0-based, default=1)")
+    p = argparse.ArgumentParser(description="Horizontally merge multiple columns from multiple files into a new file")
+    p.add_argument("-i", "--input", nargs="+", required=True, 
+                  help="Paths to input files (space-separated)")
+    p.add_argument("-c", "--columns", nargs="+", type=int, default=None,
+                  help="Column indices for each file (0-based, space-separated). "
+                       "If not specified, uses column 1 for all files.")
+    p.add_argument("-o", "--output", default="hjoined_data.dat", 
+                  help="Output file name")
+    p.add_argument("-l", "--log", default="hjoin.log", 
+                  help="Log file name")
+    
     a = p.parse_args()
-
-    combine_data(a.i1, a.i2, a.o, a.l, a.c1, a.c2)
+    
+    # Set default columns if not provided
+    if a.columns is None:
+        columns = [1] * len(a.input)
+    else:
+        columns = a.columns
+    
+    # Validate input
+    if len(a.input) != len(columns):
+        raise ValueError(f"Number of files ({len(a.input)}) must match number of column indices ({len(columns)})")
+    
+    combine_data(a.input, columns, a.output, a.log)
 
 if __name__ == "__main__":
     main()
-
