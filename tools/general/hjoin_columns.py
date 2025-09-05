@@ -96,7 +96,7 @@ def main():
     
     # Set default columns if not provided
     if a.cols is None:
-        # Use column 0 if no frame columns, column 1 if frame columns present
+        # POSSIBLY CONFUSING FOR USER: Use column 0 if no frame columns, column 1 if frame columns present
         columns = [0 if a.nox else 1] * len(a.inputs)
     else:
         columns = a.cols
