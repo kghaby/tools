@@ -15,23 +15,24 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     dfs = []
     has_headers = []
     all_headers = []
-    
+
     for file_path in files:
-        # Check if first line starts with comment character
-        with open(file_path, 'r') as f:
-            first_line = f.readline().strip()
-        
-        if first_line.startswith('#'):
-            # File has header (starts with comment)
-            df = pd.read_csv(file_path, sep=r"\s+", header=0, comment='#')
+        with open(file_path, "r") as f:
+            first_line = f.readline().rstrip("\n")
+
+        if first_line.lstrip().startswith("#"):
+            # header is the commented first line; preserve exact names
+            header_text = first_line.lstrip().lstrip("#").strip()
+            headers = header_text.split()  # whitespace-delimited
+            df = pd.read_csv(file_path, sep=r"\s+", comment="#", header=None, names=headers)
             has_headers.append(True)
-            all_headers.append(list(df.columns))
+            all_headers.append(headers)
         else:
-            # File doesn't have header
+            # no header present; synthesize names
             df = pd.read_csv(file_path, sep=r"\s+", header=None)
             has_headers.append(False)
-            # Generate column names
-            all_headers.append([f"col{i}" for i in range(len(df.columns))])
+            all_headers.append([f"col{i}" for i in range(df.shape[1])])
+
         dfs.append(df)
     
     # Extract the requested columns with proper naming
