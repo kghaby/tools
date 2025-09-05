@@ -41,7 +41,7 @@ def combine_data(files, columns, output_file, log_file):
     # Save the combined data
     merged.to_csv(output_file, index=False, sep="\t", header=True)
     
-    # Create detailed log message
+    # Log message
     log_lines = [f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined data from multiple files:"]
     for i, (file_path, col_idx) in enumerate(zip(files, columns)):
         log_lines.append(f"  File {i+1}: {file_path} (column {col_idx})")
@@ -56,10 +56,10 @@ def combine_data(files, columns, output_file, log_file):
     print(log_message)
 
 def main():
-    p = argparse.ArgumentParser(description="Horizontally merge multiple columns from multiple files into a new file")
+    p = argparse.ArgumentParser(description="Horizontally merge multiple columns from multiple files into a new file.")
     p.add_argument("-i", "--input", nargs="+", required=True, 
                   help="Paths to input files (space-separated)")
-    p.add_argument("-c", "--columns", nargs="+", type=int, default=None,
+    p.add_argument("-c", "--cols", nargs="+", type=int, default=None,
                   help="Column indices for each file (0-based, space-separated). "
                        "If not specified, uses column 1 for all files.")
     p.add_argument("-o", "--output", default="hjoined_data.dat", 
@@ -70,10 +70,10 @@ def main():
     a = p.parse_args()
     
     # Set default columns if not provided
-    if a.columns is None:
+    if a.cols is None:
         columns = [1] * len(a.input)
     else:
-        columns = a.columns
+        columns = a.cols
     
     # Validate input
     if len(a.input) != len(columns):
