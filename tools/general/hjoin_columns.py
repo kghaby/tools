@@ -13,6 +13,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     # Read all files - check if first line starts with comment to determine if there's a header
     dfs = []
     has_headers = []
+    headers = []  # Store the actual header names for each file
     for file_path in files:
         # Check if first line starts with comment character
         with open(file_path, 'r') as f:
@@ -22,10 +23,13 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
             # File has header (starts with comment)
             df = pd.read_csv(file_path, sep=r"\s+", header=0, comment='#')
             has_headers.append(True)
+            headers.append(list(df.columns))
         else:
             # File doesn't have header
             df = pd.read_csv(file_path, sep=r"\s+", header=None)
             has_headers.append(False)
+            # Generate column names for files without headers
+            headers.append([f"col{i}" for i in range(len(df.columns))])
         dfs.append(df)
     
     if no_frame_col:
@@ -33,15 +37,14 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
         # Create a list of Series with unique column names
         series_list = []
         
-        for i, (df, file_path, col_idx, has_header) in enumerate(zip(dfs, files, columns, has_headers)):
+        for i, (df, file_path, col_idx) in enumerate(zip(dfs, files, columns)):
             if col_idx >= len(df.columns):
                 raise ValueError(f"Column index {col_idx} out of bounds for file {file_path} (has {len(df.columns)} columns)")
             
-            if has_header:
-                col_name = df.columns[col_idx]
-            else:
-                col_name = f"col{col_idx}"
+            # Use the appropriate header name (either from file or generated)
+            col_name = headers[i][col_idx]
             series = df.iloc[:, col_idx]
+            series.name = col_name
             
             # Check if column name already exists and rename if necessary
             existing_names = [s.name for s in series_list]
@@ -53,8 +56,6 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
                     suffix_num += 1
                     new_name = f"{col_name}_{suffix_num}"
                 series.name = new_name
-            else:
-                series.name = col_name
             
             series_list.append(series)
         
@@ -62,30 +63,28 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
         
     else:
         # Files have frame columns - merge using the first column of each file as the key
-        # Use the first file's first column as the primary key
-        if has_headers[0]:
-            primary_key_col = dfs[0].columns[0]
-            data_col_1 = dfs[0].columns[columns[0]]
-        else:
-            primary_key_col = "#Frame"
-            data_col_1 = f"col{columns[0]}"
+        # Use consistent naming for the frame column
+        primary_key_col = "#Frame"
         
+        # Process first file
+        if columns[0] >= len(dfs[0].columns):
+            raise ValueError(f"Column index {columns[0]} out of bounds for file {files[0]}")
+        
+        # Get data column name from first file
+        data_col_1 = headers[0][columns[0]]
+        
+        # Create merged dataframe with frame column and first data column
         merged = dfs[0].iloc[:, [0, columns[0]]].copy()
         merged.columns = [primary_key_col, data_col_1]
         
         # Merge remaining files
         for i in range(1, len(files)):
             df = dfs[i]
-            if len(df.columns) <= columns[i]:
+            if columns[i] >= len(df.columns):
                 raise ValueError(f"Column index {columns[i]} out of bounds for file {files[i]}")
             
-            # Use the first column as the merge key for each file
-            if has_headers[i]:
-                key_col = df.columns[0]
-                data_col = df.columns[columns[i]]
-            else:
-                key_col = "#Frame"
-                data_col = f"col{columns[i]}"
+            # Get data column name
+            data_col = headers[i][columns[i]]
             
             # Create temporary dataframe with just the key and data columns
             temp_df = df.iloc[:, [0, columns[i]]].copy()
@@ -105,10 +104,11 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     log_lines = [f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined data from multiple files:"]
     for i, (file_path, col_idx, has_header) in enumerate(zip(files, columns, has_headers)):
         if has_header:
-            col_name = dfs[i].columns[col_idx]
+            col_name = headers[i][col_idx]
             log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
         else:
-            log_lines.append(f"  File {i+1}: {file_path} (column {col_idx})")
+            col_name = headers[i][col_idx]
+            log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
     log_lines.append(f"  Output: {output_file}")
     log_lines.append(f"  Total columns combined: {len(files)}")
     log_lines.append(f"  Frame columns: {'excluded' if no_frame_col else 'included'}")
