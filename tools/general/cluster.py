@@ -17,7 +17,7 @@ def log_to_file(message, log_file, printmsg=True):
         f.write(f"{message}\n")
 
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
-    from sklearn.cluster import KMeans # heavy import
+    from sklearn.cluster import KMeans
     if initial_centroids is not None:
         if len(initial_centroids) != k:
             raise ValueError("Number of initial centroids must match k")
@@ -25,8 +25,8 @@ def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
         n_init = 1
     else:
         init = "k-means++"
-        n_init = 10
-    model = KMeans(n_clusters=k, init=init, n_init=n_init, tol=tol, max_iter=max_iter)
+        n_init = 20
+    model = KMeans(n_clusters=k, init=init, n_init=n_init, tol=tol, max_iter=max_iter, random_state=0)
     model.fit(data)
     return model, model.cluster_centers_, model.labels_, model.inertia_
 
@@ -333,6 +333,11 @@ def main():
     frames = np.arange(1, len(values) + 1)
     frames_subset = np.arange(1, len(values) + 1, args.every)
     values_subset = values[frames_subset - 1, :]
+
+    from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    values_scaled = scaler.fit_transform(values)
+    values_subset_scaled = values_scaled[frames_subset - 1, :]
     
     # prepare initial centroid guesses if provided: expect k*d floats; reshape to (k,d)
     if approx_centroids is not None:
@@ -350,13 +355,13 @@ def main():
 
     # tol
     if tol is None:
-        tol = 0.1 * float(np.std(values_subset))
+        tol = 0.1 * float(np.std(values_subset_scaled))
     log_to_file(f"Tolerance set to {tol}", log_file)
         
     # choose k if unspecified
     if n_clusters is None:
-        log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Determining optimal clusters via Elbow Method...", log_file)
-        n_clusters = elbow_method(values_subset, range(1, 11),
+        log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Determining optimal clusters via Elbow method (up to 11)", log_file)
+        n_clusters = elbow_method(values_subset_scaled, range(1, 11),
                                   method=args.method,
                                   initial_centroids=approx_centroids,
                                   linkage=args.linkage,
@@ -368,19 +373,21 @@ def main():
 
     # Fit data 
     if args.method == "kmeans":
-        model, centroids, labels_subset, _ = kmeans(values_subset, n_clusters, initial_centroids=approx_centroids, tol=tol, max_iter=args.max_iter)
+        model, centroids_scaled, labels_subset, _ = kmeans(values_subset_scaled, n_clusters, initial_centroids=approx_centroids, tol=tol, max_iter=args.max_iter)
 
     elif args.method == "agglomerative":
         log_to_file(f"Using {args.linkage} linkage method", log_file)
-        model, centroids, labels_subset, _ = agglomerative_clustering(values_subset, n_clusters, args.linkage)
+        model, centroids_scaled, labels_subset, _ = agglomerative_clustering(values_subset_scaled, n_clusters, args.linkage)
 
     # Fit labels to full dataset
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Fitting labels to the full dataset", log_file)
     if args.every > 1:
-        labels = label_full_data(model, args.method, values, values_subset, labels_subset)
+        labels = label_full_data(model, args.method, values_scaled, values_subset_scaled, labels_subset)
     else:
         labels = labels_subset
     
+    # Bring centroids back to original units
+    centroids = scaler.inverse_transform(centroids_scaled) if scaler is not None else centroids_scaled
 
     # Summarize clusters
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Getting centroids, etc.", log_file)
