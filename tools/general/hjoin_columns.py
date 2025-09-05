@@ -96,8 +96,12 @@ def main():
     
     # Set default columns if not provided
     if a.cols is None:
-        # POSSIBLY CONFUSING FOR USER: Use column 0 if no frame columns, column 1 if frame columns present
-        columns = [0 if a.nox else 1] * len(a.inputs)
+        if a.nox:
+            columns = [0] * len(a.inputs)
+            print("AMBIGUITY WARNING: --nox was used but --cols (-c) was not. Using col 0 of the files.")
+        else:
+            columns = [1] * len(a.inputs)
+            print("AMBIGUITY WARNING: --nox was used but --cols (-c) was not. Using col 1 of the files.")
     else:
         columns = a.cols
     
