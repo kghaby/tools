@@ -23,7 +23,8 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
             # File has header (starts with comment)
             df = pd.read_csv(file_path, sep=r"\s+", header=0, comment='#')
             has_headers.append(True)
-            headers.append(list(df.columns))
+            # Convert all header values to strings to prevent numeric conversion
+            headers.append([str(col) for col in df.columns])
         else:
             # File doesn't have header
             df = pd.read_csv(file_path, sep=r"\s+", header=None)
@@ -103,11 +104,10 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
     # Log message
     log_lines = [f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Combined data from multiple files:"]
     for i, (file_path, col_idx, has_header) in enumerate(zip(files, columns, has_headers)):
+        col_name = headers[i][col_idx]
         if has_header:
-            col_name = headers[i][col_idx]
             log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
         else:
-            col_name = headers[i][col_idx]
             log_lines.append(f"  File {i+1}: {file_path} (column {col_idx} - '{col_name}')")
     log_lines.append(f"  Output: {output_file}")
     log_lines.append(f"  Total columns combined: {len(files)}")
