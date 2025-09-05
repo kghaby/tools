@@ -85,7 +85,7 @@ def combine_data(files, columns, output_file, log_file, no_frame_col):
                 key_col = df.columns[0]
                 data_col = df.columns[columns[i]]
             else:
-                key_col = "Frame"
+                key_col = "#Frame"
                 data_col = f"col{columns[i]}"
             
             # Create temporary dataframe with just the key and data columns
