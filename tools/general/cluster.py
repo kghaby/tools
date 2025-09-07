@@ -44,11 +44,6 @@ def agglomerative_clustering(data, n_clusters, linkage):
     return model, centroids, model.labels_, inertia
 
 def _kneedle(x, y, decreasing=True):
-    """
-    Kneedle (Satopaa et al.) for monotone curves.
-    x, y: 1D arrays; y must be monotone (here, decreasing inertia vs k).
-    Returns index of knee in x.
-    """
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
     # normalize to [0,1]
@@ -60,7 +55,7 @@ def _kneedle(x, y, decreasing=True):
     diff = y_n - x_n
     return int(np.argmax(diff))
 
-def elbow_method(data, k_range, method="kmeans", initial_centroids=None, linkage="ward", tol=1e-4, max_iter=100):
+def elbow_method(data, k_range, method="kmeans", initial_centroids=None, linkage="ward", tol=1e-4, max_iter=100, output_dir="."):
     ks = list(k_range)
     inertia = []
     for k in ks:
@@ -74,8 +69,19 @@ def elbow_method(data, k_range, method="kmeans", initial_centroids=None, linkage
         raise ValueError("Empty k_range for elbow_method.")
     if inertia.size == 1:
         return int(ks[0])
-    idx = _kneedle(np.asarray(ks, dtype=float), inertia, decreasing=True)
+    inertia_log = np.log(np.maximum(inertia, 1e-12))
+    idx = _kneedle(np.asarray(ks, dtype=float), inertia_log, decreasing=True)
+    plot_elbow_curve(ks, inertia_log, output_dir=output_dir)
     return int(ks[idx])
+
+def plot_elbow_curve(ks, inertias, output_dir):
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(ks, inertias, 'bo-')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('ln(Inertia)')
+    plt.savefig(f"{output_dir}/elbow_curve.pdf", bbox_inches="tight", format="pdf")
+    plt.close()
 
 def label_full_data(model, method, full_data, subset_data=None, subset_labels=None):
     if method == "kmeans":
@@ -188,7 +194,6 @@ def plot_timeseries_with_right_hist(frames, values, labels, centroids, out_pdf, 
     plt.close(fig)
 
 def _white_to_color_cmap(base_color):
-    import matplotlib.pyplot as plt
     from matplotlib.colors import LinearSegmentedColormap, to_rgb
     rgb = to_rgb(base_color)
     return LinearSegmentedColormap.from_list("w2c", [(1, 1, 1), rgb], N=256)
@@ -197,7 +202,6 @@ def plot_2d_hist_by_cluster(data2d, labels, centroids, out_pdf, colx_idx, coly_i
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
-    import numpy as np
 
     x, y = data2d[:, 0], data2d[:, 1]
     labs = np.asarray(labels)
@@ -366,9 +370,11 @@ def main():
                                   initial_centroids=approx_centroids,
                                   linkage=args.linkage,
                                   tol=tol,
-                                  max_iter=args.max_iter)
+                                  max_iter=args.max_iter,
+                                  output_dir=output_dir)
 
-    log_to_file(f"Using {n_clusters} clusters.", log_file)
+    log_to_file(f"\tUsing {n_clusters} clusters.", log_file)
+    log_to_file(f"\tLogged elbow plot to {output_dir}/elbow_curve.pdf", log_file)
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
