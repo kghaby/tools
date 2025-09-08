@@ -118,6 +118,7 @@ def cluster_summary(data, labels, centroids, frames):
             d_to_mu = np.abs(cluster_data - mu).sum(axis=1)
             centroid_idx = int(np.argmin(d_to_mu))
             centroid_frame = int(frames[labels == label][centroid_idx])
+            print(frames[centroid_idx],frames[labels == label][centroid_idx])
         else:
             centroid_frame = -1
         # AvgCDist: mean L1 distance to other clusters mean
