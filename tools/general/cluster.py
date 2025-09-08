@@ -326,9 +326,10 @@ def main():
     tol = args.tol
     approx_centroids = args.approx_centroids
 
+    log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
+    log_to_file(" ".join(sys.argv), log_file)
     output_dir = create_output_dir()
     log_file = f"{output_dir}/cluster.log"
-    log_to_file(f"Run started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", log_file)
     log_to_file(f"Output directory: {output_dir}", log_file)
 
     values = np.loadtxt(input_file, usecols=tuple(cols), unpack=False, ndmin=2)
@@ -361,7 +362,7 @@ def main():
     if tol is None:
         tol = 0.1 * float(np.std(values_subset_scaled))
     log_to_file(f"Tolerance set to {tol}", log_file)
-        
+
     # choose k if unspecified
     if n_clusters is None:
         log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Determining optimal clusters via Elbow method (up to 11)", log_file)
