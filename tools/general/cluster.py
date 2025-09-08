@@ -113,12 +113,12 @@ def cluster_summary(data, labels, centroids, frames):
         avg_dist = float(np.abs(cluster_data - mu).sum(axis=1).mean()) if n_cluster_frames else 0.0
         mean_distance, stdev = _pairwise_l1_stats(cluster_data)
 
-        # centroid_frame: pick point closest to mean in L1
+        # centroid_frame: pick the frame whose full vector is closest (squared L2) to the cluster centroid
         if n_cluster_frames:
-            d_to_mu = np.abs(cluster_data - mu).sum(axis=1)
-            centroid_idx = int(np.argmin(d_to_mu))
+            c = centroids[label].reshape(1, -1)
+            d2 = np.einsum('ij,ij->i', cluster_data - c, cluster_data - c)  
+            centroid_idx = int(np.argmin(d2))
             centroid_frame = int(frames[labels == label][centroid_idx])
-            #print(frames[centroid_idx],frames[labels == label][centroid_idx])
         else:
             centroid_frame = -1
         # AvgCDist: mean L1 distance to other clusters mean
