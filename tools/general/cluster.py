@@ -374,9 +374,9 @@ def main():
                                   tol=tol,
                                   max_iter=args.max_iter,
                                   output_dir=output_dir)
-
+        log_to_file(f"\tLogged elbow plot to {output_dir}/elbow_curve.pdf", log_file)
+        
     log_to_file(f"\tUsing {n_clusters} clusters.", log_file)
-    log_to_file(f"\tLogged elbow plot to {output_dir}/elbow_curve.pdf", log_file)
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
