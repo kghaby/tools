@@ -118,7 +118,7 @@ def cluster_summary(data, labels, centroids, frames):
             d_to_mu = np.abs(cluster_data - mu).sum(axis=1)
             centroid_idx = int(np.argmin(d_to_mu))
             centroid_frame = int(frames[labels == label][centroid_idx])
-            print(frames[centroid_idx],frames[labels == label][centroid_idx])
+            #print(frames[centroid_idx],frames[labels == label][centroid_idx])
         else:
             centroid_frame = -1
         # AvgCDist: mean L1 distance to other clusters mean
@@ -375,7 +375,7 @@ def main():
                                   max_iter=args.max_iter,
                                   output_dir=output_dir)
         log_to_file(f"\tLogged elbow plot to {output_dir}/elbow_curve.pdf", log_file)
-        
+
     log_to_file(f"\tUsing {n_clusters} clusters.", log_file)
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
