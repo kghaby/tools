@@ -142,6 +142,7 @@ def cluster_summary(data, labels, centroids, frames):
             centroid_idx = int(np.argmin(d2))
             centroid_frame = int(frames[labels == label][centroid_idx])
         else:
+            print("WARNING: Empty cluster encountered in summary.")
             centroid_frame = -1
         # AvgCDist: mean L1 distance to other clusters mean
         other_clusters = [data[labels == other_label] for other_label in unique_labels if other_label != label]
@@ -151,7 +152,7 @@ def cluster_summary(data, labels, centroids, frames):
         else:
             avg_cdist = float("nan")
 
-        centroid_value = "[" + " ".join(f"{v:.6f}" for v in centroids[label].ravel()) + "]"
+        centroid_value = "[" + " ".join(f"{v:.6f}" for v in data[labels == label][centroid_idx].ravel()) + "]"
         summary.append([int(label), int(n_cluster_frames), float(fraction), float(avg_dist), float(stdev),
                         int(centroid_frame), float(avg_cdist), centroid_value])
     return summary
@@ -429,13 +430,16 @@ def main():
     summary_data.sort(key=lambda x: x[1], reverse=True)
     relabel_map = {old: new for new, (old, *_) in enumerate(summary_data)}
     labels = np.array([relabel_map[int(l)] for l in labels], dtype=int)
-    
+
     # Reorder centroids to match the new labeling
     new_centroids = np.zeros_like(centroids)
     for old_label, new_label in relabel_map.items():
         new_centroids[new_label] = centroids[old_label]
     centroids = new_centroids
-    log_to_file(f"Centroids:\n{centroids}", log_file)
+    
+    centroids_from_frames = np.array([values[frames == row[5]][0] if row[5] != -1 else np.full((d,), np.nan) for row in summary_data])
+    log_to_file(f"Centroids (theory):\n{centroids}", log_file)
+    log_to_file(f"Centroids (from frames):\n{centroids_from_frames}", log_file)
 
     # Write outputs
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Writing outputs.", log_file)
@@ -452,18 +456,18 @@ def main():
                 f.write(f"{int(frame)} " + " ".join(f"{v:.6f}" for v in row) + f" {int(lab)}\n")
 
     with open(f"{output_dir}/cluster.sum", "w") as f:
-        f.write("#Cluster   Frames     Frac  AvgL1     StdevL1  Centroid  AvgCDist   CVector\n")
+        f.write("#Cluster   Frames     Frac    AvgL1  StdevL1  Centroid  AvgCDist CVector\n")
         for new_label, row in enumerate(summary_data):
-            f.write(f"{new_label:7d} {row[1]:9d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:9.3f} {row[7]}\n")
+            f.write(f"{new_label:4d} {row[1]:12d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:9.3f} {row[7]}\n")
 
     # Plotting
     out_pdf = os.path.join(output_dir, "cluster.pdf")
     if d == 1:
-        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels, centroids=centroids,
+        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels, centroids=centroids_from_frames,
                                         out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved plot: {out_pdf}", log_file)
     elif d == 2:
-        plot_2d_hist_by_cluster(values[:, :2], labels, centroids, out_pdf=out_pdf, colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
+        plot_2d_hist_by_cluster(values[:, :2], labels, centroids_from_frames, out_pdf=out_pdf, colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved 2D histogram: {out_pdf}", log_file)
     else:
         log_to_file("Dimensionality > 2; skipping plotting.", log_file)
