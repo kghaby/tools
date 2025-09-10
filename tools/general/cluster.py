@@ -15,6 +15,28 @@ def log_to_file(message, log_file, printmsg=True):
         print(message)
     with open(log_file, "a") as f:
         f.write(f"{message}\n")
+        
+def _parse_approx_centroids(tokens, d):
+    import ast
+    if tokens is None:
+        return None
+    # if any token has brackets, parse each; else treat as flat list
+    if any(t.strip().startswith(("[", "(")) for t in tokens):
+        pts = []
+        for t in tokens:
+            v = ast.literal_eval(t)
+            v = list(v) if isinstance(v, (list, tuple, np.ndarray)) else [float(v)]
+            if len(v) != d:
+                raise ValueError(f"Centroid {t} has dim={len(v)}; expected d={d}.")
+            pts.append([float(x) for x in v])
+        return np.asarray(pts, dtype=float)
+    # flat list
+    vals = [float(x) for x in tokens]
+    if d == 1:
+        return np.asarray([[v] for v in vals], dtype=float)
+    if len(vals) % d != 0:
+        raise ValueError(f"Provided {len(vals)} numbers; not divisible by d={d}.")
+    return np.asarray(list(map(list, np.array(vals, dtype=float).reshape(-1, d))), dtype=float)
 
 def kmeans(data, k, initial_centroids=None, tol=1e-4, max_iter=100):
     from sklearn.cluster import KMeans
@@ -307,7 +329,7 @@ def parse_arguments():
     parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative"], help="Clustering method.")
     parser.add_argument("-k", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
     parser.add_argument("-t", "--tol", type=float, default=None, help="KMeans tolerance; default 0.1*σ of subset.")
-    parser.add_argument("-a", "--approx_centroids", nargs="+", type=float, default=None, help="Initial KMeans guesses flattened; length must be k*d (row-major).")
+    parser.add_argument("-a", "--approx_centroids", nargs="+", type=str, default=None, help="Initial KMeans guesses; space-separated series of centroids (can be bracketed), eg for 3 2D clusters, `-a [x1,y1] [x2,y2] [x3,y3]` or `-a x1 y1 x2 y2 x3 y3`.")
     parser.add_argument("-l", "--linkage", default="ward", choices=["ward", "complete", "average", "single"], help="Agglomerative linkage.")
     parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
     parser.add_argument("-x", "--max_iter", type=int, default=100, help="Max iterations for kmeans algorithm.")
@@ -325,7 +347,6 @@ def main():
     d = len(cols)
     n_clusters = args.n_clusters
     tol = args.tol
-    approx_centroids = args.approx_centroids
 
     output_dir = create_output_dir()
     log_file = f"{output_dir}/cluster.log"
@@ -345,19 +366,20 @@ def main():
     values_scaled = scaler.fit_transform(values)
     values_subset_scaled = values_scaled[frames_subset - 1, :]
     
-    # prepare initial centroid guesses if provided: expect k*d floats; reshape to (k,d)
+    # prepare initial centroid guesses
+    approx_centroids = _parse_approx_centroids(args.approx_centroids, d)
     if approx_centroids is not None:
-        approx_centroids = np.array(approx_centroids, dtype=float)
-        if n_clusters is None:
-            if approx_centroids.size % d != 0:
-                raise ValueError("Length of --approx_centroids must be a multiple of dimensionality d=len(--col).")
-            n_clusters = approx_centroids.size // d
-        if approx_centroids.size != n_clusters * d:
-            raise ValueError("Length of --approx_centroids must equal n_clusters * d.")
-        approx_centroids = approx_centroids.reshape(n_clusters, d)
+        k_from_init = approx_centroids.shape[0]
+        if args.n_clusters is not None and args.n_clusters != k_from_init:
+            raise ValueError(f"-k = {args.n_clusters} but {k_from_init} centroids approximated.")
+        n_clusters = k_from_init if args.n_clusters is None else args.n_clusters
+        approx_centroids_scaled = scaler.transform(approx_centroids) 
         if args.method != "kmeans":
-            log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will not be used.", log_file)
-        log_to_file(f"Initial centroids:\n{approx_centroids}", log_file)
+            log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will be ignored.", log_file)
+        log_to_file(f"Initial centroids (orig units):\n{approx_centroids}", log_file)
+        log_to_file(f"Initial centroids (scaled):\n{approx_centroids_scaled}", log_file)
+    else:
+        approx_centroids_scaled = None
 
     # tol
     if tol is None:
@@ -369,7 +391,7 @@ def main():
         log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Determining optimal clusters via Elbow method (up to 11)", log_file)
         n_clusters = elbow_method(values_subset_scaled, range(1, 11),
                                   method=args.method,
-                                  initial_centroids=approx_centroids,
+                                  initial_centroids=approx_centroids_scaled,
                                   linkage=args.linkage,
                                   tol=tol,
                                   max_iter=args.max_iter,
@@ -381,7 +403,10 @@ def main():
 
     # Fit data 
     if args.method == "kmeans":
-        model, centroids_scaled, labels_subset, _ = kmeans(values_subset_scaled, n_clusters, initial_centroids=approx_centroids, tol=tol, max_iter=args.max_iter)
+        model, centroids_scaled, labels_subset, _ = kmeans(
+            values_subset_scaled, n_clusters,
+            initial_centroids=approx_centroids_scaled, tol=tol, max_iter=args.max_iter
+        )
 
     elif args.method == "agglomerative":
         log_to_file(f"Using {args.linkage} linkage method", log_file)
