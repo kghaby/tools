@@ -25,6 +25,19 @@ runFEP 1.0 0.0 -0.005 500000                      | runFEP 1.0 0.0 -0.005 100000
 
 003_MoleculeUnbound/003.2_fep_forward1.conf
 runFEP 0.0 1.0 0.005 500000                   | runFEP 0.0 1.0 0.005 1000000
+
+004_RestraintUnbound/004.1_ti_backward1.conf (dblsim for 4A9):
+run    100500000                                          | run    201000000
+
+004_RestraintUnbound/004.2_ti_forward1.conf (dblsim for 4A9):
+run    100500000                                          | run    201000000
+
+004_RestraintUnbound/colvars_backward.in (dblsim for 4A9):
+    targetNumSteps      500000                                |     targetNumSteps      1000000
+
+004_RestraintUnbound/colvars_forward.in (dblsim for 4A9):
+    targetNumSteps      500000                                |     targetNumSteps      1000000
+
 """
 
 from __future__ import annotations
@@ -44,22 +57,35 @@ _RUNFEP_FW_PATTERN = re.compile(
 _RUNFEP_FW_REPL = r'\g<pre>runFEP 0.0 1.0 0.005 1000000\g<post>'
 
 # 002.* run steps 50500000 -> 202000000
-_RUN_TSTEPS_PATTERN = re.compile(
+_RUN_TIB_STEPS_PATTERN = re.compile(
     r'^(?P<pre>\s*)run(?P<sp>\s+)50500000(?P<post>\s*(?:#.*)?)$',
     re.MULTILINE)
-_RUN_TSTEPS_REPL = r'\g<pre>run\g<sp>202000000\g<post>'
+_RUN_TIB_STEPS_REPL = r'\g<pre>run\g<sp>202000000\g<post>'
 
 # 002.* colvars targetNumSteps 500000 -> 2000000
-_TNS_PATTERN = re.compile(
+_TNS_TIB_PATTERN = re.compile(
     r'^(?P<pre>\s*targetNumSteps)(?P<sp>\s+)500000(?P<post>\s*(?:#.*)?)$',
     re.MULTILINE)
-_TNS_REPL = r'\g<pre>\g<sp>2000000\g<post>'
+_TNS_TIB_REPL = r'\g<pre>\g<sp>2000000\g<post>'
 
 # 003.* runFEP steps 500000 -> 1000000
 _RUNFEP_STEPS_PATTERN = re.compile(
     r'^(?P<pre>\s*runFEP\s+(?:[01](?:\.0)?\s+){2}-?0?\.\d+(?:\s+))500000(?P<post>\s*(?:#.*)?)$',
     re.IGNORECASE | re.MULTILINE)
 _RUNFEP_STEPS_REPL = r'\g<pre>1000000\g<post>'
+
+# 004.* run steps 100500000 -> 201000000
+_RUN_TIU_STEPS_PATTERN = re.compile(
+    r'^(?P<pre>\s*)run(?P<sp>\s+)100500000(?P<post>\s*(?:#.*)?)$',
+    re.MULTILINE)
+_RUN_TIU_STEPS_REPL = r'\g<pre>run\g<sp>201000000\g<post>'
+
+# 004.* colvars targetNumSteps 500000 -> 1000000
+_TNS_TIU_PATTERN = re.compile(
+    r'^(?P<pre>\s*targetNumSteps)(?P<sp>\s+)500000(?P<post>\s*(?:#.*)?)$',
+    re.MULTILINE)
+_TNS_TIU_REPL = r'\g<pre>\g<sp>1000000\g<post>'
+
 
 def find_files(root: str):
     for dirpath, _, filenames in os.walk(root):
@@ -102,14 +128,14 @@ def transform_text(path: str, text: str) -> tuple[str, list[str]]:
     # 002_RestraintBound transforms
     if endswith_parts(path, "002_RestraintBound", "002.1_ti_backward1.conf") or \
        endswith_parts(path, "002_RestraintBound", "002.2_ti_forward1.conf"):
-        new = _RUN_TSTEPS_PATTERN.sub(_RUN_TSTEPS_REPL, text)
+        new = _RUN_TIB_STEPS_PATTERN.sub(_RUN_TIB_STEPS_REPL, text)
         if new != text:
             changes.append("run steps: 50500000 -> 202000000")
         text = new
 
     if endswith_parts(path, "002_RestraintBound", "colvars_backward.in") or \
        endswith_parts(path, "002_RestraintBound", "colvars_forward.in"):
-        new, n = _TNS_PATTERN.subn(_TNS_REPL, text)
+        new, n = _TNS_TIB_PATTERN.subn(_TNS_TIB_REPL, text)
         if n > 0:
             changes.append(f"targetNumSteps: 500000 -> 2000000 (n={n})")
         text = new
@@ -120,6 +146,21 @@ def transform_text(path: str, text: str) -> tuple[str, list[str]]:
         new = _RUNFEP_STEPS_PATTERN.sub(_RUNFEP_STEPS_REPL, text)
         if new != text:
             changes.append("runFEP steps: 500000 -> 1000000")
+        text = new
+
+    # 004_RestraintUnbound transforms
+    if endswith_parts(path, "004_RestraintUnbound", "004.1_ti_backward1.conf") or \
+       endswith_parts(path, "004_RestraintUnbound", "004.2_ti_forward1.conf"):
+        new = _RUN_TIU_STEPS_PATTERN.sub(_RUN_TIU_STEPS_REPL, text)
+        if new != text:
+            changes.append("run steps: 100500000 -> 201000000")
+        text = new
+
+    if endswith_parts(path, "004_RestraintUnbound", "colvars_backward.in") or \
+       endswith_parts(path, "004_RestraintUnbound", "colvars_forward.in"):
+        new, n = _TNS_TIU_PATTERN.subn(_TNS_TIU_REPL, text)
+        if n > 0:
+            changes.append(f"targetNumSteps: 500000 -> 1000000 (n={n})")
         text = new
 
     return text, changes
@@ -134,6 +175,10 @@ def process_file(path: str):
         ("002_RestraintBound", "colvars_forward.in"),
         ("003_MoleculeUnbound", "003.1_fep_backward1.conf"),
         ("003_MoleculeUnbound", "003.2_fep_forward1.conf"),
+        ("004_RestraintUnbound", "004.1_ti_backward1.conf"),
+        ("004_RestraintUnbound", "004.2_ti_forward1.conf"),
+        ("004_RestraintUnbound", "colvars_backward.in"),
+        ("004_RestraintUnbound", "colvars_forward.in"),
     )
     if not any(endswith_parts(path, *t) for t in targets):
         return
