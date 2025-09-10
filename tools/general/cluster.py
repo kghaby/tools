@@ -376,8 +376,9 @@ def main():
         approx_centroids_scaled = scaler.transform(approx_centroids) 
         if args.method != "kmeans":
             log_to_file("WARNING: Initial centroids were set but method is not kmeans, so they will be ignored.", log_file)
-        log_to_file(f"Initial centroids (orig units):\n{approx_centroids}", log_file)
-        log_to_file(f"Initial centroids (scaled):\n{approx_centroids_scaled}", log_file)
+        else:
+            log_to_file(f"Initial centroids (orig units):\n{approx_centroids}", log_file)
+            log_to_file(f"Initial centroids (scaled):\n{approx_centroids_scaled}", log_file)
     else:
         approx_centroids_scaled = None
 
