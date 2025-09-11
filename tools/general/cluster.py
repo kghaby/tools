@@ -65,9 +65,9 @@ def agglomerative_clustering(data, n_clusters, linkage):
             inertia += (dif * dif).sum()
     return model, centroids, model.labels_, inertia
 
-def hdbscan_clustering(data, min_cluster_size, cluster_selection_epsilon):
+def hdbscan_clustering(data, min_cluster_size, min_samples, cluster_selection_epsilon):
     from sklearn.cluster import HDBSCAN # heavy import
-    model = HDBSCAN(min_cluster_size=min_cluster_size, cluster_selection_epsilon=cluster_selection_epsilon, algorithm="auto", allow_single_cluster=True, store_centers="centroid")
+    model = HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon, algorithm="auto", allow_single_cluster=True, store_centers="centroid")
     model.fit(data)
     return model, model.centroids_, model.labels_
 
@@ -114,11 +114,100 @@ def plot_elbow_curve(ks, inertias, output_dir):
 def label_full_data(model, method, full_data, subset_data=None, subset_labels=None):
     if method == "kmeans":
         return model.predict(full_data)
+    elif method == "hdbscan":
+        # Separate valid clusters from noise in the subset
+        valid_mask = subset_labels >= 0
+        valid_data = subset_data[valid_mask]
+        valid_labels = subset_labels[valid_mask]
+        
+        if len(valid_labels) == 0:
+            return np.full(len(full_data), -1)
+        
+        # distance based
+        from sklearn.neighbors import NearestNeighbors
+        from scipy.spatial.distance import cdist
+        
+        cluster_properties = {}
+        for label in np.unique(valid_labels):
+            cluster_points = valid_data[valid_labels == label]
+            centroid = cluster_points.mean(axis=0)
+            
+            centroid_distances = np.linalg.norm(cluster_points - centroid, axis=1)
+            radius = np.percentile(centroid_distances, 95) if len(centroid_distances) > 1 else 0.1
+            if len(cluster_points) > 1:
+                pairwise_distances = cdist(cluster_points, cluster_points)
+                np.fill_diagonal(pairwise_distances, np.inf)
+                avg_neighbor_dist = np.mean(np.min(pairwise_distances, axis=1))
+            else:
+                avg_neighbor_dist = 0.1
+            
+            cluster_properties[label] = {
+                'centroid': centroid,
+                'radius': radius,
+                'avg_neighbor_dist': avg_neighbor_dist,
+                'max_distance': np.max(centroid_distances) if len(centroid_distances) > 0 else 0.1
+            }
+        
+        nn = NearestNeighbors(n_neighbors=1)
+        nn.fit(subset_data)
+        distances, indices = nn.kneighbors(full_data)
+        
+        distances = distances.flatten()
+        indices = indices.flatten()
+        
+        full_labels = np.full(len(full_data), -1)
+        
+        for i, (distance, idx) in enumerate(zip(distances, indices)):
+            nearest_label = subset_labels[idx]
+            
+            if nearest_label >= 0:  # valid cluster
+                props = cluster_properties[nearest_label]
+                
+                # Use multiple criteria for threshold
+                threshold1 = props['radius'] * 3.0 
+                threshold2 = props['avg_neighbor_dist'] * 10.0 
+                threshold3 = props['max_distance'] * 2.0 
+                
+                # Use the most generous threshold
+                threshold = max(threshold1, threshold2, threshold3)
+                
+                # Also check if point is closer to this cluster than to any other cluster centroid
+                if distance <= threshold:
+                    full_labels[i] = nearest_label
+                else:
+                    # Additional check: if this point is closer to this cluster's centroid
+                    # than to any other cluster's centroid, assign it anyway
+                    centroid_distances = []
+                    for other_label, other_props in cluster_properties.items():
+                        dist_to_centroid = np.linalg.norm(full_data[i] - other_props['centroid'])
+                        centroid_distances.append((other_label, dist_to_centroid))
+                    
+                    # Find the closest centroid
+                    closest_label, min_centroid_dist = min(centroid_distances, key=lambda x: x[1])
+                    
+                    if closest_label == nearest_label and min_centroid_dist <= threshold1 * 2:
+                        full_labels[i] = nearest_label
+                    else:
+                        full_labels[i] = -1
+            else:
+                full_labels[i] = nearest_label  # keep noise label
+        
+        return full_labels
     else:
-        from sklearn.neighbors import NearestCentroid # heavy import
-        clf = NearestCentroid()
-        clf.fit(subset_data, subset_labels)
-        return clf.predict(full_data)
+        unique_labels = np.unique(subset_labels)
+        valid_labels = unique_labels[unique_labels >= 0]
+        if len(valid_labels) == 1:
+            return np.full(len(full_data), valid_labels[0])
+        elif len(valid_labels) == 0:
+            if len(unique_labels) > 0:
+                return np.full(len(full_data), unique_labels[0])
+            else:
+                return np.full(len(full_data), -1)
+        else:
+            from sklearn.neighbors import NearestCentroid # heavy import
+            clf = NearestCentroid()
+            clf.fit(subset_data, subset_labels)
+            return clf.predict(full_data)
     
 def _pairwise_l1_stats(cluster_data):
     # compute L1 distances to the cluster mean
@@ -329,8 +418,9 @@ def parse_arguments():
     parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
     parser.add_argument("-x", "--max_iter", type=int, default=100, help="Max iterations for kmeans algorithm.")
     parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
-    parser.add_argument("--min_cluster_size", type=int, default=5, help="Minimum cluster size for HDBSCAN.")
-    parser.add_argument("--cluster_selection_epsilon", type=float, default=0.0, help="Cluster selection epsilon for HDBSCAN.")
+    parser.add_argument("--hdbscan_min_cluster_size", type=int, default=5, help="Minimum cluster size for HDBSCAN.")
+    parser.add_argument("--hdbscan_epsilon", type=float, default=0.0, help="Cluster selection epsilon for HDBSCAN.")
+    parser.add_argument("--hdbscan_min_samples", type=int, default=None, help="In HDBSCAN, used to calculate the distance between a point its k-th nearest neighbor; defaults to min_cluster_size if not set.")
     if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help", "help", "h"):
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -412,7 +502,8 @@ def main():
         model, centroids_scaled, labels_subset, _ = agglomerative_clustering(values_subset_scaled, n_clusters, args.linkage)
         
     elif args.method == "hdbscan":
-        model, centroids_scaled, labels_subset  = hdbscan_clustering(values_subset_scaled, args.min_cluster_size, args.cluster_selection_epsilon)
+        model, centroids_scaled, labels_subset  = hdbscan_clustering(values_subset_scaled, args.hdbscan_min_cluster_size, args.hdbscan_min_samples, args.hdbscan_epsilon)
+        log_to_file(f"Found {len(set(labels_subset)) - (1 if -1 in labels_subset else 0)} clusters (+ noise) with HDBSCAN", log_file)
 
     # Fit labels to full dataset
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Fitting labels to the full dataset", log_file)
