@@ -420,7 +420,7 @@ def parse_arguments():
     parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
     parser.add_argument("--hdbscan_min_cluster_size", type=int, default=5, help="Minimum cluster size for HDBSCAN.")
     parser.add_argument("--hdbscan_epsilon", type=float, default=0.0, help="Cluster selection epsilon for HDBSCAN.")
-    parser.add_argument("--hdbscan_min_samples", type=int, default=None, help="In HDBSCAN, used to calculate the distance between a point its k-th nearest neighbor; defaults to min_cluster_size if not set.")
+    parser.add_argument("--hdbscan_min_samples", type=int, default=None, help="'k' parameter in HDBSCAN. Used to calculate the distance between a point its k-th nearest neighbor; defaults to min_cluster_size if not set.")
     if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help", "help", "h"):
         parser.print_help(sys.stderr)
         sys.exit(1)
