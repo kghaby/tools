@@ -133,7 +133,7 @@ def cluster_summary(data, labels, centroids_map, frames):
     Handles special HDBSCAN labels: -1 (noise), -2 (inf), -3 (NaN).
     For negative labels, no centroid is assumed (centroid_frame = -1, CVector = 'NA').
     For non-negative labels, centroid comes from centroids_map[lab] if present;
-    otherwise falls back to the cluster mean (Chebyshev center surrogate).
+    otherwise falls back to the cluster mean
     """
     unique_labels = np.unique(labels)
     n_frames = len(data)
