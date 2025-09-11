@@ -65,6 +65,12 @@ def agglomerative_clustering(data, n_clusters, linkage):
             inertia += (dif * dif).sum()
     return model, centroids, model.labels_, inertia
 
+def hdbscan_clustering(data, min_cluster_size, cluster_selection_epsilon):
+    from sklearn.cluster import HDBSCAN # heavy import
+    model = HDBSCAN(min_cluster_size=min_cluster_size, cluster_selection_epsilon=cluster_selection_epsilon, algorithm="auto", allow_single_cluster=True, store_centers="centroid")
+    model.fit(data)
+    return model, model.centroids_, model.labels_
+
 def _kneedle(x, y, decreasing=True):
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
@@ -83,7 +89,7 @@ def elbow_method(data, k_range, method="kmeans", initial_centroids=None, linkage
     for k in ks:
         if method == "kmeans":
             _, _, _, iner = kmeans(data, k, initial_centroids, tol=tol, max_iter=max_iter)
-        else:
+        elif method == "agglomerative":
             _, _, _, iner = agglomerative_clustering(data, k, linkage)
         inertia.append(float(iner))
     inertia = np.asarray(inertia, dtype=float)
@@ -122,42 +128,57 @@ def _pairwise_l1_stats(cluster_data):
     d = np.abs(cluster_data - mu).sum(axis=1)
     return float(d.mean()), float(d.std(ddof=1))
 
-def cluster_summary(data, labels, centroids, frames):
+def cluster_summary(data, labels, centroids_map, frames):
+    """
+    Handles special HDBSCAN labels: -1 (noise), -2 (inf), -3 (NaN).
+    For negative labels, no centroid is assumed (centroid_frame = -1, CVector = 'NA').
+    For non-negative labels, centroid comes from centroids_map[lab] if present;
+    otherwise falls back to the cluster mean (Chebyshev center surrogate).
+    """
     unique_labels = np.unique(labels)
     n_frames = len(data)
     summary = []
-    for label in unique_labels:
-        cluster_data = data[labels == label]
-        n_cluster_frames = len(cluster_data)
+    for lab in unique_labels:
+        sel = (labels == lab)
+        cluster_data = data[sel]
+        n_cluster_frames = cluster_data.shape[0]
         fraction = n_cluster_frames / n_frames
-        # avg_dist: mean L1 distance of each point to its cluster mean
-        mu = cluster_data.mean(axis=0, keepdims=True) if n_cluster_frames else np.zeros((1, data.shape[1]))
-        avg_dist = float(np.abs(cluster_data - mu).sum(axis=1).mean()) if n_cluster_frames else 0.0
         mean_distance, stdev = _pairwise_l1_stats(cluster_data)
 
+        centroid_frame = -1
+        centroid_value_str = "NA"
         # centroid_frame: pick the frame whose full vector is closest (squared L2) to the cluster centroid
-        if n_cluster_frames:
-            c = centroids[label].reshape(1, -1)
-            d2 = np.einsum('ij,ij->i', cluster_data - c, cluster_data - c)  
-            centroid_idx = int(np.argmin(d2))
-            centroid_frame = int(frames[labels == label][centroid_idx])
-        else:
-            print("WARNING: Empty cluster encountered in summary.")
-            centroid_frame = -1
+        if n_cluster_frames > 0:
+            if lab >= 0:
+                c = centroids_map.get(lab, cluster_data.mean(axis=0))
+                d2 = np.einsum("ij,ij->i", cluster_data - c, cluster_data - c)
+                idx = int(np.argmin(d2))
+                centroid_frame = int(frames[sel][idx])
+                centroid_value_str = "[" + " ".join(f"{v:.6f}" for v in cluster_data[idx].ravel()) + "]"
+            else:
+                centroid_frame = -1
+                centroid_value_str = "NA"
+
         # AvgCDist: mean L1 distance to other clusters mean
-        other_clusters = [data[labels == other_label] for other_label in unique_labels if other_label != label]
-        if other_clusters:
-            other = np.concatenate(other_clusters, axis=0)
+        other = data[~sel]
+        if other.size:
             avg_cdist = float(np.abs(cluster_data.mean(axis=0) - other.mean(axis=0)).sum())
         else:
             avg_cdist = float("nan")
 
-        centroid_value = "[" + " ".join(f"{v:.6f}" for v in data[labels == label][centroid_idx].ravel()) + "]"
-        summary.append([int(label), int(n_cluster_frames), float(fraction), float(avg_dist), float(stdev),
-                        int(centroid_frame), float(avg_cdist), centroid_value])
+        summary.append([
+            int(lab),                        # Cluster label (can be -1/-2/-3)
+            int(n_cluster_frames),           # Frames
+            float(fraction),                 # Frac
+            float(mean_distance),            # AvgL1
+            float(stdev),                    # StdevL1
+            int(centroid_frame),             # Centroid frame id or -1
+            float(avg_cdist),                # AvgCDist
+            centroid_value_str               # CVector
+        ])
     return summary
 
-def plot_timeseries_with_right_hist(frames, values, labels, centroids, out_pdf, bins=100, show=True):
+def plot_timeseries_with_right_hist(frames, values, labels, centroids_map, out_pdf, bins=100, show=True):
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
@@ -172,9 +193,8 @@ def plot_timeseries_with_right_hist(frames, values, labels, centroids, out_pdf, 
     ax = fig.add_subplot(gs[0, 0])
     axh = fig.add_subplot(gs[0, 1], sharey=ax)
 
-    color_map = {}
-    for i, lab in enumerate(uniq):
-        color_map[lab] = plt.rcParams["axes.prop_cycle"].by_key()["color"][i % len(plt.rcParams["axes.prop_cycle"].by_key()["color"])]
+    palette = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    color_map = {lab: palette[i % len(palette)] for i, lab in enumerate(uniq)}
 
     step = max(len(frames) // 10000, 1)
     idx = np.arange(frames.size)[::step]
@@ -183,7 +203,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, centroids, out_pdf, 
         m_idx = np.nonzero(labs == lab)[0]
         m_idx = np.intersect1d(m_idx, idx, assume_unique=False)
         ax.plot(frames[m_idx], y[m_idx], ls="none", marker="o", ms=2.5, alpha=1, color=color_map[lab])
-        ax.plot([], [], label=f"C{lab}", color=color_map[lab], lw=2) # for legend
+        ax.plot([], [], label=f"C{lab}", color=color_map[lab], lw=2)
 
     ax.set_xlabel("Frame")
     ax.set_ylabel("Data")
@@ -192,22 +212,23 @@ def plot_timeseries_with_right_hist(frames, values, labels, centroids, out_pdf, 
     y_min, y_max = np.min(y), np.max(y)
     bins_edges = np.linspace(y_min, y_max, bins + 1)
 
-    for lab in uniq: 
-        axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal", 
-                 histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab], label=None)
-        
-    # Add centroid lines to histogram
     for lab in uniq:
-        centroid_value = centroids[lab][0]  # For 1D data, centroid is a single value
-        axh.axhline(y=centroid_value, color=color_map[lab], linestyle='--', linewidth=2, alpha=0.8)
+        axh.hist(y[labs == lab], bins=bins_edges, orientation="horizontal",
+                 histtype="step", linewidth=1.2, alpha=0.9, color=color_map[lab])
+
+    # centroid lines only for non-negative labels with defined centroids
+    for lab in uniq:
+        if lab >= 0 and (lab in centroids_map):
+            cv = float(centroids_map[lab][0])
+            if np.isfinite(cv):
+                axh.axhline(y=cv, color=color_map[lab], linestyle="--", linewidth=2, alpha=0.8)
 
     axh.grid(False)
     axh.axis("off")
     axh.set_xlim(0.1, axh.get_xlim()[1])
 
-    ax.set_xlim(frames.min(),frames.max()-1)
+    ax.set_xlim(frames.min(), frames.max() - 1)
     ax.set_ylim(y_min, y_max)
-    
     fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=10)
     fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
     if show:
@@ -222,7 +243,7 @@ def _white_to_color_cmap(base_color):
     rgb = to_rgb(base_color)
     return LinearSegmentedColormap.from_list("w2c", [(1, 1, 1), rgb], N=256)
 
-def plot_2d_hist_by_cluster(data2d, labels, centroids, out_pdf, colx_idx, coly_idx, bins=100, show=True):
+def plot_2d_hist_by_cluster(data2d, labels, centroids_map, out_pdf, colx_idx, coly_idx, bins=100, show=True):
     import matplotlib
     matplotlib.use("Agg" if not show else matplotlib.get_backend())
     import matplotlib.pyplot as plt
@@ -239,7 +260,6 @@ def plot_2d_hist_by_cluster(data2d, labels, centroids, out_pdf, colx_idx, coly_i
     x_edges = np.linspace(x_min, x_max, bins + 1)
     y_edges = np.linspace(y_min, y_max, bins + 1)
 
-    # Precompute all histograms first to get global normalization
     all_hists = []
     for lab in uniq:
         sel = (labs == lab)
@@ -247,60 +267,34 @@ def plot_2d_hist_by_cluster(data2d, labels, centroids, out_pdf, colx_idx, coly_i
             all_hists.append(None)
             continue
         H, _, _ = np.histogram2d(x[sel], y[sel], bins=(x_edges, y_edges))
-        H = H.T  # (Ny, Nx) for pcolormesh
-        all_hists.append(H)
-    
-    # Get global maximum for normalization (excluding zeros for log scale)
-    all_nonzero = np.concatenate([H[H > 0] for H in all_hists if H is not None])
-    if len(all_nonzero) > 0:
-        global_max = np.max(all_nonzero)
-        # For log scale, we need to handle zeros and set a reasonable minimum
-        log_min = np.min(all_nonzero) if len(all_nonzero) > 0 else 1
-    else:
-        global_max = 1
-        log_min = 1
-    
-    # Draw histograms with global normalization and logarithmic scaling
+        all_hists.append(H.T)
+
+    all_nonzero = np.concatenate([H[H > 0] for H in all_hists if H is not None]) if any(H is not None for H in all_hists) else np.array([])
+    global_max = np.max(all_nonzero) if all_nonzero.size else 1
+    log_min = np.min(all_nonzero) if all_nonzero.size else 1
+
     for i, (lab, H) in enumerate(zip(uniq, all_hists)):
         if H is None:
             continue
-        
-        # Apply logarithmic scaling to the histogram values
         H_log = np.zeros_like(H)
-        non_zero_mask = H > 0
-        H_log[non_zero_mask] = np.log10(H[non_zero_mask])
-        
-        # Normalize to [0, 1] range for coloring
-        if np.any(non_zero_mask):
+        nz = H > 0
+        H_log[nz] = np.log10(H[nz])
+        if nz.any():
             log_max = np.log10(global_max)
             log_range = log_max - np.log10(log_min)
-            if log_range > 0:
-                H_norm = (H_log - np.log10(log_min)) / log_range
-            else:
-                H_norm = np.ones_like(H_log)
+            H_norm = (H_log - np.log10(log_min)) / (log_range if log_range > 0 else 1.0)
             H_norm = np.clip(H_norm, 0, 1)
         else:
             H_norm = np.zeros_like(H)
-        
         cmap = _white_to_color_cmap(palette[i % len(palette)])
-        
-        # Use normalized values for both color and alpha, but with different scaling
-        qm = ax.pcolormesh(
-            x_edges, y_edges, H_norm,
-            shading="auto", cmap=cmap, 
-            vmin=0.0, vmax=1.0,
-            # Use a nonlinear alpha scaling to make low values more visible
-            alpha=H_norm**0.5,  # Square root scaling for better visibility
-            antialiased=False, 
-            zorder=1+i
-        )
+        ax.pcolormesh(x_edges, y_edges, H_norm, shading="auto", cmap=cmap, vmin=0.0, vmax=1.0, alpha=H_norm**0.5, antialiased=False, zorder=1+i)
         ax.plot([], [], lw=6, color=palette[i % len(palette)], label=f"C{lab}")
 
-    # Add centroid markers with black borders
+    # centroid markers only for non-negative labels with defined centroids
     for i, lab in enumerate(uniq):
-        centroid_x, centroid_y = centroids[lab]
-        ax.scatter(centroid_x, centroid_y, s=100, color=palette[i % len(palette)], 
-                  edgecolors='black', linewidth=2, zorder=100, marker='o')
+        if lab >= 0 and (lab in centroids_map):
+            cx, cy = centroids_map[lab][:2]
+            ax.scatter(cx, cy, s=100, color=palette[i % len(palette)], edgecolors="black", linewidth=2, zorder=100, marker="o")
 
     ax.set_xlabel(f"Col {colx_idx}")
     ax.set_ylabel(f"Col {coly_idx}")
@@ -327,7 +321,7 @@ def parse_arguments():
     parser.add_argument("-i", "--input_file", default="forcluster.dat", help="Data file.")
     parser.add_argument("-c", "--col", type=int, nargs="+", default=[1], help="0-based column index/indices to cluster. Provide one or more.")
     parser.add_argument("-e", "--every", type=int, default=1, help="Subsample stride for initial clustering.")
-    parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative"], help="Clustering method.")
+    parser.add_argument("-m", "--method", default="kmeans", choices=["kmeans", "agglomerative", "hdbscan"], help="Clustering method.")
     parser.add_argument("-k", "--n_clusters", type=int, default=None, help="Number of clusters; defaults via elbow.")
     parser.add_argument("-t", "--tol", type=float, default=None, help="KMeans tolerance; default 0.1*σ of subset.")
     parser.add_argument("-a", "--approx_centroids", nargs="+", type=str, default=None, help="Initial KMeans guesses; space-separated series of centroids (can be bracketed), eg for 3 2D clusters, `-a [x1,y1] [x2,y2] [x3,y3]` or `-a x1 y1 x2 y2 x3 y3`.")
@@ -335,6 +329,8 @@ def parse_arguments():
     parser.add_argument("-b", "--bins", type=int, default=100, help="Histogram bins.")
     parser.add_argument("-x", "--max_iter", type=int, default=100, help="Max iterations for kmeans algorithm.")
     parser.add_argument("--no_show", action="store_true", help="Do not display the plot; just save the PDF.")
+    parser.add_argument("--min_cluster_size", type=int, default=5, help="Minimum cluster size for HDBSCAN.")
+    parser.add_argument("--cluster_selection_epsilon", type=float, default=0.0, help="Cluster selection epsilon for HDBSCAN.")
     if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help", "help", "h"):
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -389,7 +385,7 @@ def main():
     log_to_file(f"Tolerance set to {tol}", log_file)
 
     # choose k if unspecified
-    if n_clusters is None:
+    if n_clusters is None and args.method != "hdbscan":
         log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Determining optimal clusters via Elbow method (up to 11)", log_file)
         n_clusters = elbow_method(values_subset_scaled, range(1, 11),
                                   method=args.method,
@@ -400,7 +396,8 @@ def main():
                                   output_dir=output_dir)
         log_to_file(f"\tLogged elbow plot to {output_dir}/elbow_curve.pdf", log_file)
 
-    log_to_file(f"\tUsing {n_clusters} clusters.", log_file)
+    if args.method != "hdbscan":
+        log_to_file(f"Using {n_clusters} clusters.", log_file)
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Using {args.method} clustering method on every {args.every} datapoints...", log_file)
 
     # Fit data 
@@ -413,6 +410,9 @@ def main():
     elif args.method == "agglomerative":
         log_to_file(f"Using {args.linkage} linkage method", log_file)
         model, centroids_scaled, labels_subset, _ = agglomerative_clustering(values_subset_scaled, n_clusters, args.linkage)
+        
+    elif args.method == "hdbscan":
+        model, centroids_scaled, labels_subset  = hdbscan_clustering(values_subset_scaled, args.min_cluster_size, args.cluster_selection_epsilon)
 
     # Fit labels to full dataset
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Fitting labels to the full dataset", log_file)
@@ -422,24 +422,42 @@ def main():
         labels = labels_subset
     
     # Bring centroids back to original units
-    centroids = scaler.inverse_transform(centroids_scaled) if scaler is not None else centroids_scaled
+    #centroids = scaler.inverse_transform(centroids_scaled) if scaler is not None else centroids_scaled
 
     # Summarize clusters
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Getting centroids, etc.", log_file)
-    summary_data = cluster_summary(values, labels, centroids, frames)
-    summary_data.sort(key=lambda x: x[1], reverse=True)
-    relabel_map = {old: new for new, (old, *_) in enumerate(summary_data)}
-    labels = np.array([relabel_map[int(l)] for l in labels], dtype=int)
+    # 1) initial summary (for counts) regardless of centroids
+    summary_data = cluster_summary(values, labels, centroids_map={}, frames=frames)
 
-    # Reorder centroids to match the new labeling
-    new_centroids = np.zeros_like(centroids)
-    for old_label, new_label in relabel_map.items():
-        new_centroids[new_label] = centroids[old_label]
-    centroids = new_centroids
-    
-    centroids_from_frames = np.array([values[frames == row[5]][0] if row[5] != -1 else np.full((d,), np.nan) for row in summary_data])
-    log_to_file(f"Centroids (theory):\n{centroids}", log_file)
-    log_to_file(f"Centroids (from frames):\n{centroids_from_frames}", log_file)
+    # 2) relabel only non-negative clusters by size
+    pos_rows = [row for row in summary_data if row[0] >= 0]
+    pos_rows.sort(key=lambda x: x[1], reverse=True)
+    relabel_map = {old_lab: new_lab for new_lab, (old_lab, *_) in enumerate(pos_rows)}
+    labels = np.array([relabel_map.get(int(lab), int(lab)) for lab in labels], dtype=int)
+
+    # 3) build centroids_map only for non-negative labels
+    centroids_map = {}
+    for lab in np.unique(labels):
+        if lab >= 0:
+            sel = (labels == lab)
+            if np.any(sel):
+                centroids_map[lab] = values[sel].mean(axis=0)
+
+    # 4) recompute summary with final labels and centroids_map (gives centroid_frame etc.)
+    summary_data = cluster_summary(values, labels, centroids_map, frames)
+    summary_data.sort(key=lambda x: (x[0] < 0, -x[1]))  # positives by size desc, then negatives
+
+    # 5) log centroids
+    centroids_from_frames = {}
+    for lab in np.unique(labels):
+        if lab >= 0:
+            sel = (labels == lab)
+            c = centroids_map[lab]
+            d2 = np.einsum("ij,ij->i", values[sel] - c, values[sel] - c)
+            idx = int(np.argmin(d2))
+            centroids_from_frames[lab] = values[sel][idx]
+    log_to_file("Centroids (theory):\n" + "\n".join([f"C{lab}: {centroids_map[lab]}" for lab in sorted(centroids_map)]), log_file)
+    log_to_file("Centroids (from frames):\n" + "\n".join([f"C{lab}: {centroids_from_frames[lab]}" for lab in sorted(centroids_from_frames)]), log_file)
 
     # Write outputs
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Writing outputs.", log_file)
@@ -457,17 +475,19 @@ def main():
 
     with open(f"{output_dir}/cluster.sum", "w") as f:
         f.write("#Cluster   Frames     Frac    AvgL1  StdevL1  Centroid  AvgCDist CVector\n")
-        for new_label, row in enumerate(summary_data):
-            f.write(f"{new_label:4d} {row[1]:12d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:9.3f} {row[7]}\n")
+        for row in summary_data:
+            f.write(f"{row[0]:4d} {row[1]:12d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:9.3f} {row[7]}\n")
 
-    # Plotting
+    # Plotting (skip centroid overlays for negative labels automatically)
     out_pdf = os.path.join(output_dir, "cluster.pdf")
     if d == 1:
-        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels, centroids=centroids_from_frames,
-                                        out_pdf=out_pdf, bins=args.bins, show=not args.no_show)
+        plot_timeseries_with_right_hist(frames=frames, values=values[:, 0], labels=labels,
+                                        centroids_map=centroids_from_frames, out_pdf=out_pdf,
+                                        bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved plot: {out_pdf}", log_file)
     elif d == 2:
-        plot_2d_hist_by_cluster(values[:, :2], labels, centroids_from_frames, out_pdf=out_pdf, colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
+        plot_2d_hist_by_cluster(values[:, :2], labels, centroids_from_frames, out_pdf=out_pdf,
+                                colx_idx=cols[0], coly_idx=cols[1], bins=args.bins, show=not args.no_show)
         log_to_file(f"Saved 2D histogram: {out_pdf}", log_file)
     else:
         log_to_file("Dimensionality > 2; skipping plotting.", log_file)
