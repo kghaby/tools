@@ -1,0 +1,15 @@
+# get a single frame (after clustering, say) 
+
+parm ../../../../prep/BTK_4A9_u.parm7
+
+for I=1;I<=400;I++
+    trajin ../../../prod.$I.nc
+done
+
+trajout C0.pdb    pdb     onlyframes 5891 
+trajout C1.pdb    pdb     onlyframes 96720
+trajout C2.pdb    pdb     onlyframes 76419
+trajout C3.pdb    pdb     onlyframes 97287
+trajout C4.pdb    pdb     onlyframes 56284
+trajout C5.pdb    pdb     onlyframes 91391
+run
