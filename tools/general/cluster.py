@@ -67,7 +67,15 @@ def agglomerative_clustering(data, n_clusters, linkage):
 
 def hdbscan_clustering(data, min_cluster_size, min_samples, cluster_selection_epsilon, max_cluster_size=None, cluster_selection_method="eom", leaf_size=40):
     from sklearn.cluster import HDBSCAN # heavy import
-    model = HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon, max_cluster_size=max_cluster_size, algorithm="auto", allow_single_cluster=True, store_centers="centroid", cluster_selection_method=cluster_selection_method, leaf_size=leaf_size)
+    model = HDBSCAN(min_cluster_size=min_cluster_size, 
+                    min_samples=min_samples, 
+                    cluster_selection_epsilon=cluster_selection_epsilon, 
+                    max_cluster_size=max_cluster_size, 
+                    algorithm="auto", 
+                    allow_single_cluster=True, 
+                    store_centers="centroid", 
+                    cluster_selection_method=cluster_selection_method, 
+                    leaf_size=leaf_size)
     model.fit(data)
     return model, model.centroids_, model.labels_
 
