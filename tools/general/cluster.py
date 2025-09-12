@@ -326,7 +326,7 @@ def plot_timeseries_with_right_hist(frames, values, labels, centroids_map, out_p
 
     ax.set_xlim(frames.min(), frames.max() - 1)
     ax.set_ylim(y_min, y_max)
-    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=10)
+    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=8)
     fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
     if show:
         try:
@@ -398,7 +398,7 @@ def plot_2d_hist_by_cluster(data2d, labels, centroids_map, out_pdf, colx_idx, co
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
     ax.legend(frameon=False)
-    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=10)
+    fig.suptitle(os.path.abspath(os.path.dirname(out_pdf)), fontsize=8)
     fig.savefig(out_pdf, bbox_inches="tight", format="pdf")
     if show:
         try:
