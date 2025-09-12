@@ -65,9 +65,9 @@ def agglomerative_clustering(data, n_clusters, linkage):
             inertia += (dif * dif).sum()
     return model, centroids, model.labels_, inertia
 
-def hdbscan_clustering(data, min_cluster_size, min_samples, cluster_selection_epsilon):
+def hdbscan_clustering(data, min_cluster_size, min_samples, cluster_selection_epsilon, max_cluster_size=None):
     from sklearn.cluster import HDBSCAN # heavy import
-    model = HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon, algorithm="auto", allow_single_cluster=True, store_centers="centroid")
+    model = HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon, max_cluster_size=max_cluster_size, algorithm="auto", allow_single_cluster=True, store_centers="centroid")
     model.fit(data)
     return model, model.centroids_, model.labels_
 
@@ -421,6 +421,8 @@ def parse_arguments():
     parser.add_argument("--hdbscan_min_cluster_size", type=int, default=5, help="Minimum cluster size for HDBSCAN.")
     parser.add_argument("--hdbscan_epsilon", type=float, default=0.0, help="Cluster selection epsilon for HDBSCAN.")
     parser.add_argument("--hdbscan_min_samples", type=int, default=None, help="'k' parameter in HDBSCAN. Used to calculate the distance between a point its k-th nearest neighbor; defaults to min_cluster_size if not set.")
+    parser.add_argument("--hdbscan_max_cluster_size", type=int, default=None, help="Maximum cluster size for HDBSCAN.")
+
     if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help", "help", "h"):
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -502,7 +504,7 @@ def main():
         model, centroids_scaled, labels_subset, _ = agglomerative_clustering(values_subset_scaled, n_clusters, args.linkage)
         
     elif args.method == "hdbscan":
-        model, centroids_scaled, labels_subset  = hdbscan_clustering(values_subset_scaled, args.hdbscan_min_cluster_size, args.hdbscan_min_samples, args.hdbscan_epsilon)
+        model, centroids_scaled, labels_subset  = hdbscan_clustering(values_subset_scaled, args.hdbscan_min_cluster_size, args.hdbscan_min_samples, args.hdbscan_epsilon, args.hdbscan_max_cluster_size)
         log_to_file(f"Found {len(set(labels_subset)) - (1 if -1 in labels_subset else 0)} clusters (+ noise) with HDBSCAN", log_file)
 
     # Fit labels to full dataset
