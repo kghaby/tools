@@ -1,7 +1,7 @@
 alchemical transformation with double-decoupling
 
 first
-    `python3 convert.py` (edit first to choose files)
+    `python3 convert_parm.py` (edit first to choose files)
     `./get_pdb.sh` (edit first to choose files) OR get the initial pdb some other way, like by copying from a clustering dir 
     `cp {system}/build/toppar/{ligand}.prm toppar`
     `python3 fix_atomtypes.py` (edit first to choose files)
