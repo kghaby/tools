@@ -6,6 +6,8 @@ for I=1;I<=400;I++
     trajin ../../../prod.$I.nc
 done
 
+autoimage
+
 trajout C0.pdb    pdb     onlyframes 5891 
 trajout C1.pdb    pdb     onlyframes 96720
 trajout C2.pdb    pdb     onlyframes 76419
