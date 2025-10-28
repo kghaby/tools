@@ -17,4 +17,19 @@ After running BFEE2Gui.py to generate BFEE folder
     `python3 change_run_settings.py`
     `python3 make_slurms.py`
 
-Then proceed to BFEE/000_eq and start (dont forget to center (see BFEE/Readme.txt))
+    Change the RMSD colvar definition to use symmetry in steps 000-004 colvars files
+        (may not be applicable for ligands with no symmetry)
+    Example for BTK_4A9 ligandonly:
+    rmsd {                                  
+        atoms {                             
+            atomNumbers {
+                1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 
+            }                    
+        }                                   
+        refpositionsfile  ../ligandOnly.xyz         
+        atomPermutation 1 2 3 4 5 6 7 8 9 35 11 34 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 12 10 36 
+        atomPermutation 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 30 17 18 19 20 21 22 23 24 25 26 27 28 29 16 33 32 31 34 35 36
+        atomPermutation 1 2 3 4 5 6 7 8 9 35 11 34 13 14 15 30 17 18 19 20 21 22 23 24 25 26 27 28 29 16 33 32 31 12 10 36
+    }  
+
+Then proceed to BFEE/000_eq and start (dont forget to center colvars after equilibration is done (see BFEE/Readme.txt))
