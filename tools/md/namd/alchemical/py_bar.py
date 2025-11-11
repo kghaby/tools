@@ -193,7 +193,7 @@ class NAMDParser:
 
 class NAMDParser2:
     """ parse NAMD .fepout files and get the necessary data. 
-        Alternative that returns the U and dG, useful for convergence checking.
+        Alternative that returns the dG and U in addition to dU, useful for convergence checking.
     """
     
     def __init__(self, forward_file: str, backward_file: Optional[str] = '') -> None:
@@ -214,17 +214,15 @@ class NAMDParser2:
         # List[Tuple[NDArray, NDArray]], recording the deltaU of forward of 
         # backward simulations of each window
         if not self._double_wide:
-            self._windows, self._deltaG_data, self._U_Lambda0_data, self._U_Lambda1_data = self._pair_bidirectionalData(
+            self._windows, self._deltaU_data, self._deltaG_data, self._U_Lambda0_data, self._U_Lambda1_data = self._pair_bidirectionalData(
                                                    self._read_fepout(forward_file),
                                                    self._read_fepout(backward_file)
                                                )
-        else:
-            self._windows, self._deltaG_data = self._read_double_wide_fepout(forward_file)
             
-        if len(self._windows) != len(self._deltaG_data):
+        if len(self._windows) != len(self._deltaU_data):
             raise RuntimeError('Internal numbers of windows and deltaU do not match! This is a bug!')
         
-    def _read_fepout(self, fepout_file: str) -> Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]]:
+    def _read_fepout(self, fepout_file: str) -> Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray], List[NDArray]]:
         """ Read an NAMD fepout file. Return the window and deltaU information
 
         Args:
@@ -237,6 +235,7 @@ class NAMDParser2:
         """
         
         windows = []
+        deltaU = []
         deltaG = []
         U_Lambda0 = []
         U_Lambda1 = []
@@ -253,6 +252,7 @@ class NAMDParser2:
                 
                 if line.startswith('#STARTING COLLECTION'):
                     # collecting deltaU
+                    deltaU_per_window = []
                     deltaG_per_window = []
                     U_Lambda0_per_window = []
                     U_Lambda1_per_window = []
@@ -260,22 +260,24 @@ class NAMDParser2:
                         line = input_fepout.readline()
                         if line.startswith('FepEnergy:'):
                             splitedLine = line.strip().split()
+                            deltaU_per_window.append(float(splitedLine[6]))
                             deltaG_per_window.append(float(splitedLine[9]))
                             U_Lambda0_per_window.append(float(splitedLine[2])+float(splitedLine[4]))
                             U_Lambda1_per_window.append(float(splitedLine[3])+float(splitedLine[5]))
                         else:
+                            deltaU.append(np.array(deltaU_per_window))
                             deltaG.append(np.array(deltaG_per_window))
                             U_Lambda0.append(np.array(U_Lambda0_per_window))
                             U_Lambda1.append(np.array(U_Lambda1_per_window))
                             break
                         
-        return windows, deltaG, U_Lambda0, U_Lambda1
+        return windows, deltaU, deltaG, U_Lambda0, U_Lambda1
     
     def _pair_bidirectionalData(
         self, 
-        forward_data: Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]],
-        backward_data: Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]]
-    ) -> Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]]]:
+        forward_data: Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray,], List[NDArray]],
+        backward_data: Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray], List[NDArray]]
+    ) -> Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]]]:
         """ pair data from bidirectional simulations
 
         Args:
@@ -287,7 +289,8 @@ class NAMDParser2:
                                                                              deltaU of each window of
                                                                              bidirectional simulations 
         """
-                
+
+        merged_dU = []
         merged_dG = []
         merged_U_Lambda0 = []
         merged_U_Lambda1 = []
@@ -296,16 +299,17 @@ class NAMDParser2:
             for j in range(len(backward_data[0])):
                 if forward_data[0][i][0] == backward_data[0][j][1] and \
                     forward_data[0][i][1] == backward_data[0][j][0]:
-                    merged_dG.append((forward_data[1][i], backward_data[1][j]))
-                    merged_U_Lambda0.append((forward_data[2][i], backward_data[2][j]))
-                    merged_U_Lambda1.append((forward_data[3][i], backward_data[3][j]))
+                    merged_dU.append((forward_data[1][i], backward_data[1][j]))
+                    merged_dG.append((forward_data[2][i], backward_data[2][j]))
+                    merged_U_Lambda0.append((forward_data[3][i], backward_data[3][j]))
+                    merged_U_Lambda1.append((forward_data[4][i], backward_data[4][j]))
                     break
             else:
                 raise RuntimeError('Error! the forward and backward files do not match!')
 
-        return forward_data[0], merged_dG, merged_U_Lambda0, merged_U_Lambda1
+        return forward_data[0], merged_dU, merged_dG, merged_U_Lambda0, merged_U_Lambda1
 
-    def get_data(self) -> Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]]]:
+    def get_data(self) -> Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]]]:
         """ return the boundary and deltaU of each window
 
         Returns:
@@ -314,7 +318,7 @@ class NAMDParser2:
                                                                              bidirectional simulations 
         """
         
-        return self._windows, self._deltaG_data, self._U_Lambda0_data, self._U_Lambda1_data
+        return self._windows, self._deltaU_data, self._deltaG_data, self._U_Lambda0_data, self._U_Lambda1_data
 
 class FEPAnalyzer:
     """ Analyze FEP simulations
