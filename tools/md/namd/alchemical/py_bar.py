@@ -191,6 +191,131 @@ class NAMDParser:
         
         return self._windows, self._deltaU_data
 
+class NAMDParser2:
+    """ parse NAMD .fepout files and get the necessary data. 
+        Alternative that returns the U and dG, useful for convergence checking.
+    """
+    
+    def __init__(self, forward_file: str, backward_file: Optional[str] = '') -> None:
+        """ Read NAMD .fepout files. The end-user can either provide the bidirectional 
+            .fepout files, or provide an .fepout file of the double-wide FEP simulation
+
+        Args:
+            forward_file (str): the fepout file for forward or double-wide simulation 
+            backward_file (Optional[str], optional): the fepout file for backward simulation.
+                                                     Defaults to ''.
+        """
+        
+        self._double_wide = False
+        if (backward_file == '') or (backward_file is None):
+            self._double_wide = True
+        
+        # List[Tuple[float, float]], recording the boundaries of each window
+        # List[Tuple[NDArray, NDArray]], recording the deltaU of forward of 
+        # backward simulations of each window
+        if not self._double_wide:
+            self._windows, self._deltaG_data, self._U_Lambda0_data, self._U_Lambda1_data = self._pair_bidirectionalData(
+                                                   self._read_fepout(forward_file),
+                                                   self._read_fepout(backward_file)
+                                               )
+        else:
+            self._windows, self._deltaG_data = self._read_double_wide_fepout(forward_file)
+            
+        if len(self._windows) != len(self._deltaG_data):
+            raise RuntimeError('Internal numbers of windows and deltaU do not match! This is a bug!')
+        
+    def _read_fepout(self, fepout_file: str) -> Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]]:
+        """ Read an NAMD fepout file. Return the window and deltaU information
+
+        Args:
+            fepout_file (str): the path of the fepout file
+
+        Returns:
+            Tuple[List[Tuple[float, float]], List[NDArray]]: List[Tuple[float, float]], recording 
+                                                             the boundaries of each window, and
+                                                             List[NDArray], recording the deltaU
+        """
+        
+        windows = []
+        deltaG = []
+        U_Lambda0 = []
+        U_Lambda1 = []
+        with open(fepout_file, 'r') as input_fepout:
+            while True:
+                line = input_fepout.readline()
+                if not line:
+                    break
+                
+                if line.startswith('#NEW FEP WINDOW:'):
+                    splitedLine = line.strip().split()
+                    windows.append((float(splitedLine[6]), float(splitedLine[8])))
+                    continue
+                
+                if line.startswith('#STARTING COLLECTION'):
+                    # collecting deltaU
+                    deltaG_per_window = []
+                    U_Lambda0_per_window = []
+                    U_Lambda1_per_window = []
+                    while True:
+                        line = input_fepout.readline()
+                        if line.startswith('FepEnergy:'):
+                            splitedLine = line.strip().split()
+                            deltaG_per_window.append(float(splitedLine[9]))
+                            U_Lambda0_per_window.append(float(splitedLine[2])+float(splitedLine[4]))
+                            U_Lambda1_per_window.append(float(splitedLine[3])+float(splitedLine[5]))
+                        else:
+                            deltaG.append(np.array(deltaG_per_window))
+                            U_Lambda0.append(np.array(U_Lambda0_per_window))
+                            U_Lambda1.append(np.array(U_Lambda1_per_window))
+                            break
+                        
+        return windows, deltaG, U_Lambda0, U_Lambda1
+    
+    def _pair_bidirectionalData(
+        self, 
+        forward_data: Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]],
+        backward_data: Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]]
+    ) -> Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]]]:
+        """ pair data from bidirectional simulations
+
+        Args:
+            forward_data (Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]]): data from forward simulation
+            backward_data (Tuple[List[Tuple[float, float]], List[NDArray], List[NDArray], List[NDArray]]): data from backward simulation
+        
+        Returns:
+            Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]]]: recording the boundary and 
+                                                                             deltaU of each window of
+                                                                             bidirectional simulations 
+        """
+                
+        merged_dG = []
+        merged_U_Lambda0 = []
+        merged_U_Lambda1 = []
+        
+        for i in range(len(forward_data[0])):
+            for j in range(len(backward_data[0])):
+                if forward_data[0][i][0] == backward_data[0][j][1] and \
+                    forward_data[0][i][1] == backward_data[0][j][0]:
+                    merged_dG.append((forward_data[1][i], backward_data[1][j]))
+                    merged_U_Lambda0.append((forward_data[2][i], backward_data[2][j]))
+                    merged_U_Lambda1.append((forward_data[3][i], backward_data[3][j]))
+                    break
+            else:
+                raise RuntimeError('Error! the forward and backward files do not match!')
+
+        return forward_data[0], merged_dG, merged_U_Lambda0, merged_U_Lambda1
+
+    def get_data(self) -> Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]], List[Tuple[NDArray, NDArray]]]:
+        """ return the boundary and deltaU of each window
+
+        Returns:
+            Tuple[List[Tuple[float, float]], List[Tuple[NDArray, NDArray]]]: recording the boundary and 
+                                                                             deltaU of each window of
+                                                                             bidirectional simulations 
+        """
+        
+        return self._windows, self._deltaG_data, self._U_Lambda0_data, self._U_Lambda1_data
+
 class FEPAnalyzer:
     """ Analyze FEP simulations
     """
