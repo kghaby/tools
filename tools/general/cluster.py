@@ -217,12 +217,12 @@ def label_full_data(model, method, full_data, subset_data=None, subset_labels=No
             clf.fit(subset_data, subset_labels)
             return clf.predict(full_data)
     
-def _pairwise_l1_stats(cluster_data):
-    # compute L1 distances to the cluster mean
+def _pairwise_l2_stats(cluster_data):
+    # compute L2 mean/stdev (Euclidean) to the cluster mean
     if len(cluster_data) <= 1:
         return 0.0, 0.0
     mu = cluster_data.mean(axis=0, keepdims=True)
-    d = np.abs(cluster_data - mu).sum(axis=1)
+    d = np.linalg.norm(cluster_data - mu, axis=1)
     return float(d.mean()), float(d.std(ddof=1))
 
 def cluster_summary(data, labels, centroids_map, frames):
@@ -240,7 +240,7 @@ def cluster_summary(data, labels, centroids_map, frames):
         cluster_data = data[sel]
         n_cluster_frames = cluster_data.shape[0]
         fraction = n_cluster_frames / n_frames
-        mean_distance, stdev = _pairwise_l1_stats(cluster_data)
+        mean_distance, stdev = _pairwise_l2_stats(cluster_data)
 
         centroid_frame = -1
         centroid_value_str = "NA"
@@ -256,10 +256,10 @@ def cluster_summary(data, labels, centroids_map, frames):
                 centroid_frame = -1
                 centroid_value_str = "NA"
 
-        # AvgCDist: mean L1 distance to other clusters mean
+        # AvgCDist: mean L2 distance to other clusters mean
         other = data[~sel]
         if other.size:
-            avg_cdist = float(np.abs(cluster_data.mean(axis=0) - other.mean(axis=0)).sum())
+            avg_cdist = float(np.linalg.norm(cluster_data.mean(axis=0) - other.mean(axis=0)))
         else:
             avg_cdist = float("nan")
 
@@ -267,8 +267,8 @@ def cluster_summary(data, labels, centroids_map, frames):
             int(lab),                        # Cluster label (can be -1/-2/-3)
             int(n_cluster_frames),           # Frames
             float(fraction),                 # Frac
-            float(mean_distance),            # AvgL1
-            float(stdev),                    # StdevL1
+            float(mean_distance),            # AvgL2
+            float(stdev),                    # StdevL2
             int(centroid_frame),             # Centroid frame id or -1
             float(avg_cdist),                # AvgCDist
             centroid_value_str               # CVector
@@ -515,6 +515,8 @@ def main():
         model, centroids_scaled, labels_subset, _ = agglomerative_clustering(values_subset_scaled, n_clusters, args.linkage)
         
     elif args.method == "hdbscan":
+        if n_clusters != None:
+            log_to_file("WARNING: n_clusters is set but will be ignored for HDBSCAN.", log_file)
         model, centroids_scaled, labels_subset  = hdbscan_clustering(values_subset_scaled, args.hdbscan_min_cluster_size, args.hdbscan_min_samples, 
                                                                      args.hdbscan_epsilon, max_cluster_size=args.hdbscan_max_cluster_size, 
                                                                      cluster_selection_method=args.hdbscan_cluster_selection_method, 
@@ -566,22 +568,38 @@ def main():
     log_to_file("Centroids (theory):\n" + "\n".join([f"C{lab}: {centroids_map[lab]}" for lab in sorted(centroids_map)]), log_file)
     log_to_file("Centroids (from frames):\n" + "\n".join([f"C{lab}: {centroids_from_frames[lab]}" for lab in sorted(centroids_from_frames)]), log_file)
 
+    # per-frame distance to centroid in original units 
+    distances = np.full(len(values), np.nan, dtype=float)
+    for lab, c in centroids_map.items():
+        sel = (labels == lab)
+        if np.any(sel):
+            dif = values[sel] - c
+            distances[sel] = np.linalg.norm(dif, axis=1)
+            
     # Write outputs
     log_to_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Writing outputs.", log_file)
     with open(f"{output_dir}/cluster.all.dat", "w") as f:
-        f.write("#Frame " + " ".join([f"Col{j}" for j in range(d)]) + " Cluster\n")
-        for frame, row, lab in zip(frames, values, labels):
-            f.write(f"{int(frame)} " + " ".join(f"{v:.6f}" for v in row) + f" {int(lab)}\n")
+        f.write("#Frame  " + " ".join([f"Col{j}".rjust(11) for j in cols]) + " Cluster DistFromCent\n")
+        for frame, row, lab, dist in zip(frames, values, labels, distances):
+            f.write(
+                f"{str(int(frame)).ljust(7)} "
+                + " ".join(f"{v:11.6f}" for v in row)
+                + f" {str(int(lab)).rjust(7)} {dist:12.6f}\n"
+            )
 
     for unique_label in np.unique(labels):
         with open(f"{output_dir}/cluster.c{int(unique_label)}.dat", "w") as f:
-            f.write("#Frame " + " ".join([f"Col{j}" for j in cols]) + " Cluster\n")
+            f.write("#Frame  " + " ".join([f"Col{j}".rjust(11) for j in cols]) + " Cluster DistFromCent\n")
             sel = (labels == unique_label)
-            for frame, row, lab in zip(frames[sel], values[sel], labels[sel]):
-                f.write(f"{int(frame)} " + " ".join(f"{v:.6f}" for v in row) + f" {int(lab)}\n")
+            for frame, row, lab, dist in zip(frames[sel], values[sel], labels[sel], distances[sel]):
+                f.write(
+                    f"{str(int(frame)).ljust(7)} "
+                    + " ".join(f"{v:11.6f}" for v in row)
+                    + f" {str(int(lab)).rjust(7)} {dist:12.6f}\n"
+                )
 
     with open(f"{output_dir}/cluster.sum", "w") as f:
-        f.write("#Cluster   Frames     Frac    AvgL1  StdevL1  Centroid  AvgCDist CVector\n")
+        f.write("#Cluster   Frames     Frac    AvgL2  StdevL2  Centroid  AvgCDist CVector\n")
         for row in summary_data:
             f.write(f"{row[0]:4d} {row[1]:12d} {row[2]:8.3f} {row[3]:8.3f} {row[4]:8.3f} {row[5]:9d} {row[6]:9.3f} {row[7]}\n")
 
