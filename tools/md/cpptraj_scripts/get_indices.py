@@ -4,27 +4,25 @@ from pathlib import Path
 from collections import OrderedDict
 
 
-def run_cpptraj_for_waters(
+def run_cpptraj(
     parm: Path,
     coords: Path,
+    mask: str,
     cpptraj_cmd: str = "cpptraj",
-    cutoff: float = 5.5,
-    out_prefix: str = "waters_within_5p5A",
+    out_prefix: str = "mask",
 ) -> Path:
     """
-    Run cpptraj to select all WAT atoms within <cutoff> Å of :91@SG or :4A9@C1,C15.
-    Returns path to cpptraj maskout file.
+    Run cpptraj to get mask details specified by <mask>.
     """
     parm = Path(parm)
     coords = Path(coords)
     out_dat = Path(f"{out_prefix}.dat")
 
     # cpptraj maskout format: "#Frame AtomNum Atom ResNum Res MolNum"
-    # distance-based mask follows AmberHub syntax: (<ref mask><:cutoff)&:WAT
     cpptraj_in = f"""parm {parm}
 trajin {coords} 1 1 1
 autoimage
-mask "((:91@SG,:4A9@C1,:4A9@C15)<:{cutoff})&:WAT" maskout {out_dat}
+mask "{mask}" maskout {out_dat}
 run
 quit
 """
@@ -39,11 +37,11 @@ quit
     return out_dat
 
 
-def parse_waters_maskout(maskout_path: Path):
+def parse_maskout(maskout_path: Path):
     """
     Parse cpptraj maskout file and return:
-      - sorted unique water residue indices
-      - sorted unique atom indices for those waters
+      - sorted unique residue indices
+      - sorted unique atom indices
     """
     maskout_path = Path(maskout_path)
     res_ids = OrderedDict()
@@ -61,8 +59,6 @@ def parse_waters_maskout(maskout_path: Path):
             atom_num = int(parts[1])
             res_num = int(parts[3])
             res_name = parts[4]
-            if res_name != "WAT":
-                continue
             res_ids[res_num] = None
             atom_ids[atom_num] = None
 
@@ -74,22 +70,23 @@ def parse_waters_maskout(maskout_path: Path):
 def main():
     parm = Path("BTK_4A9_l.parm7")
     coords = Path("qmmm_init.rst7")
+    mask = "((:91@SG,:4A9@C1,:4A9@C15)<:5.5)&:WAT"
 
-    maskout = run_cpptraj_for_waters(parm, coords)
+    maskout = run_cpptraj(parm, coords, mask)
 
-    res_list, atom_list = parse_waters_maskout(maskout)
+    res_list, atom_list = parse_maskout(maskout)
 
     res_csv = ",".join(str(r) for r in res_list)
     atom_csv = ",".join(str(a) for a in atom_list)
 
-    print("Water residue indices:")
+    print("Residue indices:")
     print(res_csv)
-    print("\nWater atom indices:")
+    print("\nAtom indices:")
     print(atom_csv)
     
-    print("\nWater residue indices for VMD (0-based):")
+    print("\nResidue indices for VMD (0-based):")
     print(" ".join(str(r - 1) for r in res_list))
-    print("\nWater atom indices for VMD (0-based):")
+    print("\nAtom indices for VMD (0-based):")
     print(" ".join(str(a - 1) for a in atom_list))
 
 
