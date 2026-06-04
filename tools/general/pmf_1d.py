@@ -9,7 +9,6 @@ import sys
 
 # Constants
 KB = 0.0019872041  # Boltzmann constant in kcal/(mol*K)
-TEMP = 310  # Temperature in K
 
 def load_data(path):
     try:
@@ -34,6 +33,7 @@ def get_label(path1):
 def main(args):
     print("Loading data...")
     x = load_data(args.x_data)
+    TEMP = args.temp
 
     print("Calculating PMF...")
     try:
@@ -69,6 +69,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='1D PMF plotter.')
     parser.add_argument('x_data', type=Path, help='Path to x data. Loads second column.')
+    parser.add_argument('--temp', type=float, default=300, help='Temperature (K)')
     parser.add_argument('--x_xtal', type=Path, help='Optional path to x xtal data.')
     parser.add_argument('--x_range', nargs=2, type=float, default=None, help='Optional x range.')
     args = parser.parse_args()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# make T an argument
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +9,6 @@ import sys
 
 # Constants
 KB = 0.0019872041  # Boltzmann constant in kcal/(mol*K)
-TEMP = 310  # Temperature in K
 
 def load_data(path):
     try:
@@ -35,6 +35,7 @@ def main(args):
     print("Loading data...")
     x = load_data(args.x_data)
     y = load_data(args.y_data)
+    TEMP = args.temp
 
     print("Calculating PMF...")
     try:
@@ -76,6 +77,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='2D PMF plotter.')
     parser.add_argument('x_data', type=Path, help='Path to x data.')
     parser.add_argument('y_data', type=Path, help='Path to y data.')
+    parser.add_argument('--temp', type=float, default=300, help='Temperature (K)')
     parser.add_argument('--x_xtal', type=Path, help='Optional path to x xtal data.')
     parser.add_argument('--y_xtal', type=Path, help='Optional path to y xtal data.')
     parser.add_argument('--x_range', nargs=2, type=float, default=None, help='Optional x range.')
